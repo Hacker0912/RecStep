@@ -1,6 +1,23 @@
 # RecStep
 
-The repo contains the code of **[RecStep](http://www.vldb.org/pvldb/vol12/p695-fan.pdf)**, a reasearch Datalog engine prototype built on top of a parallel single-node relational system **[Quickstep](http://www.vldb.org/pvldb/vol11/p663-patel.pdf)**. 
+The repo contains the code of **RecStep** which was described in the PVLDB 2019 paper http://www.vldb.org/pvldb/vol12/p695-fan.pdf , a reasearch Datalog engine prototype built on top of a parallel single-node relational system **[Quickstep](http://www.vldb.org/pvldb/vol11/p663-patel.pdf)**. If you find RecStep useful in your research, please consider citing:
+
+    @article{10.14778/3311880.3311886,
+    author = {Fan, Zhiwei and Zhu, Jianqiao and Zhang, Zuyu and Albarghouthi, Aws and Koutris, Paraschos and Patel, Jignesh M.},
+    title = {Scaling-up in-Memory Datalog Processing: Observations and Techniques},
+    year = {2019},
+    issue_date = {February 2019},
+    publisher = {VLDB Endowment},
+    volume = {12},
+    number = {6},
+    issn = {2150-8097},
+    url = {https://doi.org/10.14778/3311880.3311886},
+    doi = {10.14778/3311880.3311886},
+    journal = {Proc. VLDB Endow.},
+    month = feb,
+    pages = {695–708},
+    numpages = {14}
+    }
 
 **Note:** The following set-up steps have been specifically tested on *Ubuntu 18.04.1 LTS*. And thus we recommend using *Ubuntu 18.04.1 LTS* as your testbed OS if you want to play with RecStep. It should also be feasible to set-up the RecStep backend on Ubuntu of other versions (e.g., 14.04, 16.04), but it may require a little bit more efforts as configuring the corresponding dependencies as required in Ubuntu of different versions might be slighly different. 
 
@@ -55,3 +72,4 @@ python3 interpreter.py ./benchmark_datalog_programs/tc.datalog
 ```
 
 **Note:** Parallel Bit-Matrix Evaluation (PBME) has not been intergrated into the RecStep compiler yet. PBME has been designed/implemented specifically for the "dense graph" computation to prove its efficiency on the cases in which the size of input graph is relatively small in terms of number of vertices but the intermediate results are huge. We currently support PBME on *Transitive Closure (tc)* and *Same Generation (sg)* as stated in the paper, the evaluation of which will be available soon. 
+
