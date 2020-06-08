@@ -1,0 +1,12 @@
+EDB_DECL:
+arc(x int, y int, z int)
+
+IDB_DECL:
+sssp2(x int, y int)
+sssp(x int, y int)
+
+RULE_DECL:
+sssp2(1, 0) :-.
+sssp2(y, MIN(d1+d2)) :- sssp2(x, d1), arc(x, y, d2).
+sssp(x, MIN(d)) :- sssp2(x, d).
+

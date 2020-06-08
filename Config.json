@@ -1,0 +1,24 @@
+{
+        "QuickStep_Shell_Dir": "/fastdisk/local/quickstep-datalog/build",
+        "Input_Dir": "./Input",
+        "Logging": {
+                "logging_directory": "./log",
+                "log": false
+        },
+        "Debug": {
+                "static_debug": false,
+                "dynamic_debug": false,
+                "dynamic_debug_iter_num": 1,
+                "cost_model_check": false,
+                "interpret": true
+        },
+        "Optimization": {
+                "analyzer_level": "minimum",
+                "dynamic_set_diff": true,
+                "default_set_diff_alg": 2
+        },
+        "Parameters": {
+                "threads_num": 40,
+                "block_size": 262144
+        }
+}

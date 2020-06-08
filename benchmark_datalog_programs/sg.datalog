@@ -1,0 +1,9 @@
+EDB_DECL:
+arc(x int, y int)
+
+IDB_DECL:
+sg(x int, y int)
+
+RULE_DECL:
+sg(x, y) :- arc(p, x), arc(p, y), x != y.
+sg(x, y) :- arc(a, x), sg(a, b), arc(b, y).

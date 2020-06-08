@@ -1,0 +1,9 @@
+EDB_DECL:
+arc(x int, y int)
+
+IDB_DECL:
+reach(x int)
+
+RULE_DECL:
+reach(1) :-.
+reach(y) :- reach(x), arc(x,y).
