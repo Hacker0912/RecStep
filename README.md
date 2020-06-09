@@ -71,5 +71,13 @@ For this specific example, you should run the command:
 python3 interpreter.py ./benchmark_datalog_programs/tc.datalog
 ```
 
+5. Check your results directly using the interactive quickstep shell:
+One of the advantage of RecStep is that after running your program, you can look at your results and may perform further 
+analysis using by running familiar SQL queries! To enter the quickstep shell in the interactive mode, run the command:
+``` bash
+python3 quickstep_shell.py --mode interactive
+```
+command "\d" could be used to list all the tables in the current quickstep database instance. The "qsstor" folder contains all the data files of the current database instance. More details regarding the use of quickstep can be found at **[Quickstep](https://github.com/apache/incubator-retired-quickstep)**. If you encounter other issues when using RecStep or the quickstep shell, you could send an email to zhiwei@cs.wisc.edu for more help and we will get back to you at our earliest convenience.
+
 **Note:** Parallel Bit-Matrix Evaluation (PBME) has not been intergrated into the RecStep compiler yet. PBME has been designed/implemented specifically for the "dense graph" computation to prove its efficiency on the cases in which the size of input graph is relatively small in terms of number of vertices but the intermediate results are huge. We currently support PBME on *Transitive Closure (tc)* and *Same Generation (sg)* as stated in the paper, the evaluation of which will be available soon. 
 
