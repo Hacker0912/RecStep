@@ -6,4 +6,5 @@ IDB_DECL:
 null(src int, dest int)
 
 RULE_DECL:
-null(x, y)
+null(x, y) :- nullEdge(x, y).
+null(x, y) :- null(x, w), arc(w, y).
