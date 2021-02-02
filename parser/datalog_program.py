@@ -53,9 +53,7 @@ def iterate_datalog_rule(datalog_rule):
 
     head_str = head_name + '('
     for arg in head_arg_list:
-        if arg.type != 'aggregation':
-            head_str += arg.name + ', '
-        else:
+        if arg.type == 'aggregation':
             head_str += arg.name['agg_op'] + '('
             if arg.name['agg_arg']['type'] == 'attribute':
                 head_str += arg.name['agg_arg']['content']
@@ -63,6 +61,10 @@ def iterate_datalog_rule(datalog_rule):
                 head_str += arg.name['agg_arg']['content']['lhs'] +\
                             arg.name['agg_arg']['content']['op'] + arg.name['agg_arg']['content']['rhs']
             head_str += ')' + ', '
+        elif arg.type == 'math_expr':
+            head_str += arg.name['lhs'] + arg.name['op'] + arg.name['rhs'] + ', '
+        else:
+            head_str += arg.name + ', '
 
     head_str = head_str[:len(head_str)-2] + ')'
 

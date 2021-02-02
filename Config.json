@@ -3,7 +3,14 @@
         "Input_Dir": "./Input",
         "Logging": {
                 "logging_directory": "./log",
-                "log": false
+                "log": false,
+                "logging_level": {
+                        "stdout": true,
+                        "info_log": true
+                }
+        },
+        "QuickStep": {
+                "csv_delimiter": ","
         },
         "Debug": {
                 "static_debug": false,

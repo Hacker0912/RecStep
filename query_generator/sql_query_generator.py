@@ -51,8 +51,8 @@ def generate_select(datalog_rule, select_info, relation_def_map, body_atom_alias
             body_atom_attribute_index = attributes_map[attribute_index][1]
             body_atom_name_index = attributes_map[attribute_index][0]
             select_str += body_atom_alias_list[body_atom_name_index] + '.' + \
-                          relation_def_map[body_atom_list[body_atom_name_index]['name']][0]['attributes']\
-                          [body_atom_attribute_index].name
+                          relation_def_map[body_atom_list[body_atom_name_index]['name']][0]['attributes'] \
+                              [body_atom_attribute_index].name
 
         if attributes_type_map[attribute_index] == 'agg':
             select_str += aggregation_map[attribute_index] + '('
@@ -60,8 +60,8 @@ def generate_select(datalog_rule, select_info, relation_def_map, body_atom_alias
                 body_atom_attribute_index = attributes_map[attribute_index]['map'][1]
                 body_atom_name_index = attributes_map[attribute_index]['map'][0]
                 select_str += body_atom_alias_list[body_atom_name_index] + '.' + \
-                              relation_def_map[body_atom_list[body_atom_name_index]['name']][0]['attributes']\
-                              [body_atom_attribute_index].name
+                              relation_def_map[body_atom_list[body_atom_name_index]['name']][0]['attributes'] \
+                                  [body_atom_attribute_index].name
             elif attributes_map[attribute_index]['type'] == 'math_expr':
                 lhs_body_atom_attribute_index = attributes_map[attribute_index]['lhs_map'][1]
                 lhs_body_atom_name_index = attributes_map[attribute_index]['lhs_map'][0]
@@ -69,13 +69,26 @@ def generate_select(datalog_rule, select_info, relation_def_map, body_atom_alias
                 rhs_body_atom_name_index = attributes_map[attribute_index]['rhs_map'][0]
                 math_op = attributes_map[attribute_index]['math_op']
                 select_str += body_atom_alias_list[lhs_body_atom_name_index] + '.' + \
-                              relation_def_map[body_atom_list[lhs_body_atom_name_index]['name']][0]['attributes']\
-                              [lhs_body_atom_attribute_index].name + math_op + \
+                              relation_def_map[body_atom_list[lhs_body_atom_name_index]['name']][0]['attributes'] \
+                                  [lhs_body_atom_attribute_index].name + math_op + \
                               body_atom_alias_list[rhs_body_atom_name_index] + '.' + \
-                              relation_def_map[body_atom_list[rhs_body_atom_name_index]['name']][0]['attributes']\
-                              [rhs_body_atom_attribute_index].name
+                              relation_def_map[body_atom_list[rhs_body_atom_name_index]['name']][0]['attributes'] \
+                                  [rhs_body_atom_attribute_index].name
 
             select_str += ')'
+
+        if attributes_type_map[attribute_index] == 'math_expr':
+            lhs_body_atom_attribute_index = attributes_map[attribute_index]['lhs_map'][1]
+            lhs_body_atom_name_index = attributes_map[attribute_index]['lhs_map'][0]
+            rhs_body_atom_attribute_index = attributes_map[attribute_index]['rhs_map'][1]
+            rhs_body_atom_name_index = attributes_map[attribute_index]['rhs_map'][0]
+            math_op = attributes_map[attribute_index]['math_op']
+            select_str += body_atom_alias_list[lhs_body_atom_name_index] + '.' + \
+                          relation_def_map[body_atom_list[lhs_body_atom_name_index]['name']][0]['attributes'] \
+                              [lhs_body_atom_attribute_index].name + math_op + \
+                          body_atom_alias_list[rhs_body_atom_name_index] + '.' + \
+                          relation_def_map[body_atom_list[rhs_body_atom_name_index]['name']][0]['attributes'] \
+                              [rhs_body_atom_attribute_index].name
 
         if attributes_type_map[attribute_index] == 'constant':
             select_str += attributes_map[attribute_index]
@@ -160,7 +173,7 @@ def generate_compare_str(comparison_map, original_body_atom_list, body_atom_alia
                                        compare_op + ' ' + atom_alias + '.' + atom_attribute + \
                                        ' AND '
 
-    compare_str = compare_str[:len(compare_str)-5]
+    compare_str = compare_str[:len(compare_str) - 5]
     return compare_str
 
 
@@ -212,7 +225,7 @@ def generate_constant_constraint_str(constant_constraint_map, body, body_atom_al
 
             constant_constraint_str += ' AND '
 
-    constant_constraint_str = constant_constraint_str[:len(constant_constraint_str)-5]
+    constant_constraint_str = constant_constraint_str[:len(constant_constraint_str) - 5]
 
     return constant_constraint_str
 
@@ -237,7 +250,7 @@ def generate_negation_str(negation_info, original_body_atom_list, negation_atom_
             negation_atom_variable_map = negation_atom_map['var']
         if len(negation_atom_constant_map) > 0 or len(negation_atom_variable_map) > 0:
             negation_str += 'NOT EXISTS (SELECT * FROM ' + \
-                             negation_atom_name + ' ' + negation_atom_alias + \
+                            negation_atom_name + ' ' + negation_atom_alias + \
                             ' WHERE '
         else:
             continue
@@ -268,9 +281,9 @@ def generate_negation_str(negation_info, original_body_atom_list, negation_atom_
 
                     negation_str += ' AND '
 
-        negation_str = negation_str[:len(negation_str)-5] + ')' + ' AND '
+        negation_str = negation_str[:len(negation_str) - 5] + ')' + ' AND '
 
-    negation_str = negation_str[:len(negation_str)-5]
+    negation_str = negation_str[:len(negation_str) - 5]
 
     return negation_str
 
@@ -292,7 +305,7 @@ def generate_group_by_str(head_relation_attributes, aggregation_map):
         if attri_index not in aggregation_map:
             group_by_str += head_relation_attributes[attri_index].name + ', '
 
-    group_by_str = group_by_str[:len(group_by_str)-2]
+    group_by_str = group_by_str[:len(group_by_str) - 2]
 
     return group_by_str
 
@@ -345,7 +358,7 @@ def generate_intersect_str(l_table, r_table, aggregation_map, sub_query=False):
     for i in range(l_table_attri_num):
         if i != aggregation_attri_index:
             intersection_str += l_table_name + '.' + l_table_attributes[i][0] + ' = ' + \
-                                    r_table_name + '.' + r_table_attributes[i][0]
+                                r_table_name + '.' + r_table_attributes[i][0]
         else:
             if aggregation_op == 'MIN':
                 compare_op = ' >= '
@@ -383,6 +396,3 @@ def generate_set_diff_str(l_table, r_table, dest_table, aggregation_map):
                    generate_intersect_str(l_table, r_table, aggregation_map, sub_query=True) + ')'
 
     return set_diff_str
-
-
-

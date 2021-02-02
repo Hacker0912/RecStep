@@ -23,7 +23,10 @@ DYNAMIC_DEBUG = config['Debug']['dynamic_debug']
 DYNAMIC_DEBUG_ITER_NUM = config['Debug']['dynamic_debug_iter_num']
 COST_MODEL_CHECK = config['Debug']['cost_model_check']
 INTERPRET = config['Debug']['interpret']
-
+###########################
+# File Parsing Parameters #
+###########################
+CSV_DELIMITER = config['QuickStep']['csv_delimiter']
 ######################
 # Optimization Flags #
 ######################
@@ -95,14 +98,14 @@ def create_table_from_relation(quickstep_shell_instance, relation, table_name=''
     return table
 
 
-def populate_data_into_edb(quickstep_shell_instance, relation):
+def populate_data_into_edb(quickstep_shell_instance, relation, delimiter=','):
     """
     Given the data structure storing the information of the relation, load the data into the
     created table from the file given under the specified path ./Input/relation.tbl
     """
     table_name = relation['name']
     input_file_name = config['Input_Dir'] + '/' + table_name + '.csv'
-    quickstep_shell_instance.load_data_from_file(table_name, input_file_name, ',')
+    quickstep_shell_instance.load_data_from_file(table_name, input_file_name, delimiter)
 
 
 def load_data_from_table(quickstep_shell_instance, src_table, dest_table):
@@ -1005,6 +1008,7 @@ def interpret(input_datalog_program_file):
                                     catalog, datalog_rule, relation_def_map)
             if LOG_ON:
                 log_info_time(lpa_logger, time_monitor.local_elapse_time(), time_descrip='Rule Evaluation Time')
+                update_time(time_monitor)
                 log_info(lpa_logger, '#####SEPERATOR#####\n')
         else:
             log_info(lpa_logger, '>>>>Evaluating Recursive Rules<<<<<')

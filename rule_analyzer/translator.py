@@ -105,9 +105,9 @@ def extract_negation_map(body):
     body_negation_list = body['negations']
     body_negation_num = len(body_negation_list)
 
-    negation_map = {}
+    negation_map = dict()
     # <key, value>: <negation atom index, <arg index, <body atom index, atom arg index> > >
-    anti_join_map = {}
+    anti_join_map = dict()
     for negation_index in range(body_negation_num):
         cur_body_negation = body_negation_list[negation_index]
         cur_body_negation_name = cur_body_negation['name']
@@ -200,9 +200,9 @@ def extract_selection_info(datalog_rule):
     # map attributes of the head to the position of the corresponding attribute in the body
     attributes_map = collections.OrderedDict({})
     # map attributes of the head to the specific type (e.g., variable, aggregation)
-    attributes_type_map = []
+    attributes_type_map = list()
     # map the aggregation attributes of the head to the specific aggregation operator
-    aggregation_map = {}
+    aggregation_map = dict()
 
     def search_attribute_mapping_in_body_atoms(arg_name):
         for atom_index in range(body_atom_num):
@@ -239,6 +239,18 @@ def extract_selection_info(datalog_rule):
                 attributes_map[head_arg_index] = \
                     {'type': 'math_expr', 'lhs_map': lhs_attribute_mapping,
                      'rhs_map': rhs_attribute_mapping, 'math_op': math_op}
+
+        elif cur_head_arg.type == 'math_expr':
+            attributes_type_map.append('math_expr')
+            math_expr = cur_head_arg.name
+            lhs_attri_name = math_expr['lhs']
+            rhs_attri_name = math_expr['rhs']
+            math_op = math_expr['op']
+            lhs_attribute_mapping = search_attribute_mapping_in_body_atoms(lhs_attri_name)
+            rhs_attribute_mapping = search_attribute_mapping_in_body_atoms(rhs_attri_name)
+            attributes_map[head_arg_index] = \
+                {'type': 'math_expr', 'lhs_map': lhs_attribute_mapping,
+                 'rhs_map': rhs_attribute_mapping, 'math_op': math_op}
 
         elif cur_head_arg.type == 'constant':
             attributes_type_map.append('constant')
@@ -326,7 +338,7 @@ def extract_join_info(datalog_rule):
                         if atom_index_tobe_checked not in arg_relation_map[cur_atom_arg_name]:
                             arg_relation_map[cur_atom_arg_name][atom_index_tobe_checked] = set([])
                         arg_relation_map[cur_atom_arg_name][atom_index_tobe_checked].add(atom_arg_tobe_checked_index)
-                        
+
     return arg_relation_map
 
 
