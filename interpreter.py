@@ -98,7 +98,7 @@ def create_table_from_relation(quickstep_shell_instance, relation, table_name=''
     return table
 
 
-def populate_data_into_edb(quickstep_shell_instance, relation, delimiter=','):
+def populate_data_into_edb(quickstep_shell_instance, relation, delimiter=CSV_DELIMITER):
     """
     Given the data structure storing the information of the relation, load the data into the
     created table from the file given under the specified path ./Input/relation.tbl
