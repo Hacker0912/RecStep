@@ -55,7 +55,10 @@ def generate_select(datalog_rule, select_info, relation_def_map, body_atom_alias
                               [body_atom_attribute_index].name
 
         if attributes_type_map[attribute_index] == 'agg':
-            select_str += aggregation_map[attribute_index] + '('
+            if aggregation_map[attribute_index] == 'COUNT_DISTINCT':
+                select_str += 'COUNT(DISTINCT('
+            else:
+                select_str += aggregation_map[attribute_index] + '('
             if attributes_map[attribute_index]['type'] == 'attribute':
                 body_atom_attribute_index = attributes_map[attribute_index]['map'][1]
                 body_atom_name_index = attributes_map[attribute_index]['map'][0]
@@ -76,6 +79,8 @@ def generate_select(datalog_rule, select_info, relation_def_map, body_atom_alias
                                   [rhs_body_atom_attribute_index].name
 
             select_str += ')'
+            if aggregation_map[attribute_index] == 'COUNT_DISTINCT':
+                select_str += ')'
 
         if attributes_type_map[attribute_index] == 'math_expr':
             lhs_body_atom_attribute_index = attributes_map[attribute_index]['lhs_map'][1]

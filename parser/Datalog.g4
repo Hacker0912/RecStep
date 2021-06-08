@@ -128,6 +128,7 @@ compare_expr returns [r]
 	  {$r = compare_dic}
 	; 
 
+
 aggregation_expr returns [r]
 	: {agg_dic = {'agg_op': None, 'agg_arg': None}}
 	  a1 = aggregation_op {agg_dic['agg_op'] = $a1.r}
@@ -152,6 +153,7 @@ aggregation_op returns [r]
 	| op2 = TOKEN_MAX   {$r = $op2.text}
 	| op3 = TOKEN_SUM	{$r = $op3.text}
 	| op4 = TOKEN_COUNT {$r = $op4.text}
+        | op5 = TOKEN_COUNT_DISTINCT {$r = $op5.text}
 	;
 
 math_op returns [r] 
@@ -168,12 +170,13 @@ constant returns [r]
 
 data_type returns [r]
     : dt1 = TOKEN_INT {$r = $dt1.text}
-    | dt2 = TOKEN_FLOAT {$r = $dt2.text}
-    | dt3 = TOKEN_DOUBLE {$r = $dt3.text}
-    | dt4 = TOKEN_VARCHAR {$r = $dt4.text}
-    | dt5 = TOKEN_CHAR {$r = $dt5.text}
-    | dt6 = TOKEN_DATE {$r = $dt6.text}
-    | dt7 = TOKEN_DATETIME {$r = $dt7.text}
+    | dt2 = TOKEN_LONG {$r = $dt2.text}	
+    | dt3 = TOKEN_FLOAT {$r = $dt3.text}
+    | dt4 = TOKEN_DOUBLE {$r = $dt4.text}
+    | dt5 = TOKEN_VARCHAR {$r = $dt5.text}
+    | dt6 = TOKEN_CHAR {$r = $dt6.text}
+    | dt7 = TOKEN_DATE {$r = $dt7.text}
+    | dt8 = TOKEN_DATETIME {$r = $dt8.text}
     ;
 
 /** Declaration **/
@@ -187,6 +190,7 @@ TOKEN_STRING: '\''([A-Za-z] | [0-9])+'\'';
 
 /** Data Types **/
 TOKEN_INT: ('i'|'I')('n'|'N')('t'|'T');
+TOKEN_LONG: ('l'|'L')('o'|'O')('n'|'N')('g'|'G');
 TOKEN_FLOAT: ('f'|'F')('l'|'L')('o'|'O')('a'|'A')('t'|'T');
 TOKEN_DOUBLE: ('d'|'D')('o'|'O')('u'|'U')('b'|'B')('l'|'L')('e'|'E');
 TOKEN_VARCHAR: ('v'|'V')('a'|'A')('r'|'R')('c'|'C')('h'|'H')('a'|'A')('r'|'R');
@@ -199,6 +203,7 @@ TOKEN_MIN: 'MIN';
 TOKEN_MAX: 'MAX';
 TOKEN_SUM: 'SUM';
 TOKEN_COUNT: 'COUNT';
+TOKEN_COUNT_DISTINCT: 'COUNT_DISTINCT';
 
 /**  Datalog Rules **/
 TOKEN_ID: [A-Za-z]([A-Za-z]|[0-9]|'_')*;
