@@ -36,6 +36,9 @@ elif mode == 'interactive':
     interactive_quickstep_shell_cmd = quickstep_shell_dir + '/quickstep_cli_shell -force_save_dirty_blocks=true '
     cmd = interactive_quickstep_shell_cmd
 
+elif mode == 'clean':
+    kill_quickstep_shell_command = "pgrep quickstep | xargs kill"
+    cmd = kill_quickstep_shell_command
 
 os.system(cmd)
 

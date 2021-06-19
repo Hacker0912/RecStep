@@ -2,6 +2,7 @@ import sys
 import time
 import collections
 import json
+import os
 from copy import deepcopy
 
 from parser import datalog_program
@@ -23,6 +24,10 @@ DYNAMIC_DEBUG = config['Debug']['dynamic_debug']
 DYNAMIC_DEBUG_ITER_NUM = config['Debug']['dynamic_debug_iter_num']
 COST_MODEL_CHECK = config['Debug']['cost_model_check']
 INTERPRET = config['Debug']['interpret']
+##################
+# Output Configs #
+##################
+WRITE_TO_CSV = config['Output']['write_to_csv']
 ###########################
 # File Parsing Parameters #
 ###########################
@@ -1022,9 +1027,15 @@ def interpret(input_datalog_program_file):
 
     if LOG_ON:
         log_info_time(lpa_logger, time_monitor.global_elapse_time(), time_descrip='Total Evaluation Time')
+   
+    if WRITE_TO_CSV:
+        for relation_name in relation_def_map:
+            relation_type = relation_def_map[relation_name][1]
+            if relation_type == 'idb':
+                quickstep_shell_instance.output_data_from_table_to_csv(relation_name, delimiter=CSV_DELIMITER)
+ 
     quickstep_shell_instance.stop()
-
-
+    
 def main():
     try:
         input_datalog_program_file_name = sys.argv[1]
@@ -1033,7 +1044,6 @@ def main():
         raise Exception('The file specifying the datalog program is missing')
 
     interpret(input_datalog_program_file_name)
-
 
 if __name__ == '__main__':
     main()

@@ -1,5 +1,5 @@
 {
-        "QuickStep_Shell_Dir": "/fastdisk/local/quickstep-datalog/build",
+        "QuickStep_Shell_Dir": "/fastdisk/quickstep-datalog/build",
         "Input_Dir": "./Input",
         "Logging": {
                 "logging_directory": "./log",
@@ -12,6 +12,9 @@
         "QuickStep": {
                 "csv_delimiter": ","
         },
+	"Output": {
+		"write_to_csv": true
+	}, 
         "Debug": {
                 "static_debug": false,
                 "dynamic_debug": false,

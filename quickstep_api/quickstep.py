@@ -136,6 +136,12 @@ class Database(object):
         row_num = self.count_rows(table_name)
         return [row_num == 0, row_num]
 
+    def output_data_from_table_to_csv(self, table_name, delimiter):
+        output_file_name = table_name + '.csv'
+        output_data_command = 'COPY ' + table_name + ' TO ' + '\'' + output_file_name + '\'' + \
+                            ' WITH ' + ' (DELIMITER ' + '\'' + delimiter + '\'' + ');'
+        self.sql_command(output_data_command)
+
     def load_data_from_file(self, table_name, file_name, delimiter):
         load_data_command = 'COPY ' + table_name + ' FROM ' + '\'' + file_name + '\'' + \
                             ' WITH ' + ' (DELIMITER ' + '\'' + delimiter + '\'' + ');'
