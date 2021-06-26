@@ -194,7 +194,7 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
     # where::constant_constraint
     constant_constraint_str = query_generator.sql_query_generator.generate_constant_constraint_str(constant_constraint_map, body,
                                                                                                    body_atom_alias_list,
-                                                                                                   relation_def_map)
+                                                                                                   relation_def_map) 
 
     # where::negation
     negation_str = query_generator.sql_query_generator.generate_negation_str(negation_info, original_body_atom_list,
@@ -248,7 +248,9 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
     quickstep_shell_instance.sql_command('insert into tmp_res_table ' + non_recursive_rule_eval_str)
 
     if STATIC_DEBUG:
-        print('##### NON-RECURSIVE RULE EVAL STRING######')
+        print('##### NON-RECURSIVE RULE #####')
+        print(datalog_program.iterate_datalog_rule(datalog_rule))
+        print('##### NON-RECURSIVE RULE EVAL SQL######') 
         print(non_recursive_rule_eval_str)
 
     # Load data from tmp table into the table corresponding to the head atom

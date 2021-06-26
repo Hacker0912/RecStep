@@ -155,7 +155,7 @@ def generate_compare_str(comparison_map, original_body_atom_list, body_atom_alia
 
                     if base_side == 'l':
                         compare_str += atom_alias + '.' + atom_attribute + ' ' + \
-                                       compare_op + ' ' + compare_value + \
+                                       compare_op + ' ' + str(compare_value) + \
                                        ' AND '
                     else:
                         compare_str += compare_value + ' ' + \
@@ -223,11 +223,11 @@ def generate_constant_constraint_str(constant_constraint_map, body, body_atom_al
             body_atom_arg_constant_constraint = body_atom_constant_constraints[body_atom_arg_index]
 
             constant_constraint_str += body_atom_alias + '.' + body_atom_arg_name + ' = '
-            if body_atom_arg_type == 'int':
+            if body_atom_arg_type in ['int', 'long', 'double', 'float']:
                 constant_constraint_str += body_atom_arg_constant_constraint
             elif body_atom_arg_type == 'str':
                 constant_constraint_str += '\'' + body_atom_arg_constant_constraint + '\''
-
+            
             constant_constraint_str += ' AND '
 
     constant_constraint_str = constant_constraint_str[:len(constant_constraint_str) - 5]
