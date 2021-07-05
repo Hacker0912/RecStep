@@ -25,7 +25,8 @@
         "Optimization": {
                 "analyzer_level": "minimum",
                 "dynamic_set_diff": true,
-                "default_set_diff_alg": 2
+                "default_set_diff_alg": 2,
+                "cqa": false
         },
         "Parameters": {
                 "threads_num": 40,

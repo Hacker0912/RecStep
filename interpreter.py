@@ -37,6 +37,7 @@ CSV_DELIMITER = config['QuickStep']['csv_delimiter']
 ######################
 DEFAULT_SET_DIFF_ALG = config['Optimization']['default_set_diff_alg']
 SET_DIFF_OP = config['Optimization']['dynamic_set_diff']
+CQA_OP = config['Optimization']['cqa']
 ######################
 #  System Parameters #
 ######################
@@ -192,14 +193,16 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
                                                                            body_atom_alias_list, relation_def_map)
 
     # where::constant_constraint
-    constant_constraint_str = query_generator.sql_query_generator.generate_constant_constraint_str(constant_constraint_map, body,
-                                                                                                   body_atom_alias_list,
-                                                                                                   relation_def_map) 
+    constant_constraint_str = query_generator.sql_query_generator.generate_constant_constraint_str(
+        constant_constraint_map, body,
+        body_atom_alias_list,
+        relation_def_map)
 
     # where::negation
     negation_str = query_generator.sql_query_generator.generate_negation_str(negation_info, original_body_atom_list,
                                                                              negation_atom_list,
-                                                                             body_atom_alias_list, negation_atom_alias_list,
+                                                                             body_atom_alias_list,
+                                                                             negation_atom_alias_list,
                                                                              relation_def_map)
 
     non_recursive_rule_eval_str = select_str + ' ' + \
@@ -231,36 +234,43 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
     # aggregation (group by)
     aggregation_map = select_info[2]
     if len(aggregation_map) > 0:
-        group_by_str = query_generator.sql_query_generator.generate_group_by_str(relation_def_map[head_name][0]['attributes'],
-                                                                                 aggregation_map)
+        group_by_str = query_generator.sql_query_generator.generate_group_by_str(
+            relation_def_map[head_name][0]['attributes'],
+            aggregation_map)
         non_recursive_rule_eval_str += ' ' + group_by_str
 
     non_recursive_rule_eval_str += ';'
 
-    # Create tmp table to store the evaluation results
-    head_relation_name = head['name']
-    head_relation = relation_def_map[head_relation_name][0]
-    tmp_relation = deepcopy(relation_def_map[head_relation_name][0])
-    tmp_relation['name'] = 'tmp_res_table'
-    catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
-
-    # Insert the evaluation results into tmp table
-    quickstep_shell_instance.sql_command('insert into tmp_res_table ' + non_recursive_rule_eval_str)
-
     if STATIC_DEBUG:
         print('##### NON-RECURSIVE RULE #####')
         print(datalog_program.iterate_datalog_rule(datalog_rule))
-        print('##### NON-RECURSIVE RULE EVAL SQL######') 
+        print('##### NON-RECURSIVE RULE EVAL SQL######')
         print(non_recursive_rule_eval_str)
 
-    # Load data from tmp table into the table corresponding to the head atom
-    tmp_relation_table = catalog['tables']['tmp_res_table']
-    head_relation_table = catalog['tables'][head_relation_name]
-    load_data_from_table(quickstep_shell_instance, tmp_relation_table, head_relation_table)
-    quickstep_shell_instance.drop_table('tmp_res_table')
-    quickstep_shell_instance.analyze([head_relation['name']], count=True)
+    if not CQA_OP:
+        # Create tmp table to store the evaluation results
+        head_relation_name = head['name']
+        head_relation = relation_def_map[head_relation_name][0]
+        tmp_relation = deepcopy(head_relation)
+        tmp_relation['name'] = 'tmp_res_table'
+        catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
 
-    count_row(quickstep_shell_instance, logger, head_name)
+        # Insert the evaluation results into tmp table
+        quickstep_shell_instance.sql_command('insert into tmp_res_table ' + non_recursive_rule_eval_str)
+
+        # Load data from tmp table into the table corresponding to the head atom
+        tmp_relation_table = catalog['tables']['tmp_res_table']
+        head_relation_table = catalog['tables'][head_relation_name]
+        load_data_from_table(quickstep_shell_instance, tmp_relation_table, head_relation_table)
+        quickstep_shell_instance.drop_table('tmp_res_table')
+    else:
+        # delay deduplication here
+        quickstep_shell_instance.sql_command('insert into ' + head['name'] + non_recursive_rule_eval_str)
+
+    quickstep_shell_instance.analyze([head['name']], count=True)
+
+    if LOG_ON:
+        count_row(quickstep_shell_instance, logger, head_name)
 
 
 def recursive_rule_eval_sql_str_gen(datalog_rule, relation_def_map, eval_idbs, iter_num):
@@ -326,14 +336,16 @@ def recursive_rule_eval_sql_str_gen(datalog_rule, relation_def_map, eval_idbs, i
                                                                            body_atom_alias_list, relation_def_map)
 
     # where::constant_constraint
-    constant_constraint_str = query_generator.sql_query_generator.generate_constant_constraint_str(constant_constraint_map, body,
-                                                                                                   body_atom_alias_list,
-                                                                                                   relation_def_map)
+    constant_constraint_str = query_generator.sql_query_generator.generate_constant_constraint_str(
+        constant_constraint_map, body,
+        body_atom_alias_list,
+        relation_def_map)
 
     # where::negation
     negation_str = query_generator.sql_query_generator.generate_negation_str(negation_info, original_body_atom_list,
                                                                              negation_atom_list,
-                                                                             body_atom_alias_list, negation_atom_alias_list,
+                                                                             body_atom_alias_list,
+                                                                             negation_atom_alias_list,
                                                                              relation_def_map)
 
     recursive_rule_num = len(from_strs)
@@ -368,13 +380,15 @@ def recursive_rule_eval_sql_str_gen(datalog_rule, relation_def_map, eval_idbs, i
     # aggregation (group by)
     aggregation_map = select_info[2]
     if len(aggregation_map) > 0:
-        group_by_str = query_generator.sql_query_generator.generate_group_by_str(relation_def_map[head_name][0]['attributes'],
-                                                                                 aggregation_map)
+        group_by_str = query_generator.sql_query_generator.generate_group_by_str(
+            relation_def_map[head_name][0]['attributes'],
+            aggregation_map)
 
         for rule_index in range(recursive_rule_num):
             recursive_rule_eval_strs[rule_index] += ' ' + group_by_str
 
     return recursive_rule_eval_strs, aggregation_map
+
 
 def initialize_delta_tables(quickstep_shell_instance, catalog, relation_set, relation_def_map):
     """
@@ -769,7 +783,7 @@ def recursive_rules_eval(quickstep_shell_instance, logger, time_monitor, catalog
                 quickstep_shell_instance.create_table(catalog['tables'][tmp_m_delta_relation_name])
 
             eval_m_delta_str = 'insert into ' + tmp_m_delta_relation_name + \
-                              ' select * from ('
+                               ' select * from ('
 
             eval_sub_query_num = len(sub_query_list)
 
@@ -1029,15 +1043,16 @@ def interpret(input_datalog_program_file):
 
     if LOG_ON:
         log_info_time(lpa_logger, time_monitor.global_elapse_time(), time_descrip='Total Evaluation Time')
-   
+
     if WRITE_TO_CSV:
         for relation_name in relation_def_map:
             relation_type = relation_def_map[relation_name][1]
             if relation_type == 'idb':
                 quickstep_shell_instance.output_data_from_table_to_csv(relation_name, delimiter=CSV_DELIMITER)
- 
+
     quickstep_shell_instance.stop()
-    
+
+
 def main():
     try:
         input_datalog_program_file_name = sys.argv[1]
@@ -1046,6 +1061,7 @@ def main():
         raise Exception('The file specifying the datalog program is missing')
 
     interpret(input_datalog_program_file_name)
+
 
 if __name__ == '__main__':
     main()
