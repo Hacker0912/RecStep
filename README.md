@@ -55,11 +55,11 @@ only input/EDB is **arc(x  int, y int)**, a relation with two integer attributes
 
 3. Then you should start the quickstep backend in the background:
 ```bash
-python3 quickstep_shell.py --mode network &
+python3 quickstep_shell.py --mode network --initialize &
 ```
 or in a separate terminal window:
 ```bash
-python3 quickstep_shell.py --mode network
+python3 quickstep_shell.py --mode network --initialize
 ```
 
 4. Finally, you can start run RecStep to evaluate the datalog program 
