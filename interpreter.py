@@ -931,12 +931,12 @@ def recursive_rules_eval(quickstep_shell_instance, logger, time_monitor, catalog
 def interpret(input_datalog_program_file):
     """
     Before iterative process starts:
-        1. Read the name of datalog program => create the corresponding python file with name <datalog_program_name>.py
-        2. Create EDBs and load data (data should be put under the directory named './Input'
+        1. Read the file specifying the datalog program (ended with .datalog) and construct the datalog program object
+        2. Create EDBs and load data (data should be put under the directory named './Input' by default)
         3. Create IDBs
         4. Analyze all the tables => build catalog including analytical stats of all tables
         5. Evaluate rules following the stratification
-        6. Initialize all deltas => analyze all delta tables (For recursive rules if any)
+        6. Initialize all deltas => analyze all delta tables (for recursive rules if any)
         
     Iterative evaluation process (For recursive rules if any):
     """
@@ -959,19 +959,19 @@ def interpret(input_datalog_program_file):
     for relation in idb_decl:
         relation_def_map[relation['name']] = [relation, 'idb']
 
+    lpa_logger = None
+    time_monitor = None
     if LOG_ON:
         from utility.monitoring import TimeMonitor
         from utility.lpalogging import LpaLogger
         lpa_logger = LpaLogger()
         time_monitor = TimeMonitor()
-    else:
-        lpa_logger = None
-        time_monitor = None
 
     # Configure and initialize quickstep instance
     quickstep_shell_dir = config['QuickStep_Shell_Dir']
     quickstep_shell_instance = quickstep.Database(quickstep_shell_dir)
-    log_info(lpa_logger, 'Start creating IDB and EDB tables and populating facts')
+    if LOG_ON:
+        log_info(lpa_logger, 'Start creating IDB and EDB tables and populating facts')
 
     # Catalog to keep track of all the objects and stats
     catalog = {}
