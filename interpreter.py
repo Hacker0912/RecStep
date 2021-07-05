@@ -265,7 +265,7 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         quickstep_shell_instance.drop_table('tmp_res_table')
     else:
         # delay deduplication here
-        quickstep_shell_instance.sql_command('insert into ' + head['name'] + non_recursive_rule_eval_str)
+        quickstep_shell_instance.sql_command('insert into ' + head['name'] + ' ' +  non_recursive_rule_eval_str)
 
     quickstep_shell_instance.analyze([head['name']], count=True)
 
