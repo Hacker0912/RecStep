@@ -258,6 +258,23 @@ class Database(object):
             self.sql_command('INSERT INTO ' + dest_table.table_name + ' ' + dedup_command)
             self.drop_table(tmp_table.table_name)
 
+    def dedup_table(self, src_table):
+        src_table_attributes = src_table.attributes
+        tmp_table = Table('TEMP_TABLE')
+        for attribute_name in src_table_attributes:
+            tmp_table.add_attribute(attribute_name, src_table_attributes[attribute_name])
+        self.create_table(tmp_table)
+        self.sql_command('INSERT INTO TEMP_TABLE ' + 'SELECT * FROM ' + src_table.table_name)
+        self.drop_table(src_table.table_name)
+        self.analyze(['TEMP_TABLE'], count=True)
+        dedup_command = 'SELECT * FROM TEMP_TABLE GROUP BY '
+        for i in range(attributes_num):
+            dedup_command += src_table.table_name + '.' + src_table_attributes_names[i] + ', '
+        dedup_command = dedup_command[:len(dedup_command) - 2]
+        self.create_table(src_table)
+        self.sql_command('INSERT INTO ' + src_table.table_name + ' ' + dedup_command)
+        self.drop_table(tmp_table.table_name)
+
 
 class Table(object):
 

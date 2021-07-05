@@ -114,7 +114,7 @@ def populate_data_into_edb(quickstep_shell_instance, relation, delimiter=CSV_DEL
     quickstep_shell_instance.load_data_from_file(table_name, input_file_name, delimiter)
 
 
-def load_data_from_table(quickstep_shell_instance, src_table, dest_table):
+def load_data_from_table(quickstep_shell_instance, src_table, dest_table, compute_intersection=True):
     src_table_attributes = src_table.attributes
     dest_table_attributes = dest_table.attributes
 
@@ -128,7 +128,8 @@ def load_data_from_table(quickstep_shell_instance, src_table, dest_table):
         dest_table_attribte_list.append(attribute)
 
     quickstep_shell_instance.load_data_from_table(src_table, src_table_attribute_list,
-                                                  dest_table, dest_table_attribte_list)
+                                                  dest_table, dest_table_attribte_list,
+                                                  compute_intersection=compute_intersection)
 
 
 def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_rule, relation_def_map,
@@ -257,7 +258,6 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
         # Insert the evaluation results into tmp table
         quickstep_shell_instance.sql_command('INSERT INTO tmp_res_table ' + non_recursive_rule_eval_str)
-
         # Load data from tmp table into the table corresponding to the head atom
         tmp_relation_table = catalog['tables']['tmp_res_table']
         head_relation_table = catalog['tables'][head_relation_name]
@@ -268,13 +268,7 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         # delay deduplication here
         quickstep_shell_instance.sql_command('insert into ' + head['name'] + non_recursive_rule_eval_str)
         if head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1:
-            head_relation = relation_def_map[head_relation_name][0]
-            tmp_relation = deepcopy(head_relation)
-            tmp_relation['name'] = 'tmp_res_table'
-            catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
-            quickstep_shell_instance.sql_command('INSERT INTO tmp_res_table SELECT * FROM ' + head_relation)
-            quickstep_shell_instance.analyze(['tmp_res_table'], count=True)
-
+            quickstep_shell_instance.dedup_table(catelog['tables'][head['name']])
     if LOG_ON:
         count_row(quickstep_shell_instance, logger, head_name)
 
