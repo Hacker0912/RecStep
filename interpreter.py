@@ -38,6 +38,7 @@ CSV_DELIMITER = config['QuickStep']['csv_delimiter']
 DEFAULT_SET_DIFF_ALG = config['Optimization']['default_set_diff_alg']
 SET_DIFF_OP = config['Optimization']['dynamic_set_diff']
 CQA_OP = config['Optimization']['cqa']
+CQA_DELAY_DEDUP_RELATION_LIST = config['Optimization']['cqa_delay_dedup_relation_list']
 ######################
 #  System Parameters #
 ######################
@@ -45,7 +46,6 @@ CQA_OP = config['Optimization']['cqa']
 THREADS_NUM = config['Parameters']['threads_num']
 # Block is the minimal parallelism unit
 TUPLE_NUM_PER_BLOCK = config['Parameters']['block_size']  # This number only considers tables with 2 attributes
-
 # Frequent Used Global Variables
 COMMON_TABLE_NAME = 'COMMON_TABLE'
 
@@ -131,7 +131,8 @@ def load_data_from_table(quickstep_shell_instance, src_table, dest_table):
                                                   dest_table, dest_table_attribte_list)
 
 
-def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_rule, relation_def_map):
+def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_rule, relation_def_map,
+                            delay_dedup_relation_counter={}):
     """
     Example:
     Schema: A(a,b), B(a,b), C(a,b), D(a,b)
@@ -247,27 +248,33 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         print('##### NON-RECURSIVE RULE EVAL SQL######')
         print(non_recursive_rule_eval_str)
 
+    head_relation_name = head['name']
     if not CQA_OP:
         # Create tmp table to store the evaluation results
-        head_relation_name = head['name']
         head_relation = relation_def_map[head_relation_name][0]
         tmp_relation = deepcopy(head_relation)
         tmp_relation['name'] = 'tmp_res_table'
         catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
-
         # Insert the evaluation results into tmp table
-        quickstep_shell_instance.sql_command('insert into tmp_res_table ' + non_recursive_rule_eval_str)
+        quickstep_shell_instance.sql_command('INSERT INTO tmp_res_table ' + non_recursive_rule_eval_str)
 
         # Load data from tmp table into the table corresponding to the head atom
         tmp_relation_table = catalog['tables']['tmp_res_table']
         head_relation_table = catalog['tables'][head_relation_name]
         load_data_from_table(quickstep_shell_instance, tmp_relation_table, head_relation_table)
         quickstep_shell_instance.drop_table('tmp_res_table')
+        quickstep_shell_instance.analyze([head['name']], count=True)
     else:
         # delay deduplication here
         quickstep_shell_instance.sql_command('insert into ' + head['name'] + non_recursive_rule_eval_str)
+        if head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1:
+            head_relation = relation_def_map[head_relation_name][0]
+            tmp_relation = deepcopy(head_relation)
+            tmp_relation['name'] = 'tmp_res_table'
+            catalog['tables']['tmp_res_table'] = create_table_from_relation(quickstep_shell_instance, tmp_relation)
+            quickstep_shell_instance.sql_command('INSERT INTO tmp_res_table SELECT * FROM ' + head_relation)
+            quickstep_shell_instance.analyze(['tmp_res_table'], count=True)
 
-    quickstep_shell_instance.analyze([head['name']], count=True)
 
     if LOG_ON:
         count_row(quickstep_shell_instance, logger, head_name)
@@ -1018,15 +1025,31 @@ def interpret(input_datalog_program_file):
     # Start generating code to evaluate sccs
     stratum_count = 0
 
+    relation_counter = dict()
+    if CQA_OP:
+        # all rules are non-recursive
+        for scc in sccs:
+            relation_name = rules[scc]['head']['name']
+            if relation_name not in relation_counter:
+                relation_counter[relation_name] += 1
+
     for scc in sccs:
         log_info(lpa_logger, '-----Start evaluating stratum[' + str(stratum_count) + ']-----')
         if is_trivial_scc(sccs[scc], dependency_graph):
             log_info(lpa_logger, '>>>>Evaluating Non-Recursive Rule<<<<<')
             datalog_rule = rules[scc]
-            rule_str = datalog_program.iterate_datalog_rule(datalog_rule)
-            log_info(lpa_logger, rule_str)
+            if LOG_ON:
+                rule_str = datalog_program.iterate_datalog_rule(datalog_rule)
+                log_info(lpa_logger, rule_str)
+
             non_recursive_rule_eval(quickstep_shell_instance, lpa_logger,
-                                    catalog, datalog_rule, relation_def_map)
+                                    catalog, datalog_rule, relation_def_map,
+                                    delay_dedup_relation_counter=relation_counter)
+
+            head_relation_name = datalog_rule['head']['name']
+            if CQA_OP and head_relation_name in relation_counter:
+                relation_counter[CQA_OP] -= 1
+
             if LOG_ON:
                 log_info_time(lpa_logger, time_monitor.local_elapse_time(), time_descrip='Rule Evaluation Time')
                 update_time(time_monitor)

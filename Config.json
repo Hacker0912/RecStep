@@ -16,7 +16,7 @@
 		"write_to_csv": true
 	}, 
         "Debug": {
-                "static_debug": false,
+                "static_debug": true,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,
@@ -26,7 +26,8 @@
                 "analyzer_level": "minimum",
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-                "cqa": false
+                "cqa": false,
+		"cqa_delay_dedup_relation_list": []  
         },
         "Parameters": {
                 "threads_num": 40,
