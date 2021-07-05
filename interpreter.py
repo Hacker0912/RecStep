@@ -266,9 +266,9 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         quickstep_shell_instance.analyze([head['name']], count=True)
     else:
         # delay deduplication here
-        quickstep_shell_instance.sql_command('insert into ' + head['name'] + non_recursive_rule_eval_str)
+        quickstep_shell_instance.sql_command('insert into ' + head_relation_name + ' ' + non_recursive_rule_eval_str)
         if head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1:
-            quickstep_shell_instance.dedup_table(catelog['tables'][head['name']])
+            quickstep_shell_instance.dedup_table(catalog['tables'][head_relation_name])
     if LOG_ON:
         count_row(quickstep_shell_instance, logger, head_name)
 
@@ -1023,8 +1023,11 @@ def interpret(input_datalog_program_file):
         # all rules are non-recursive
         for scc in sccs:
             relation_name = rules[scc]['head']['name']
+            if relation_name not in CQA_DELAY_DEDUP_RELATION_LIST:
+                continue
             if relation_name not in relation_counter:
-                relation_counter[relation_name] += 1
+                relation_counter[relation_name] = 0
+            relation_counter[relation_name] += 1
 
     for scc in sccs:
         log_info(lpa_logger, '-----Start evaluating stratum[' + str(stratum_count) + ']-----')
@@ -1041,7 +1044,7 @@ def interpret(input_datalog_program_file):
 
             head_relation_name = datalog_rule['head']['name']
             if CQA_OP and head_relation_name in relation_counter:
-                relation_counter[CQA_OP] -= 1
+                relation_counter[head_relation_name] -= 1
 
             if LOG_ON:
                 log_info_time(lpa_logger, time_monitor.local_elapse_time(), time_descrip='Rule Evaluation Time')

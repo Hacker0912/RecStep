@@ -3,7 +3,7 @@
         "Input_Dir": "./Input",
         "Logging": {
                 "logging_directory": "./log",
-                "log": false,
+                "log": true,
                 "logging_level": {
                         "stdout": true,
                         "info_log": true
@@ -13,10 +13,10 @@
                 "csv_delimiter": ","
         },
 	"Output": {
-		"write_to_csv": true
+		"write_to_csv": false
 	}, 
         "Debug": {
-                "static_debug": true,
+                "static_debug": false,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,
@@ -26,11 +26,11 @@
                 "analyzer_level": "minimum",
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-                "cqa": false,
-		"cqa_delay_dedup_relation_list": []  
+                "cqa": true,
+		"cqa_delay_dedup_relation_list": ["return"]  
         },
         "Parameters": {
-                "threads_num": 40,
+                "threads_num": 10,
                 "block_size": 262144
         }
 }

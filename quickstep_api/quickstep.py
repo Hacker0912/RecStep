@@ -247,32 +247,34 @@ class Database(object):
             for attribute_name in dest_table_attributes:
                 tmp_table.add_attribute(attribute_name, dest_table_attributes[attribute_name])
             self.create_table(tmp_table)
-            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' + 'SELECT * FROM ' + src_table.table_name)
-            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' + 'SELECT * FROM ' + dest_table.table_name)
+            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' + 'SELECT * FROM ' + src_table.table_name + ';')
+            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' + 'SELECT * FROM ' + dest_table.table_name + ';')
             self.analyze(['TEMP_TABLE_WITHOUT_DEDUP'], count=True)
             self.drop_table(dest_table.table_name)
             dedup_command = 'SELECT * FROM TEMP_TABLE_WITHOUT_DEDUP GROUP BY '
             for i in range(attributes_num):
                 dedup_command += dest_table.table_name + '.' + dest_table_attributes_names[i] + ', '
             dedup_command = dedup_command[:len(dedup_command)-2]
-            self.sql_command('INSERT INTO ' + dest_table.table_name + ' ' + dedup_command)
+            self.sql_command('INSERT INTO ' + dest_table.table_name + ' ' + dedup_command + ';')
             self.drop_table(tmp_table.table_name)
 
     def dedup_table(self, src_table):
         src_table_attributes = src_table.attributes
         tmp_table = Table('TEMP_TABLE')
+        src_table_attribute_names = list(src_table_attributes.keys())
         for attribute_name in src_table_attributes:
             tmp_table.add_attribute(attribute_name, src_table_attributes[attribute_name])
+        attributes_num = len(src_table_attributes)
         self.create_table(tmp_table)
-        self.sql_command('INSERT INTO TEMP_TABLE ' + 'SELECT * FROM ' + src_table.table_name)
+        self.sql_command('INSERT INTO TEMP_TABLE ' + 'SELECT * FROM ' + src_table.table_name + ';')
         self.drop_table(src_table.table_name)
         self.analyze(['TEMP_TABLE'], count=True)
         dedup_command = 'SELECT * FROM TEMP_TABLE GROUP BY '
         for i in range(attributes_num):
-            dedup_command += src_table.table_name + '.' + src_table_attributes_names[i] + ', '
+            dedup_command +=  'TEMP_TABLE.' + src_table_attribute_names[i] + ', '
         dedup_command = dedup_command[:len(dedup_command) - 2]
         self.create_table(src_table)
-        self.sql_command('INSERT INTO ' + src_table.table_name + ' ' + dedup_command)
+        self.sql_command('INSERT INTO ' + src_table.table_name + ' ' + dedup_command + ';')
         self.drop_table(tmp_table.table_name)
 
 
