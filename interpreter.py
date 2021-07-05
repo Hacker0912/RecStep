@@ -275,7 +275,6 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
             quickstep_shell_instance.sql_command('INSERT INTO tmp_res_table SELECT * FROM ' + head_relation)
             quickstep_shell_instance.analyze(['tmp_res_table'], count=True)
 
-
     if LOG_ON:
         count_row(quickstep_shell_instance, logger, head_name)
 
