@@ -3,7 +3,7 @@
         "Input_Dir": "./Input",
         "Logging": {
                 "logging_directory": "./log",
-                "log": true,
+                "log": false,
                 "logging_level": {
                         "stdout": true,
                         "info_log": true
@@ -26,11 +26,11 @@
                 "analyzer_level": "minimum",
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-                "cqa": true,
+                "cqa": false,
 		"cqa_delay_dedup_relation_list": ["return"]  
         },
         "Parameters": {
-                "threads_num": 10,
+                "threads_num": 40,
                 "block_size": 262144
         }
 }
