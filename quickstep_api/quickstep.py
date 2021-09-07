@@ -49,10 +49,9 @@ class Database(object):
             return 'DEBUG MODE'
 
         if LOG_ON:
-            if len(command) < 8 or command[:8] != '\\analyze':
-                self.quickstep_query_execution_dag_log_file.write('#####QUERY ID ' + str(self.query_counter) + '#####\n')
-                self.query_counter += 1
-                self.quickstep_query_execution_dag_log_file.write(command + '\n\n')
+            self.quickstep_query_execution_dag_log_file.write('#####QUERY ID ' + str(self.query_counter) + '#####\n')
+            self.query_counter += 1
+            self.quickstep_query_execution_dag_log_file.write(command + '\n\n')
 
         command_str = self.quickstep_shell_dir + '/quickstep_client' + ' <<< ' + '\"' + command + '\"'
         output = subprocess.check_output(command_str, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')

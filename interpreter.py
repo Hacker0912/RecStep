@@ -263,12 +263,14 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         head_relation_table = catalog['tables'][head_relation_name]
         load_data_from_table(quickstep_shell_instance, tmp_relation_table, head_relation_table)
         quickstep_shell_instance.drop_table('tmp_res_table')
-        quickstep_shell_instance.analyze([head['name']], count=True)
+        quickstep_shell_instance.analyze([head_relation_name], count=True)
     else:
         # delay deduplication here
         quickstep_shell_instance.sql_command('insert into ' + head_relation_name + ' ' + non_recursive_rule_eval_str)
         if head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1:
             quickstep_shell_instance.dedup_table(catalog['tables'][head_relation_name])
+        else:
+            quickstep_shell_instance.analyze([head_relation_name], count=True)
     if LOG_ON:
         count_row(quickstep_shell_instance, logger, head_name)
 
