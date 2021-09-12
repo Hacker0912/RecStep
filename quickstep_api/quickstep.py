@@ -13,6 +13,7 @@ with open(config_json_file_name) as config_json_file:
 
 STATIC_DEBUG = config['Debug']['static_debug']
 ANALYZER_OP = config['Optimization']['analyzer_level']
+ANALYZE_ALL_TABLES = config['Optimization']['analyze_all_tables']
 LOG_ON = config['Logging']['log']
 
 
@@ -67,25 +68,26 @@ class Database(object):
             sys.exit(0)
         return output
 
-    def analyze(self, table_list=[], count=False, range=False):
+    def analyze(self, table_list=[], count=False, range_analyze=False, analyze_all_tables=ANALYZE_ALL_TABLES):
         # control the granularity of analytical queries for query optimization
         if ANALYZER_OP == 'full':
             count = False
-            range = False
+            range_analyze = False
         if ANALYZER_OP == 'off':
             return
 
         # analyze the table names specified in the table list
         table_list_str = ''
-        for table in table_list:
-            table_list_str += ' ' + table
+        if not analyze_all_tables:
+            for table in table_list:
+                table_list_str += ' ' + table
 
-        if count and range:
+        if count and range_analyze:
             self.sql_command('\\analyzecount' + table_list_str + '\n')
             self.sql_command('\\analyzerange' + table_list_str + '\n')
-        elif count and not range:
+        elif count and not range_analyze:
             self.sql_command('\\analyzecount' + table_list_str + '\n')
-        elif not count and range:
+        elif not count and range_analyze:
             self.sql_command('\\analyzerange' + table_list_str + '\n')
         else:
             self.sql_command('\\analyze' + table_list_str + '\n')
