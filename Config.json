@@ -3,7 +3,7 @@
         "Input_Dir": "./Input",
         "Logging": {
                 "logging_directory": "./log",
-                "log": false,
+                "log": true,
                 "logging_level": {
                         "stdout": true,
                         "info_log": true
@@ -30,6 +30,9 @@
                 "cqa": false,
 		"cqa_delay_dedup_relation_list": ["return"]  
         },
+	"Execution": {
+		"load_data_from_table": "simple_dedup"
+	},
         "Parameters": {
                 "threads_num": 40,
                 "block_size": 262144

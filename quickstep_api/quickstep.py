@@ -14,6 +14,7 @@ with open(config_json_file_name) as config_json_file:
 STATIC_DEBUG = config['Debug']['static_debug']
 ANALYZER_OP = config['Optimization']['analyzer_level']
 ANALYZE_ALL_TABLES = config['Optimization']['analyze_all_tables']
+LOAD_DATA_FROM_TABLE = config['Execution']['load_data_from_table']
 LOG_ON = config['Logging']['log']
 
 
@@ -149,7 +150,8 @@ class Database(object):
         self.load_file_failure_checking(self.sql_command(load_data_command))
 
     def load_data_from_table(self, src_table, selected_src_table_attributes_names,
-                             dest_table, dest_table_attributes_names, compute_intersection=True):
+                             dest_table, dest_table_attributes_names, 
+                             compute_intersection=(LOAD_DATA_FROM_TABLE == 'compute_intersection')):
         """
         Insert data from a selected table (source table) into another existed table (target table) and
         perform deduplication on target table
@@ -254,8 +256,9 @@ class Database(object):
             self.drop_table(dest_table.table_name)
             dedup_command = 'SELECT * FROM TEMP_TABLE_WITHOUT_DEDUP GROUP BY '
             for i in range(attributes_num):
-                dedup_command += dest_table.table_name + '.' + dest_table_attributes_names[i] + ', '
+                dedup_command += 'TEMP_TABLE_WITHOUT_DEDUP.' + dest_table_attributes_names[i] + ', '
             dedup_command = dedup_command[:len(dedup_command)-2]
+            self.create_table(dest_table)
             self.sql_command('INSERT INTO ' + dest_table.table_name + ' ' + dedup_command + ';')
             self.drop_table(tmp_table.table_name)
 

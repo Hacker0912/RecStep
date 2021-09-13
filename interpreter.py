@@ -114,7 +114,7 @@ def populate_data_into_edb(quickstep_shell_instance, relation, delimiter=CSV_DEL
     quickstep_shell_instance.load_data_from_file(table_name, input_file_name, delimiter)
 
 
-def load_data_from_table(quickstep_shell_instance, src_table, dest_table, compute_intersection=True):
+def load_data_from_table(quickstep_shell_instance, src_table, dest_table):
     src_table_attributes = src_table.attributes
     dest_table_attributes = dest_table.attributes
 
@@ -128,8 +128,7 @@ def load_data_from_table(quickstep_shell_instance, src_table, dest_table, comput
         dest_table_attribte_list.append(attribute)
 
     quickstep_shell_instance.load_data_from_table(src_table, src_table_attribute_list,
-                                                  dest_table, dest_table_attribte_list,
-                                                  compute_intersection=compute_intersection)
+                                                  dest_table, dest_table_attribte_list)
 
 
 def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_rule, relation_def_map,
