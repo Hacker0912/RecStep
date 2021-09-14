@@ -51,6 +51,8 @@ datalog_program returns [r]
 /** Rule that has no body must be the rule specifying "facts insertion" **/
 datalog_rule returns [r]
     : {rule_dic = {}}
+		(TOKEN_NON_DEDUP {rule_dic['non-dedup'] = True})? 
+		(TOKEN_NON_SET_DIFF {rule_dic['non-set-diff'] = True})?
 	    h = head {rule_dic['head'] = $h.r}
 	    TOKEN_BODY_HEAD_SEP {rule_dic['body'] = None}
 	    (b = body {rule_dic['body'] = $b.r})?
@@ -221,6 +223,11 @@ TOKEN_MULT: '*';
 TOKEN_DIV: '/';
 
 TOKEN_NOT: '!';
+
+/** Rule Computation Flags **/
+TOKEN_NON_DEDUP: '[!dedup]';
+TOKEN_NON_SET_DIFF: '[!set-diff]';
+TOKEN_DEDUP_ONLY: '[dedup-only]';
 
 /** Comparison Operators **/
 TOKEN_NOT_EQUALS: '!=';

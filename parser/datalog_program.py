@@ -46,12 +46,19 @@ def iterate_datalog_rule(datalog_rule):
         body_negation_list = body['negations']
     except TypeError:
         # if the rule of the body is empty, then the body will be 'NoneType'
-        body_atom_list = []
-        body_compare_list = []
-        body_assign_list = []
-        body_negation_list = []
+        body_atom_list = list()
+        body_compare_list = list()
+        body_assign_list = list()
+        body_negation_list = list()
 
-    head_str = head_name + '('
+    head_str = ""
+    if 'non-dedup' in datalog_rule:
+        head_str += '[!dedup]'
+    if 'non-set-diff' in datalog_rule:
+        head_str += '[!set-diff]'
+    if 'dedup-only' in datalog_rule:
+        head_str += 'dedup_only'
+    head_str += head_name + '('
     for arg in head_arg_list:
         if arg.type == 'aggregation':
             head_str += arg.name['agg_op'] + '('

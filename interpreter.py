@@ -253,7 +253,10 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         print(non_recursive_rule_eval_str)
 
     head_relation_name = head['name']
-    if not CQA_OP:
+    non_dedup = 'non-dedup' not in datalog_rule
+    non_set_diff = 'non-set-diff' not in datalog_rule
+    dedup_only = 'dedup-only' not in datalog_rule
+    if not CQA_OP and not non_dedup and not non_set_diff and not dedup_only:
         head_relation_table = catalog['tables'][head_relation_name]
         # Create tmp table to store the evaluation results
         head_relation = relation_def_map[head_relation_name][0]
@@ -270,7 +273,8 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
             catalog['tables']['tmp_res_table'] = create_table_from_relation(
                 quickstep_shell_instance, tmp_relation)
             # Insert the evaluation results into tmp table
-            quickstep_shell_instance.load_data_from_eval_query_str(catalog['tables']['tmp_res_table'], non_recursive_rule_eval_str)
+            quickstep_shell_instance.load_data_from_eval_query_str(
+                catalog['tables']['tmp_res_table'], non_recursive_rule_eval_str)
             # Load data from tmp table into the table corresponding to the head atom
             tmp_relation_table = catalog['tables']['tmp_res_table']
             load_data_from_table(quickstep_shell_instance,
@@ -278,17 +282,23 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
             quickstep_shell_instance.drop_table('tmp_res_table')
             if LOG_ON:
                 count_row(
-                quickstep_shell_instance, logger, head_name)
+                    quickstep_shell_instance, logger, head_name)
         quickstep_shell_instance.analyze([head_relation_name], count=True)
     else:
+        if not CQA_OP and not dedup_only and (not non_dedup or not non_set_diff):
+            raise Exception("[!dedup] and [!set_diff] must be specified together at the same time currently")
         # delay deduplication here
-        quickstep_shell_instance.sql_command("INSERT INTO {} {}".format(
-            head_relation_name, non_recursive_rule_eval_str))
-        if head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1:
+        if CQA_OP or (non_dedup and non_set_diff) or dedup_only:
+            quickstep_shell_instance.sql_command("INSERT INTO {} {}".format(
+                head_relation_name, non_recursive_rule_eval_str))
+
+        if (CQA_OP and head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1) or dedup_only:
             quickstep_shell_instance.dedup_table(
                 catalog['tables'][head_relation_name])
-        else:
+        
+        if not CQA_OP:
             quickstep_shell_instance.analyze([head_relation_name], count=True)
+
         if LOG_ON:
             count_row(
                 quickstep_shell_instance, logger, head_name)

@@ -26,15 +26,15 @@ def construct_dependency_graph(datalog_program):
 
     # Construct dependency graph
     for rule_index in range(rule_number):
-        dependency_map[rule_index] = set([])
+        dependency_map[rule_index] = set()
         cur_rule = datalog_program[rule_index]
         try:
             body_atoms = cur_rule['body']['atoms']
             body_negations = cur_rule['body']['negations']
         except TypeError:
             # if the body of the rule is empty, then the body will be 'NoneType'
-            body_atoms = []
-            body_negations = []
+            body_atoms = list()
+            body_negations = list()
 
         for atom in body_atoms:
             # Check whether the atom is in head of any IDB rules
@@ -76,7 +76,7 @@ def group_rules(dependency_map):
     rule_visited_map = [0] * len(dependency_map)
     # map to check whether a rule has already been assigned to one of strongly connected components
     rule_assigned_map = [0] * len(dependency_map)
-    dfs_order_list = []
+    dfs_order_list = list()
     # strongly connected components
     sccs = collections.OrderedDict({})
 
