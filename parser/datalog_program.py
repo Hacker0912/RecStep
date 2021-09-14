@@ -57,7 +57,7 @@ def iterate_datalog_rule(datalog_rule):
     if 'non-set-diff' in datalog_rule:
         head_str += '[!set-diff]'
     if 'dedup-only' in datalog_rule:
-        head_str += 'dedup_only'
+        head_str += '[dedup_only]'
     head_str += head_name + '('
     for arg in head_arg_list:
         if arg.type == 'aggregation':

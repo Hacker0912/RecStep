@@ -53,6 +53,7 @@ datalog_rule returns [r]
     : {rule_dic = {}}
 		(TOKEN_NON_DEDUP {rule_dic['non-dedup'] = True})? 
 		(TOKEN_NON_SET_DIFF {rule_dic['non-set-diff'] = True})?
+                (TOKEN_DEDUP_ONLY {rule_dic['dedup-only'] = True})?
 	    h = head {rule_dic['head'] = $h.r}
 	    TOKEN_BODY_HEAD_SEP {rule_dic['body'] = None}
 	    (b = body {rule_dic['body'] = $b.r})?

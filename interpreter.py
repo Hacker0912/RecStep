@@ -253,9 +253,9 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
         print(non_recursive_rule_eval_str)
 
     head_relation_name = head['name']
-    non_dedup = 'non-dedup' not in datalog_rule
-    non_set_diff = 'non-set-diff' not in datalog_rule
-    dedup_only = 'dedup-only' not in datalog_rule
+    non_dedup = 'non-dedup' in datalog_rule
+    non_set_diff = 'non-set-diff' in datalog_rule
+    dedup_only = 'dedup-only' in datalog_rule
     if not CQA_OP and not non_dedup and not non_set_diff and not dedup_only:
         head_relation_table = catalog['tables'][head_relation_name]
         # Create tmp table to store the evaluation results
@@ -289,7 +289,7 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
             raise Exception("[!dedup] and [!set_diff] must be specified together at the same time currently")
         # delay deduplication here
         if CQA_OP or (non_dedup and non_set_diff) or dedup_only:
-            quickstep_shell_instance.sql_command("INSERT INTO {} {}".format(
+            quickstep_shell_instance.sql_command("INSERT INTO {} {};".format(
                 head_relation_name, non_recursive_rule_eval_str))
 
         if (CQA_OP and head_relation_name in delay_dedup_relation_counter and delay_dedup_relation_counter[head_relation_name] == 1) or dedup_only:
