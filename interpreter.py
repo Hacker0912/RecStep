@@ -296,8 +296,7 @@ def non_recursive_rule_eval(quickstep_shell_instance, logger, catalog, datalog_r
             quickstep_shell_instance.dedup_table(
                 catalog['tables'][head_relation_name])
         
-        if not CQA_OP:
-            quickstep_shell_instance.analyze([head_relation_name], count=True)
+        quickstep_shell_instance.analyze([head_relation_name], count=True)
 
         if LOG_ON:
             count_row(
