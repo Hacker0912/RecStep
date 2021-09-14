@@ -82,7 +82,7 @@ class Database(object):
         # analyze the table names specified in the table list
         table_list_str = ""
         if not analyze_all_tables:
-            table_list_str = ' '.join([table_list])
+            table_list_str = ' '.join(table_list)
 
         if ANALYZER_OP == 'full':
             self.sql_command("\\analyze {}\n".format(table_list_str))
@@ -290,7 +290,7 @@ class Database(object):
         self.analyze(['TEMP_TABLE'], count=True)
         group_by_str = ','.join(["TEMP_TABLE.{}".format(
             src_table_attribute_names[i]) for i in range(attributes_num)])
-        dedup_command = "INSERT INTO {} GROUP BY {};".format(
+        dedup_command = "INSERT INTO {} SELECT * FROM TEMP_TABLE GROUP BY {};".format(
             src_table.table_name, group_by_str)
         self.create_table(src_table)
         self.sql_command(dedup_command)
@@ -298,13 +298,13 @@ class Database(object):
 
     def load_data_from_eval_query_str(self, dest_table, eval_query_str, dedup=False):
         if not dedup:
-            load_data_str = "INESRT INTO {} {}".format(
+            load_data_str = "INSERT INTO {} {};".format(
                 dest_table.table_name, eval_query_str)
         else:
             dest_table_attribute_names = list(dest_table.attributes.keys())
             group_by_str = ','.join(
                 [attribute_name for attribute_name in dest_table_attribute_names])
-            load_data_str = "INESRT INTO {} {} GROUP BY {}".format(
+            load_data_str = "INSERT INTO {} {} GROUP BY {};".format(
                 dest_table.table_name, eval_query_str, group_by_str)
         self.sql_command(load_data_str)
 

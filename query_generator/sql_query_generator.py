@@ -154,12 +154,9 @@ def generate_compare_str(comparison_map, original_body_atom_list, body_atom_alia
                     compare_value = comparison[3]
 
                     if base_side == 'l':
-                        compare_str += atom_alias + '.' + atom_attribute + ' ' + \
-                                       compare_op + ' ' + str(compare_value) + \
-                                       ' AND '
+                        compare_str += "{}.{} {} {} AND ".format(atom_alias, atom_attribute, compare_op, compare_value)
                     else:
-                        compare_str += compare_value + ' ' + \
-                                       compare_op + ' ' + atom_alias + '.' + atom_attribute + ' AND '
+                        compare_str += "{} {} {}.{} AND ".format(compare_value, compare_op, atom_alias, atom_attribute)
 
                 elif compare_side_type == 'var':
                     compare_atom_index = comparison[3][0]
