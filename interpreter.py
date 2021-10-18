@@ -64,7 +64,8 @@ def interpret(datalog_program_file_path):
 
     # Populate facts into edbs
     for relation in edb_decl:
-        executor.populate_data_into_edb(relation)
+        if not PRE_LOAD:
+            executor.populate_data_into_edb(relation)
         catalog["optimization"][relation["name"]] = executor.count_rows(
             relation["name"]
         )
@@ -102,7 +103,6 @@ def interpret(datalog_program_file_path):
                 relation_def_map,
                 non_dedup_relations=NON_DEDUP_RELATION_LIST,
             )
-
             executor.log_local_time(
                 descrip="Rule Evaluation Time",
             )

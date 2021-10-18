@@ -18,9 +18,10 @@ INTERPRET = config["Debug"]["interpret"]
 ##################
 WRITE_TO_CSV = config["Output"]["write_to_csv"]
 ################
-# Input/Output #
+# Input Config #
 ################
 INPUT_DIR = config["Input_Dir"]
+PRE_LOAD = config["Input"]["preload"]
 CSV_DELIMITER = config["QuickStep"]["csv_delimiter"]
 ######################
 # Optimization Flags #
