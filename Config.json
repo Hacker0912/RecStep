@@ -12,6 +12,9 @@
         "QuickStep": {
                 "csv_delimiter": ","
         },
+        "Input": {
+                "preload": false
+        },
 	"Output": {
 		"write_to_csv": false
 	}, 
