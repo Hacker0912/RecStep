@@ -27,8 +27,7 @@
 		"analyze_all_tables": false,
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-                "cqa": false,
-		"cqa_delay_dedup_relation_list": ["return"]  
+		"non_dedup_relation_list": ["return"]  
         },
 	"Execution": {
 		"load_data_from_table": "simple_dedup"

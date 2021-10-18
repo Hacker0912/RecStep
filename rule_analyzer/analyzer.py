@@ -9,69 +9,86 @@ The analyzer is responsible for:
 import collections
 
 
+def construct_atom_rule_map(datalog_program):
+    """create a dictionary storing <head_atom, rule_index_list> key-value pair"""
+    rule_number = len(datalog_program)
+    head_rule_map = collections.OrderedDict()
+    for rule_index in range(rule_number):
+        cur_rule = datalog_program[rule_index]
+        head_atom_name = cur_rule["head"]["name"]
+        if head_atom_name not in head_rule_map:
+            head_rule_map[head_atom_name] = list()
+        head_rule_map[head_atom_name].append(rule_index)
+
+    return head_rule_map
+
+
+def construct_rule_atom_map(datalog_program):
+    """create a list rule_atom_map: rule_atom_map[rule_index] = head_atom_name"""
+    rule_atom_map = [rule["head"]["name"] for rule in datalog_program]
+    return rule_atom_map
+
+
 def construct_dependency_graph(datalog_program):
     rule_number = len(datalog_program)
     dependency_map = collections.OrderedDict({})
     negation_dependency_map = collections.OrderedDict({})
-    head_rule_map = collections.OrderedDict({})
     # Pre-processing: create a dictionary storing <head_atom, rule_index_list> key-value pair
-    for rule_index in range(rule_number):
-        cur_rule = datalog_program[rule_index]
-        head_atom_name = cur_rule['head']['name']
-        if head_atom_name not in head_rule_map:
-            head_rule_map[head_atom_name] = set([])
-            head_rule_map[head_atom_name].add(rule_index)
-        else:
-            head_rule_map[head_atom_name].add(rule_index)
+    head_rule_map = construct_atom_rule_map(datalog_program)
 
     # Construct dependency graph
     for rule_index in range(rule_number):
         dependency_map[rule_index] = set()
+        negation_dependency_map[rule_index] = set()
         cur_rule = datalog_program[rule_index]
         try:
-            body_atoms = cur_rule['body']['atoms']
-            body_negations = cur_rule['body']['negations']
+            body_atoms = cur_rule["body"]["atoms"]
+            body_negations = cur_rule["body"]["negations"]
         except TypeError:
-            # if the body of the rule is empty, then the body will be 'NoneType'
-            body_atoms = list()
-            body_negations = list()
+            # empty rule body - the rule does not depend on any other rules
+            continue
 
         for atom in body_atoms:
-            # Check whether the atom is in head of any IDB rules
-            if atom['name'] in head_rule_map:
-                dependent_rule_list = head_rule_map[atom['name']]
+            # Check whether the atom is in the head of any IDB rules
+            if atom["name"] in head_rule_map:
+                dependent_rule_list = head_rule_map[atom["name"]]
                 for dependent_rule_index in dependent_rule_list:
                     dependency_map[rule_index].add(dependent_rule_index)
 
         # For stratification of Datalog rules including negation
         for atom in body_negations:
-            negation_dependency_map[rule_index] = set([])
-            if atom['name'] in head_rule_map:
-                dependent_rule_list = head_rule_map[atom['name']]
+            if atom["name"] in head_rule_map:
+                dependent_rule_list = head_rule_map[atom["name"]]
                 for dependent_rule_index in dependent_rule_list:
                     dependency_map[rule_index].add(dependent_rule_index)
                     negation_dependency_map[rule_index].add(dependent_rule_index)
 
     for rule_index in dependency_map:
-        dependency_str = 'rule_' + str(rule_index) + ': '
-        dependent_rule_indices = dependency_map[rule_index]
-        for dependent_rule_index in dependent_rule_indices:
-            dependency_str += 'rule_' + str(dependent_rule_index) + ', '
-        print(dependency_str[:len(dependency_str)-2])
+        if len(dependency_map[rule_index]) == 0:
+            continue
+        dependent_rule_indices = sorted(list(dependency_map[rule_index]))
+        dependent_rules = ", ".join(
+            ["rule_{}".format(i) for i in dependent_rule_indices]
+        )
+        print("rule_{}: {}".format(rule_index, dependent_rules))
 
     print()
-    print('NEGATION_DEPENDENCY_GRAPH:')
+    print("NEGATION_DEPENDENCY_GRAPH:")
     for rule_index in negation_dependency_map:
-        dependency_str = 'rule_' + str(rule_index) + ': '
-        negation_dependent_rule_indices = negation_dependency_map[rule_index]
-        for dependent_rule_index in negation_dependent_rule_indices:
-            dependency_str += 'rule_' + str(dependent_rule_index) + ', '
-        print(dependency_str[:len(dependency_str)-2])
+        if len(negation_dependency_map[rule_index]) == 0:
+            continue
+        negation_dependent_rule_indices = sorted(
+            list(negation_dependency_map[rule_index])
+        )
+        negation_dedpendent_rules = ", ".join(
+            ["rule_{}".format(i) for i in negation_dependent_rule_indices]
+        )
+        print("rule_{}: {}".format(rule_index, negation_dedpendent_rules))
 
-    return [dependency_map, negation_dependency_map]
+    return dependency_map, negation_dependency_map
 
 
-def group_rules(dependency_map):
+def compute_rule_sccs(dependency_map):
     # compute strongly connected components by Kosaraju's algorithm
     rule_visited_map = [0] * len(dependency_map)
     # map to check whether a rule has already been assigned to one of strongly connected components
@@ -152,6 +169,49 @@ def check_negation_cycle(sccs, negation_dependency_map):
                             negation_cycle = True
                             break
         if cur_negation_cycle:
-            print('Negation cycle detected in scc[' + str(scc_key) + ']')
+            print("Negation cycle detected in scc[" + str(scc_key) + "]")
 
     return negation_cycle
+
+
+def is_recursive_scc(sccs, scc_key, dependency_graph):
+    """check if the rules in the strongly connected component (scc) indexed by scc_key in sccs are recursive or not"""
+    scc = sccs[scc_key]
+    # non-recursive rule itself must be a strongly connected component of size 1
+    if len(scc) > 1:
+        return True
+
+    rule = scc[0]
+    if rule not in dependency_graph:
+        # the recursive rule must depend on some other rule or itself
+        return False
+    if rule not in dependency_graph[rule]:
+        # the recursive rule must depend on itself if it is in a strongly connected component of size 1
+        return False
+
+    return True
+
+
+def group_rules(rule_atom_map, sccs, dependency_graph):
+    """put the rule strongly connected components in which each contains only a single
+    non-recursive rule with the same idb name in the same group
+    """
+    rule_groups = list()
+    non_recursive_rule_group_map = dict()
+    rule_group_bitmap = list()
+    for scc_key in sccs:
+        if is_recursive_scc(sccs, scc_key, dependency_graph):
+            # do nothing if the scc is recursive
+            rule_groups.append(sccs[scc_key])
+            rule_group_bitmap.append(True)
+        else:
+            # merge non-recursive rules evaluating the same idb
+            head_atom = rule_atom_map[scc_key]
+            if head_atom not in non_recursive_rule_group_map:
+                rule_groups.append(sccs[scc_key])
+                non_recursive_rule_group_map[head_atom] = rule_groups[-1]
+                rule_group_bitmap.append(False)
+            else:
+                non_recursive_rule_group_map[head_atom].extend(sccs[scc_key])
+
+    return {"rule_groups": rule_groups, "rule_group_bitmap": rule_group_bitmap}

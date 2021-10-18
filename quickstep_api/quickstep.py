@@ -4,87 +4,86 @@ Functionalities for communication between QuickStep and logic flow
 import collections
 import sys
 import subprocess
-import json
 
-config_json_file_name = 'Config.json'
-with open(config_json_file_name) as config_json_file:
-    config = json.load(config_json_file)
-    print(config)
-
-STATIC_DEBUG = config['Debug']['static_debug']
-ANALYZER_OP = config['Optimization']['analyzer_level']
-ANALYZE_ALL_TABLES = config['Optimization']['analyze_all_tables']
-LOAD_DATA_FROM_TABLE = config['Execution']['load_data_from_table']
-LOG_ON = config['Logging']['log']
+from copy import deepcopy
+from execution.config import *
 
 
-class Database(object):
-
+class QuickStep(object):
     @staticmethod
     def parse_query_result(result):
-        parsed_by_line = [s.strip() for s in result.split('\n')]
+        parsed_by_line = [s.strip() for s in result.split("\n")]
         return parsed_by_line
 
-    def __init__(self, quickstep_shell_dir):
-        self.quickstep_shell_dir = quickstep_shell_dir
-        self.query_counter = 0
+    def __init__(self):
+        self.__quickstep_shell_dir = QUICKSTEP_SHELL_DIR
+        self.__query_counter = 0
         if LOG_ON:
-            self.quickstep_query_execution_dag_log_file = open(
-                config['Logging']['logging_directory'] + '/query_seq', 'w')
+            self.query_execution_dag_log_file = open(
+                "{}/query_seq".format(LOG_DIR), "w"
+            )
 
     def command_error_checking(self, output):
         parsed_by_line = self.parse_query_result(output)
         for line in parsed_by_line:
             tokens = [i.strip() for i in line.split()]
             for i in tokens:
-                if i == 'ERROR:':
+                if i == "ERROR:":
                     print(output)
                     raise Exception(output)
 
     def load_file_failure_checking(self, output):
         parsed_by_line = self.parse_query_result(output)
         for line in parsed_by_line:
-            if line == '*** Check failure stack trace: ***':
+            if line == "*** Check failure stack trace: ***":
                 raise Exception(output)
 
     def sql_command(self, command):
         if STATIC_DEBUG:
-            return 'DEBUG MODE'
+            return "DEBUG MODE"
 
         if LOG_ON:
-            self.quickstep_query_execution_dag_log_file.write(
-                "#####QUERY ID {} #####\n".format(self.query_counter))
-            self.query_counter += 1
-            self.quickstep_query_execution_dag_log_file.write(
-                "{}\n\n".format(command))
+            self.query_execution_dag_log_file.write(
+                "#####QUERY ID {} #####\n".format(self.__query_counter)
+            )
+            self.__query_counter += 1
+            self.query_execution_dag_log_file.write("{}\n\n".format(command))
 
-        command_str = "{}/quickstep_client <<< \"{}\"".format(
-            self.quickstep_shell_dir, command)
+        command_str = '{}/quickstep_client <<< "{}"'.format(
+            self.__quickstep_shell_dir, command
+        )
         output = subprocess.check_output(
-            command_str, stderr=subprocess.STDOUT, shell=True, executable='/bin/bash')
-        output = output.decode('utf-8')
+            command_str, stderr=subprocess.STDOUT, shell=True, executable="/bin/bash"
+        )
+        output = output.decode("utf-8")
 
         try:
             self.command_error_checking(output)
         except Exception as e:
             print(e)
-            print('Exception caught when trying to execute the command:')
+            print("Exception caught when trying to execute the command:")
             print(command)
             self.stop()
             sys.exit(0)
         return output
 
-    def analyze(self, table_list=[], count=False, range_analyze=False, analyze_all_tables=ANALYZE_ALL_TABLES):
+    def analyze(
+        self,
+        table_list=[],
+        count=False,
+        range_analyze=False,
+        analyze_all_tables=ANALYZE_ALL_TABLES,
+    ):
         # control the granularity of analytical queries for query optimization
-        if ANALYZER_OP == 'off':
+        if ANALYZER_OP == "off":
             return
 
         # analyze the table names specified in the table list
         table_list_str = ""
         if not analyze_all_tables:
-            table_list_str = ' '.join(table_list)
+            table_list_str = " ".join(table_list)
 
-        if ANALYZER_OP == 'full':
+        if ANALYZER_OP == "full":
             self.sql_command("\\analyze {}\n".format(table_list_str))
             return
 
@@ -95,34 +94,35 @@ class Database(object):
 
     def stop(self):
         """
-            Shut down the quickstep shell running in the background
+        Shut down the quickstep shell running in the background
         """
-        self.sql_command('quit;')
+        self.sql_command("quit;")
 
     def create_table(self, table):
-        attributes = table.attributes
-        attribute_name_type_pairs = ["{} {}".format(
-            attribute_name, attributes[attribute_name]) for attribute_name in attributes]
-        attribute_name_type_pairs_str = ','.join(attribute_name_type_pairs)
+        attribute_name_type_pairs = [
+            "{} {}".format(attribute, table.attributes[attribute])
+            for attribute in table.attributes
+        ]
+        attribute_name_type_pairs_str = ",".join(attribute_name_type_pairs)
         create_table_command = "CREATE TABLE {} ({});".format(
-            table.table_name, attribute_name_type_pairs_str)
-
+            table.table_name, attribute_name_type_pairs_str
+        )
         return self.sql_command(create_table_command)
 
     def drop_table(self, table_name):
-        drop_table_command = 'DROP TABLE ' + table_name + ';'
+        drop_table_command = "DROP TABLE " + table_name + ";"
         return self.sql_command(drop_table_command)
 
     def count_rows(self, table_name):
         if STATIC_DEBUG:
             return 0
-        # count_command = 'COPY SELECT COUNT(*) FROM ' + table_name + ' TO stdout;';
-        count_command = 'SELECT COUNT(*) FROM ' + table_name + ';'
+        count_command = "SELECT COUNT(*) FROM {};".format(table_name)
         count_result = self.sql_command(count_command)
         parsed_result_by_line = self.parse_query_result(count_result)
         try:
             parsed_result_by_delimiter = [
-                i.strip() for i in parsed_result_by_line[3].split('|')]
+                i.strip() for i in parsed_result_by_line[3].split("|")
+            ]
         except IndexError:
             print(count_result)
             self.stop()
@@ -131,185 +131,145 @@ class Database(object):
         count_result_value = int(parsed_result_by_delimiter[1])
         return count_result_value
 
-    def is_table_empty(self, table_name):
-        if STATIC_DEBUG:
-            return [False, 0]
-        row_num = self.count_rows(table_name)
-        return [row_num == 0, row_num]
-
     def output_data_from_table_to_csv(self, table_name, delimiter):
         output_file_name = "{}.csv".format(table_name)
         output_data_command = "COPY {} TO '{}' WITH (DELIMETER '{}');".format(
-            table_name, output_file_name, delimiter)
+            table_name, output_file_name, delimiter
+        )
         self.sql_command(output_data_command)
 
     def load_data_from_file(self, table_name, file_name, delimiter):
         load_data_command = "COPY {} FROM '{}' WITH (DELIMITER '{}');".format(
-            table_name, file_name, delimiter)
+            table_name, file_name, delimiter
+        )
         self.load_file_failure_checking(self.sql_command(load_data_command))
 
-    def load_data_from_table(self, src_table, selected_src_table_attributes_names,
-                             dest_table, dest_table_attributes_names,
-                             compute_intersection=(LOAD_DATA_FROM_TABLE == 'compute_intersection')):
+    def load_data_from_table(
+        self,
+        src_table,
+        dest_table,
+        compute_intersection="compute_intersection",
+        deduplication=True,
+    ):
         """
         Insert data from a selected table (source table) into another existed table (target table) and
-        perform deduplication on target table
+        perform deduplication on target table or the insertion part only (assuming src table has been pre-deduplicated)
+            - source table and target table must have the same schema
         """
-        src_table_attributes = src_table.attributes
-        dest_table_attributes = dest_table.attributes
-        # Validate the existence of attributes in both source table and target table
-        for attribute in selected_src_table_attributes_names:
-            if attribute not in src_table_attributes:
-                raise Exception(
-                    attribute + ' is not in table ' + src_table.table_name)
-
-        for attribute in dest_table_attributes_names:
-            if attribute not in src_table_attributes:
-                raise Exception(
-                    attribute + ' is not in table ' + dest_table.table_name)
-
-        # Validate the equivalence of attribute number of selected attributes in source table
-        # and attributes in target table
-        if len(selected_src_table_attributes_names) != len(dest_table_attributes_names):
-            raise Exception('The number of selected attributes is not equal to '
-                            'the number of attributes in the target table')
-
-        # Validate the data types of attributes selected in source table are the same as attributes in target table
-        attributes_num = len(selected_src_table_attributes_names)
-        for i in range(attributes_num):
-            src_table_attribute = selected_src_table_attributes_names[i]
-            src_table_attribute_type = src_table_attributes[src_table_attribute]
-            dest_table_attribute = dest_table_attributes_names[i]
-            dest_table_attribute_type = dest_table_attributes[dest_table_attribute]
-            if src_table_attribute_type != dest_table_attribute_type:
-                raise Exception('The data type of ' + src_table_attribute + ' in ' + src_table.table_name + ' is ' + src_table_attribute_type +
-                                ' but the data type of ' + dest_table_attribute + ' in ' + dest_table.table_name +
-                                ' is ' + dest_table_attribute_type)
+        src_table_attribute_names = [attribute for attribute in src_table.attributes]
+        dest_table_attribute_names = [attribute for attribute in dest_table.attributes]
+        attribute_num = len(src_table.attributes)
+        tmp_table = deepcopy(dest_table)
+        if not deduplication:
+            # insert all tuples from the source table directly into the target table
+            insert_command = "INSERT INTO {} SELECT * FROM {}".format(
+                dest_table.table_name, src_table.table_name
+            )
+            self.sql_command(insert_command)
+            return
 
         if compute_intersection:
-            tmp_table = Table('TEMP_TABLE_INTERSECT')
-            for attribute_name in dest_table_attributes:
-                tmp_table.add_attribute(
-                    attribute_name, dest_table_attributes[attribute_name])
+            # compute the intersection
+            tmp_table.rename("TEMP_TABLE_INTERSECT")
             self.create_table(tmp_table)
-
-            compute_intersection_command = 'INSERT INTO TEMP_TABLE_INTERSECT SELECT '
-            compute_intersection_command_join_str = ''
-            for i in range(attributes_num):
-                src_table_attri_name = selected_src_table_attributes_names[i]
-                dest_table_attri_name = dest_table_attributes_names[i]
-                compute_intersection_command += 'src.' + src_table_attri_name + ' AS ' + \
-                                                dest_table_attri_name + ', '
-                compute_intersection_command_join_str += 'src.' + src_table_attri_name + ' = ' + \
-                                                         'dest.' + dest_table_attri_name + ' AND '
-            compute_intersection_command_join_str = \
-                compute_intersection_command_join_str[:len(
-                    compute_intersection_command_join_str)-5]
-
-            compute_intersection_command = compute_intersection_command[:len(
-                compute_intersection_command)-2]
-            compute_intersection_command += ' FROM ' + src_table.table_name + ' src, ' + \
-                dest_table.table_name + ' dest'
-            compute_intersection_command += ' WHERE ' + \
-                compute_intersection_command_join_str + ';'
-
+            projection_attributes = list()
+            join_strs = list()
+            for i in range(attribute_num):
+                src_table_attribute_name = src_table_attribute_names[i]
+                dest_table_attribute_name = dest_table_attribute_names[i]
+                projection_attributes.append(
+                    "t1.{} AS {}".format(
+                        src_table_attribute_name, dest_table_attribute_name
+                    )
+                )
+                join_strs.append(
+                    "t1.{} = t2.{}".format(
+                        src_table_attribute_name, dest_table_attribute_name
+                    )
+                )
+            projection_str = ", ".join(projection_attributes)
+            join_str = " AND ".join(join_strs)
+            compute_intersection_command = """INSERT INTO TEMP_TABLE_INTERSECT 
+                SELECT {} FROM {} t1, {} t2 WHERE {};
+            """.format(
+                projection_str, src_table.table_name, dest_table.table_name, join_str
+            )
             self.sql_command(compute_intersection_command)
-            self.analyze(['TEMP_TABLE_INTERSECT'], count=True)
-
+            self.analyze(["TEMP_TABLE_INTERSECT"], count=True)
             # compute the set-difference
-            tmp_table = Table('TEMP_TEMP_TABLE_SET_DIFF')
-            for attribute_name in dest_table_attributes:
-                tmp_table.add_attribute(
-                    attribute_name, dest_table_attributes[attribute_name])
-
-            compute_set_diff_command = 'INSERT INTO TEMP_TEMP_TABLE_SET_DIFF' + \
-                                       ' SELECT * FROM ' + src_table.table_name + ' t1' +\
-                                       ' WHERE NOT EXISTS (SELECT * FROM TEMP_TABLE_INTERSECT t2 WHERE '
-            compute_set_diff_group_by_command = ' GROUP BY '
-            for i in range(attributes_num):
-                compute_set_diff_command += 't2.' + dest_table_attributes_names[i] + ' = ' + \
-                                            't1.' + \
-                    selected_src_table_attributes_names[i] + ' AND '
-                compute_set_diff_group_by_command += dest_table_attributes_names[i] + ', '
-
-            compute_set_diff_command = compute_set_diff_command[:len(
-                compute_set_diff_command)-5] + ')' + ';'
-            compute_set_diff_dedup_command = 'INSERT INTO TEMP_TABLE_SET_DIFF SELECT * FROM ' + \
-                                             'TEMP_TEMP_TABLE_SET_DIFF' + \
-                                             compute_set_diff_group_by_command[:len(
-                                                 compute_set_diff_group_by_command)-2]
-
-            compute_set_diff_dedup_command += ';'
+            tmp_table.rename("TEMP_TABLE_SET_DIFF")
             self.create_table(tmp_table)
+            compute_set_diff_command = """INSERT INTO TEMP_TABLE_SET_DIFF 
+                SELECT * FROM {} t1 WHERE NOT EXISTS 
+                    (SELECT * FROM TEMP_TABLE_INTERSECT t2 WHERE {});
+            """.format(
+                src_table.table_name, join_str
+            )
             self.sql_command(compute_set_diff_command)
-            self.analyze(['TEMP_TEMP_TABLE_SET_DIFF'], count=True)
-            self.drop_table('TEMP_TABLE_INTERSECT')
-            tmp_table.rename('TEMP_TABLE_SET_DIFF')
+            self.analyze(["TEMP_TABLE_SET_DIFF"], count=True)
+            self.drop_table("TEMP_TABLE_INTERSECT")
+            # dedup the set-difference
+            tmp_table.rename("TEMP_TABLE_SET_DIFF_DEDUP")
             self.create_table(tmp_table)
-            self.sql_command(compute_set_diff_dedup_command)
-            self.drop_table('TEMP_TEMP_TABLE_SET_DIFF')
-            self.analyze(['TEMP_TABLE_SET_DIFF'], count=True)
-            insert_set_diff_into_dest_table_command = 'INSERT INTO ' + dest_table.table_name + \
-                                                      ' SELECT * FROM TEMP_TABLE_SET_DIFF;'
-            self.sql_command(insert_set_diff_into_dest_table_command)
-            self.drop_table('TEMP_TABLE_SET_DIFF')
+            tmp_table.rename("TEMP_TABLE_SET_DIFF")
+            self.dedup_table(tmp_table, dest_table_name="TEMP_TABLE_SET_DIFF_DEDUP")
+            # insert the results from set-difference into the target table
+            tmp_table.rename("TEMP_TABLE_SET_DIFF_DEDUP")
+            self.load_data_from_table(tmp_table, dest_table, deduplication=False)
+            self.drop_table("TEMP_TABLE_SET_DIFF_DEDUP")
         else:
-            tmp_table = Table('TEMP_TABLE_WITHOUT_DEDUP')
-            for attribute_name in dest_table_attributes:
-                tmp_table.add_attribute(
-                    attribute_name, dest_table_attributes[attribute_name])
+            # insert tuples from both tables into new one without deduplication
+            tmp_table.rename("TEMP_TABLE_WITHOUT_DEDUP")
             self.create_table(tmp_table)
-            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' +
-                             'SELECT * FROM ' + src_table.table_name + ';')
-            self.sql_command('INSERT INTO TEMP_TABLE_WITHOUT_DEDUP ' +
-                             'SELECT * FROM ' + dest_table.table_name + ';')
-            self.analyze(['TEMP_TABLE_WITHOUT_DEDUP'], count=True)
+            self.analyze(["TEMP_TABLE_WITHOUT_DEDUP"], count=True)
+            insert_union_all_command = """ INSERT TO TEMP_TABLE_WITHOUT_DEDUP SELECT * 
+                FROM (SELECT * FROM {} UNION ALL SELECT * FROM {}) t;
+            """.format(
+                src_table.table_name, dest_table.table_name
+            )
+            self.sql_command(insert_union_all_command)
+            self.analyze(["TEMP_TABLE_WITHOUT_DEDUP"], count=True)
             self.drop_table(dest_table.table_name)
-            dedup_command = 'SELECT * FROM TEMP_TABLE_WITHOUT_DEDUP GROUP BY '
-            for i in range(attributes_num):
-                dedup_command += 'TEMP_TABLE_WITHOUT_DEDUP.' + \
-                    dest_table_attributes_names[i] + ', '
-            dedup_command = dedup_command[:len(dedup_command)-2]
+            # deduplication
             self.create_table(dest_table)
-            self.sql_command('INSERT INTO ' +
-                             dest_table.table_name + ' ' + dedup_command + ';')
-            self.drop_table(tmp_table.table_name)
+            self.analyze([dest_table.table_name], count=True)
+            self.dedup_table(tmp_table, dest_table_name=dest_table.table_name)
 
-    def dedup_table(self, src_table):
-        src_table_attributes = src_table.attributes
-        tmp_table = Table('TEMP_TABLE')
-        src_table_attribute_names = list(src_table_attributes.keys())
-        for attribute_name in src_table_attributes:
-            tmp_table.add_attribute(
-                attribute_name, src_table_attributes[attribute_name])
-        attributes_num = len(src_table_attributes)
-        self.create_table(tmp_table)
-        self.sql_command(
-            "INSERT INTO TEMP_TABLE SELECT * FROM {};".format(src_table.table_name))
-        self.drop_table(src_table.table_name)
-        self.analyze(['TEMP_TABLE'], count=True)
-        group_by_str = ','.join(["TEMP_TABLE.{}".format(
-            src_table_attribute_names[i]) for i in range(attributes_num)])
-        dedup_command = "INSERT INTO {} SELECT * FROM TEMP_TABLE GROUP BY {};".format(
-            src_table.table_name, group_by_str)
-        self.create_table(src_table)
-        self.sql_command(dedup_command)
-        self.drop_table(tmp_table.table_name)
-
-    def load_data_from_eval_query_str(self, dest_table, eval_query_str, dedup=False):
-        if not dedup:
-            load_data_str = "INSERT INTO {} {};".format(
-                dest_table.table_name, eval_query_str)
+    def dedup_table(self, src_table, dest_table_name=None):
+        src_table_attribute_names = [attribute for attribute in src_table.attributes]
+        attributes_num = len(src_table.attributes)
+        group_by_str = ",".join(
+            [src_table_attribute_names[i] for i in range(attributes_num)]
+        )
+        # store the deduplicated results in the table of the same name
+        if dest_table_name is None:
+            tmp_table = deepcopy(src_table)
+            tmp_table.rename("TEMP_TABLE", count=True)
+            # insert tuples from the source table into temporary table without deduplication
+            self.create_table(tmp_table)
+            self.load_data_from_table(src_table, tmp_table, deduplication=False)
+            self.drop_table(src_table.table_name)
+            self.analyze(["TEMP_TABLE"], count=True)
+            # perform deduplication and insert the deduplicated tuples back into the source table
+            self.create_table(src_table)
+            dedup_command = (
+                "INSERT INTO {} SELECT * FROM TEMP_TABLE GROUP BY {};".format(
+                    src_table.table_name, group_by_str
+                )
+            )
+            self.sql_command(dedup_command)
+            drop_table = tmp_table
         else:
-            dest_table_attribute_names = list(dest_table.attributes.keys())
-            group_by_str = ','.join(
-                [attribute_name for attribute_name in dest_table_attribute_names])
-            load_data_str = "INSERT INTO {} {} GROUP BY {};".format(
-                dest_table.table_name, eval_query_str, group_by_str)
-        self.sql_command(load_data_str)
+            self.analyze([src_table.table_name], count=True)
+            dedup_command = "INSERT INTO {} SELECT * FROM {} GROUP BY {};".format(
+                dest_table_name, src_table.table_name, group_by_str
+            )
+            drop_table = src_table
+        self.sql_command(dedup_command)
+        self.drop_table(drop_table.table_name)
+
 
 class Table(object):
-
     def __init__(self, table_name):
         self.table_name = table_name
         self.attributes = collections.OrderedDict()
@@ -318,10 +278,11 @@ class Table(object):
     def rename(self, new_table_name):
         self.table_name = new_table_name
 
-    def add_attribute(self, attribute_name, attribute_type):
+    def add_attribute(self, attribute_name: str, attribute_type: str):
         if attribute_name in self.attributes:
-            raise Exception(attribute_name +
-                            ' already exists in table ' + self.table_name)
+            raise Exception(
+                "{} already exists in table {}".format(attribute_name, self.table_name)
+            )
         else:
             self.attributes[attribute_name] = attribute_type
             self.attribute_num += 1
