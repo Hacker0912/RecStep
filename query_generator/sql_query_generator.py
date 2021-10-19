@@ -396,6 +396,11 @@ def generate_unified_idb_evaluation_str(idb_table_name, sub_query_list):
     return eval_m_delta_str
 
 
+def generate_insertion_evaluation_str(idb_table_name, query):
+    evaluation_str = "INSERT INTO {} {};".format(query)
+    return evaluation_str
+
+
 def generate_intersect_str(l_table, r_table, aggregation_map, sub_query=False):
     """Generate SQL string to compute the common tuples (intersection) between the two given tables"""
     l_table_name = l_table.table_name

@@ -17,7 +17,8 @@ INTERPRET = config["Debug"]["interpret"]
 # Output Configs #
 ##################
 WRITE_TO_CSV = config["Output"]["write_to_csv"]
-REMOVE_IDBS = config["Output"]["remove_idbs"]
+RETAIN_FINAL_OUTPUT_ONLY = config["Output"]["retain_final_outpu_only"]
+FINAL_OUTPUT_RELATIONS = config["Output"]["final_output_relations"]
 ################
 # Input Config #
 ################
@@ -33,6 +34,7 @@ ANALYZER_OP = config["Optimization"]["analyzer_level"]
 ANALYZE_ALL_TABLES = config["Optimization"]["analyze_all_tables"]
 SELECTIVE_DEDUP = config["Optimization"]["selective_dedup"]
 DEDUP_RELATION_LIST = config["Optimization"]["dedup_relation_list"]
+UNIFIED_IDB_EVALUATION = config["Optimization"]["unified_idb_evaluation"]
 ######################
 #  System Parameters #
 ######################

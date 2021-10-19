@@ -98,10 +98,7 @@ def interpret(datalog_program_file_path):
             executor.log(">>>>Evaluating Non-Recursive Rule<<<<<")
             idb_relation_name = evaluated_rules[0]["head"]["name"]
             executor.non_recursive_rule_eval(
-                idb_relation_name,
-                catalog,
-                evaluated_rules,
-                relation_def_map
+                idb_relation_name, catalog, evaluated_rules, relation_def_map
             )
             executor.log_local_time(
                 descrip="Rule Evaluation Time",
@@ -119,13 +116,17 @@ def interpret(datalog_program_file_path):
         rule_group_index += 1
 
     executor.log_global_time(descrip="Total Evaluation Time")
-    if REMOVE_IDBS:
+    if RETAIN_FINAL_OUTPUT_ONLY:
         for relation in idb_decl:
-            executor.drop_table(relation["name"])
-    
-    if not REMOVE_IDBS and WRITE_TO_CSV:
+            if relation not in FINAL_OUTPUT_RELATIONS:
+                executor.drop_table(relation["name"])
+
+    if WRITE_TO_CSV:
         for relation in idb_decl:
-            executor.output_data_from_table_to_csv(relation["name"])
+            if (not RETAIN_FINAL_OUTPUT_ONLY) or (
+                RETAIN_FINAL_OUTPUT_ONLY and relation in FINAL_OUTPUT_RELATIONS
+            ):
+                executor.output_data_from_table_to_csv(relation["name"])
 
     executor.stop()
 

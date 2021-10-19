@@ -748,16 +748,13 @@ class Executor(object):
             idb_delta_table_name = catalog["tables"]["{}_delta".format(idb)].table_name
             self.__quickstep_shell_instance.drop_table(idb_delta_table_name)
 
-        if REMOVE_IDBS:
+        if RETAIN_FINAL_OUTPUT_ONLY:
             for idb in eval_idb_to_rule_maps:
-                self.__quickstep_shell_instance.drop_table(idb)
+                if idb not in FINAL_OUTPUT_RELATIONS:
+                    self.__quickstep_shell_instance.drop_table(idb)
 
     def non_recursive_rule_eval(
-        self,
-        idb_relation_name,
-        catalog,
-        non_recursive_rules,
-        relation_def_map
+        self, idb_relation_name, catalog, non_recursive_rules, relation_def_map
     ):
 
         sub_queries = list()
@@ -777,23 +774,44 @@ class Executor(object):
         else:
             target_table_name = "{}_tmp".format(idb_relation_name)
 
-        eval_str = generate_unified_idb_evaluation_str(target_table_name, sub_queries)
-        if STATIC_DEBUG:
-            print("-----nonrecursive unified-idb evaluation str-----")
-            print(eval_str)
+        if UNIFIED_IDB_EVALUATION:
+            eval_str = generate_unified_idb_evaluation_str(
+                target_table_name, sub_queries
+            )
+            if STATIC_DEBUG:
+                print("-----nonrecursive unified-idb evaluation str-----")
+                print(eval_str)
 
-        if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
-            self.execute(eval_str)
+            if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
+                self.execute(eval_str)
+            else:
+                # create tmp table
+                idb_relation = relation_def_map[idb_relation_name]["relation"]
+                tmp_table = self.create_table_from_relation(
+                    idb_relation, table_name=target_table_name
+                )
+                self.execute(eval_str)
+                self.__quickstep_shell_instance.dedup_table(
+                    tmp_table, dest_table_name=idb_relation_name
+                )
         else:
-            # create tmp table
-            idb_relation = relation_def_map[idb_relation_name]["relation"]
-            tmp_table = self.create_table_from_relation(
-                idb_relation, table_name=target_table_name
-            )
-            self.execute(eval_str)
-            self.__quickstep_shell_instance.dedup_table(
-                tmp_table, dest_table_name=idb_relation_name
-            )
+            for sub_query in sub_queries:
+                eval_str = generate_insertion_evaluation_str(
+                    target_table_name, sub_query
+                )
+                if STATIC_DEBUG:
+                    print("-----nonrecursive evaluation str-----")
+                    print(eval_str)
+                else:
+                    # create tmp table
+                    idb_relation = relation_def_map[idb_relation_name]["relation"]
+                    tmp_table = self.create_table_from_relation(
+                        idb_relation, table_name=target_table_name
+                    )
+                    self.execute(eval_str)
+                    self.__quickstep_shell_instance.dedup_table(
+                        tmp_table, dest_table_name=idb_relation_name
+                    )
 
         self.analyze([idb_relation_name], count=True)
         row_num = self.count_rows(idb_relation_name)
