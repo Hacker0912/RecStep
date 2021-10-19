@@ -28,9 +28,9 @@ class Executor(object):
         if LOG_ON:
             self.__logger.info(log_str)
 
-    def log_time(self, log_time, time_descrip="Time"):
+    def log_time(self, log_time, descrip="Time"):
         if LOG_ON:
-            self.__logger.info("{}: {}".format(time_descrip, log_time))
+            self.__logger.info("{}: {}".format(descrip, log_time))
 
     def log_local_time(self, descrip="Time"):
         if LOG_ON:
@@ -39,6 +39,9 @@ class Executor(object):
     def log_global_time(self, descrip="Time"):
         if LOG_ON:
             self.log_time(self.__time_monitor.global_elapse_time(), descrip=descrip)
+
+    def drop_table(self, table_name):
+        self.__quickstep_shell_instance.drop_table(table_name)
 
     def execute(self, sql_command):
         self.__quickstep_shell_instance.sql_command(sql_command)
@@ -745,17 +748,21 @@ class Executor(object):
             idb_delta_table_name = catalog["tables"]["{}_delta".format(idb)].table_name
             self.__quickstep_shell_instance.drop_table(idb_delta_table_name)
 
+        if REMOVE_IDBS:
+            for idb in eval_idb_to_rule_maps:
+                self.__quickstep_shell_instance.drop_table(idb)
+
     def non_recursive_rule_eval(
         self,
         idb_relation_name,
         catalog,
         non_recursive_rules,
-        relation_def_map,
-        non_dedup_relations=list(),
+        relation_def_map
     ):
 
         sub_queries = list()
         for eval_rule in non_recursive_rules:
+            self.log(DatalogProgram.iterate_datalog_rule(eval_rule))
             sub_query = gen_rule_eval_sql_str(
                 eval_rule,
                 relation_def_map,
@@ -765,7 +772,7 @@ class Executor(object):
             )
             sub_queries.append(sub_query)
 
-        if idb_relation_name in non_dedup_relations:
+        if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
             target_table_name = idb_relation_name
         else:
             target_table_name = "{}_tmp".format(idb_relation_name)
@@ -775,7 +782,7 @@ class Executor(object):
             print("-----nonrecursive unified-idb evaluation str-----")
             print(eval_str)
 
-        if idb_relation_name in non_dedup_relations:
+        if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
             self.execute(eval_str)
         else:
             # create tmp table

@@ -17,6 +17,7 @@ INTERPRET = config["Debug"]["interpret"]
 # Output Configs #
 ##################
 WRITE_TO_CSV = config["Output"]["write_to_csv"]
+REMOVE_IDBS = config["Output"]["remove_idbs"]
 ################
 # Input Config #
 ################
@@ -30,7 +31,8 @@ DEFAULT_SET_DIFF_ALG = config["Optimization"]["default_set_diff_alg"]
 SET_DIFF_OP = config["Optimization"]["dynamic_set_diff"]
 ANALYZER_OP = config["Optimization"]["analyzer_level"]
 ANALYZE_ALL_TABLES = config["Optimization"]["analyze_all_tables"]
-NON_DEDUP_RELATION_LIST = config["Optimization"]["non_dedup_relation_list"]
+SELECTIVE_DEDUP = config["Optimization"]["selective_dedup"]
+DEDUP_RELATION_LIST = config["Optimization"]["dedup_relation_list"]
 ######################
 #  System Parameters #
 ######################

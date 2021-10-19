@@ -13,13 +13,14 @@
                 "csv_delimiter": ","
         },
         "Input": {
-                "preload": false
+                "preload": true
         },
 	"Output": {
-		"write_to_csv": false
+		"write_to_csv": false,
+		"remove_idbs": true
 	}, 
         "Debug": {
-                "static_debug": false,
+                "static_debug": true,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,
@@ -30,7 +31,8 @@
 		"analyze_all_tables": false,
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-		"non_dedup_relation_list": ["return"]  
+		"selective_dedup": true,
+		"dedup_relation_list": ["return"]  
         },
 	"Execution": {
 		"load_data_from_table": "simple_dedup"

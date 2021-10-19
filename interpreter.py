@@ -48,9 +48,10 @@ def interpret(datalog_program_file_path):
     catalog["optimization"] = dict()
     # Create edb tables
     for relation in edb_decl:
-        catalog["tables"][relation["name"]] = executor.create_table_from_relation(
-            relation
-        )
+        if not PRE_LOAD:
+            catalog["tables"][relation["name"]] = executor.create_table_from_relation(
+                relation
+            )
         catalog["optimization"][relation["name"]] = dict()
         catalog["optimization"][relation["name"]]["size"] = 0
 
@@ -100,8 +101,7 @@ def interpret(datalog_program_file_path):
                 idb_relation_name,
                 catalog,
                 evaluated_rules,
-                relation_def_map,
-                non_dedup_relations=NON_DEDUP_RELATION_LIST,
+                relation_def_map
             )
             executor.log_local_time(
                 descrip="Rule Evaluation Time",
@@ -119,11 +119,13 @@ def interpret(datalog_program_file_path):
         rule_group_index += 1
 
     executor.log_global_time(descrip="Total Evaluation Time")
-    if WRITE_TO_CSV:
-        for relation_name in relation_def_map:
-            relation_type = relation_def_map[relation_name]["type"]
-            if relation_type == "idb":
-                executor.output_data_from_table_to_csv(relation_name)
+    if REMOVE_IDBS:
+        for relation in idb_decl:
+            executor.drop_table(relation["name"])
+    
+    if not REMOVE_IDBS and WRITE_TO_CSV:
+        for relation in idb_decl:
+            executor.output_data_from_table_to_csv(relation["name"])
 
     executor.stop()
 
