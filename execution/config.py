@@ -17,7 +17,7 @@ INTERPRET = config["Debug"]["interpret"]
 # Output Configs #
 ##################
 WRITE_TO_CSV = config["Output"]["write_to_csv"]
-RETAIN_FINAL_OUTPUT_ONLY = config["Output"]["retain_final_outpu_only"]
+RETAIN_FINAL_OUTPUT_ONLY = config["Output"]["retain_final_output_only"]
 FINAL_OUTPUT_RELATIONS = config["Output"]["final_output_relations"]
 ################
 # Input Config #

@@ -397,7 +397,7 @@ def generate_unified_idb_evaluation_str(idb_table_name, sub_query_list):
 
 
 def generate_insertion_evaluation_str(idb_table_name, query):
-    evaluation_str = "INSERT INTO {} {};".format(query)
+    evaluation_str = "INSERT INTO {} {};".format(idb_table_name, query)
     return evaluation_str
 
 

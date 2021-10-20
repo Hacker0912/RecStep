@@ -802,16 +802,19 @@ class Executor(object):
                 if STATIC_DEBUG:
                     print("-----nonrecursive evaluation str-----")
                     print(eval_str)
-                else:
-                    # create tmp table
-                    idb_relation = relation_def_map[idb_relation_name]["relation"]
-                    tmp_table = self.create_table_from_relation(
-                        idb_relation, table_name=target_table_name
-                    )
-                    self.execute(eval_str)
-                    self.__quickstep_shell_instance.dedup_table(
-                        tmp_table, dest_table_name=idb_relation_name
-                    )
+            
+            if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
+                self.execute(eval_str)
+            else:
+                # create tmp table
+                idb_relation = relation_def_map[idb_relation_name]["relation"]
+                tmp_table = self.create_table_from_relation(
+                    idb_relation, table_name=target_table_name
+                )
+                self.execute(eval_str)
+                self.__quickstep_shell_instance.dedup_table(
+                    tmp_table, dest_table_name=idb_relation_name
+                )
 
         self.analyze([idb_relation_name], count=True)
         row_num = self.count_rows(idb_relation_name)
