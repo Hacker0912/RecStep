@@ -8,6 +8,8 @@ The analyzer is responsible for:
 
 import collections
 
+from execution.config import BACK_END
+
 
 def construct_atom_rule_map(datalog_program):
     """create a dictionary storing <head_atom, rule_index_list> key-value pair"""
@@ -201,6 +203,10 @@ def group_rules(rule_atom_map, sccs, dependency_graph):
     rule_group_bitmap = list()
     for scc_key in sccs:
         if is_recursive_scc(sccs, scc_key, dependency_graph):
+            if BACK_END != "quickstep":
+                raise Exception(
+                    "Recursive rules can only be executed using quickstep as backend"
+                )
             # do nothing if the scc is recursive
             rule_groups.append(sccs[scc_key])
             rule_group_bitmap.append(True)

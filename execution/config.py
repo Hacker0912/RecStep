@@ -35,6 +35,12 @@ ANALYZE_ALL_TABLES = config["Optimization"]["analyze_all_tables"]
 SELECTIVE_DEDUP = config["Optimization"]["selective_dedup"]
 DEDUP_RELATION_LIST = config["Optimization"]["dedup_relation_list"]
 UNIFIED_IDB_EVALUATION = config["Optimization"]["unified_idb_evaluation"]
+#############
+# Execution #
+#############
+QUICKSTEP_SHELL_DIR = config["QuickStep_Shell_Dir"]
+BACK_END = config["Execution"]["backend"]
+SINGLE_QUERY_EVALUATION = config["Execution"]["single_query_evaluation"]
 ######################
 #  System Parameters #
 ######################
@@ -43,10 +49,6 @@ THREADS_NUM = config["Parameters"]["threads_num"]
 # Block is the minimal parallelism unit
 # This number only considers tables with 2 attributes
 TUPLE_NUM_PER_BLOCK = config["Parameters"]["block_size"]
-#####################
-# Execution Related #
-#####################
-QUICKSTEP_SHELL_DIR = config["QuickStep_Shell_Dir"]
 ###########
 # Logging #
 ###########

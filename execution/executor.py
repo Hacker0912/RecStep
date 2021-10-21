@@ -6,7 +6,6 @@ from utility.monitoring import TimeMonitor
 from execution.config import *
 
 from query_generator.sql_query_generator import *
-import rule_analyzer.translator
 
 import collections
 import time
@@ -15,7 +14,8 @@ from copy import deepcopy
 
 class Executor(object):
     def __init__(self):
-        self.__quickstep_shell_instance = QuickStep()
+        if BACK_END == "quickstep":
+            self.__quickstep_shell_instance = QuickStep()
         if LOG_ON:
             self.__logger = LpaLogger()
             self.__time_monitor = TimeMonitor()
@@ -44,6 +44,12 @@ class Executor(object):
         self.__quickstep_shell_instance.drop_table(table_name)
 
     def execute(self, sql_command):
+        if BACK_END != "quickstep":
+            raise Exception(
+                "The back end is {}! Only quickstep can be used for actual execution".format(
+                    BACK_END
+                )
+            )
         self.__quickstep_shell_instance.sql_command(sql_command)
 
     def create_table_from_relation(
@@ -84,6 +90,8 @@ class Executor(object):
 
     @staticmethod
     def update_catalog_table_size(catalog, relation_key, new_size):
+        if BACK_END != "quickstep":
+            return
         if relation_key not in catalog["optimization"]:
             catalog["optimization"][relation_key] = dict()
         catalog["optimization"][relation_key]["size"] = new_size
@@ -802,7 +810,7 @@ class Executor(object):
                 if STATIC_DEBUG:
                     print("-----nonrecursive evaluation str-----")
                     print(eval_str)
-            
+
             if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
                 self.execute(eval_str)
             else:
@@ -819,6 +827,46 @@ class Executor(object):
         self.analyze([idb_relation_name], count=True)
         row_num = self.count_rows(idb_relation_name)
         self.update_catalog_table_size(catalog, idb_relation_name, row_num)
+
+    def non_recursive_single_query_evaluation(
+        self, rule_groups, rules, relation_def_map
+    ):
+        tmp_table_queries = list()
+        rule_group_num = len(rule_groups["rule_groups"])
+        final_result_eval_str = ""
+        for group_index in range(rule_group_num):
+            rule_group = rule_groups["rule_groups"][group_index]
+            evaluated_rules = [rules[rule_index] for rule_index in rule_group]
+            idb_relation_name = evaluated_rules[0]["head"]["name"]
+            sub_queries = list()
+            for eval_rule in evaluated_rules:
+                sub_query = gen_rule_eval_sql_str(
+                    eval_rule,
+                    relation_def_map,
+                    None,
+                    iter_num=0,
+                    recursive=False,
+                )
+                sub_queries.append(sub_query)
+
+            if group_index != (rule_group_num - 1):
+                # query evaluating the intermediate result into the temporary tables (i.e. with t as)
+                eval_str = generate_unified_idb_evaluation_str(
+                    idb_relation_name, sub_queries, with_subquery=True
+                )
+                tmp_table_queries.append(eval_str)
+            else:
+                final_result_eval_str = generate_unified_idb_evaluation_str(
+                    idb_relation_name,
+                    sub_queries,
+                    with_subquery=False,
+                    select_into=True,
+                )
+
+        single_query_str = "WITH {} {}".format(
+            ", ".join(tmp_table_queries), final_result_eval_str
+        )
+        print(single_query_str)
 
     def output_data_from_table_to_csv(self, relation_name):
         self.__quickstep_shell_instance(relation_name, delimiter=CSV_DELIMITER)

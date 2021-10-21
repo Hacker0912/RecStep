@@ -388,11 +388,32 @@ def generate_group_by_str(head_relation_attributes, aggregation_map):
     return group_by_str
 
 
-def generate_unified_idb_evaluation_str(idb_table_name, sub_query_list):
+def generate_unified_idb_evaluation_str(
+    idb_table_name,
+    sub_query_list,
+    with_subquery=False,
+    select_into=False,
+    distinct=False,
+):
     union_all_sub_query_str = " UNION ALL ".join(sub_query_list)
-    eval_m_delta_str = "INSERT INTO {} SELECT * FROM ({}) t;".format(
-        idb_table_name, union_all_sub_query_str
-    )
+    if not with_subquery:
+        if not select_into:
+            eval_m_delta_str = "INSERT INTO {} SELECT * FROM ({}) t;".format(
+                idb_table_name, union_all_sub_query_str
+            )
+        else:
+            if distinct:
+                eval_m_delta_str = "SELECT DISTINCT * INTO {} FROM ({}) t;".format(
+                    idb_table_name, union_all_sub_query_str
+                )
+            else:
+                eval_m_delta_str = "SELECT * INTO {} FROM ({}) t;".format(
+                    idb_table_name, union_all_sub_query_str
+                )
+    else:
+        eval_m_delta_str = " {} AS (SELECT * FROM ({}) t)".format(
+            idb_table_name, union_all_sub_query_str
+        )
     return eval_m_delta_str
 
 

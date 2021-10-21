@@ -58,11 +58,11 @@ class DatalogProgram(object):
                     len(self.sccs)
                 )
             )
-            print("<rscc index>: <indices of rules>\n")
-            stratum_index = 0
+            print("<rscc index>: <rscc key> - <indices of rules>\n")
+            scc_index = 0
             for scc_key in self.sccs:
-                print("rscc {}: {}".format(stratum_index, self.sccs[scc_key]))
-                stratum_index += 1
+                print("rscc {}: {}-{}".format(scc_index, scc_key, self.sccs[scc_key]))
+                scc_index += 1
             print()
 
         # Detect negation cycle

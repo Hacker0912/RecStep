@@ -40,40 +40,42 @@ def interpret(datalog_program_file_path):
 
     # Configure and initialize the executor
     executor = Executor()
-    executor.log("Start creating IDB and EDB tables and populating facts")
+    catalog = None
+    if BACK_END == "quickstep":
+        executor.log("Start creating IDB and EDB tables and populating facts")
 
-    # Catalog to keep track of all the objects and stats
-    catalog = dict()
-    catalog["tables"] = dict()
-    catalog["optimization"] = dict()
-    # Create edb tables
-    for relation in edb_decl:
-        if not PRE_LOAD:
+        # Catalog to keep track of all the objects and stats
+        catalog = dict()
+        catalog["tables"] = dict()
+        catalog["optimization"] = dict()
+        # Create edb tables
+        for relation in edb_decl:
+            if not PRE_LOAD:
+                catalog["tables"][
+                    relation["name"]
+                ] = executor.create_table_from_relation(relation)
+            catalog["optimization"][relation["name"]] = dict()
+            catalog["optimization"][relation["name"]]["size"] = 0
+
+        # Create idb tables
+        for relation in idb_decl:
             catalog["tables"][relation["name"]] = executor.create_table_from_relation(
                 relation
             )
-        catalog["optimization"][relation["name"]] = dict()
-        catalog["optimization"][relation["name"]]["size"] = 0
+            catalog["optimization"][relation["name"]] = dict()
+            catalog["optimization"][relation["name"]]["size"] = 0
 
-    # Create idb tables
-    for relation in idb_decl:
-        catalog["tables"][relation["name"]] = executor.create_table_from_relation(
-            relation
-        )
-        catalog["optimization"][relation["name"]] = dict()
-        catalog["optimization"][relation["name"]]["size"] = 0
+        # Populate facts into edbs
+        for relation in edb_decl:
+            if not PRE_LOAD:
+                executor.populate_data_into_edb(relation)
+            catalog["optimization"][relation["name"]] = executor.count_rows(
+                relation["name"]
+            )
 
-    # Populate facts into edbs
-    for relation in edb_decl:
-        if not PRE_LOAD:
-            executor.populate_data_into_edb(relation)
-        catalog["optimization"][relation["name"]] = executor.count_rows(
-            relation["name"]
-        )
-
-    # Analyze all tables
-    executor.analyze([], count=True)
-    executor.log_local_time()
+        # Analyze all tables
+        executor.analyze([], count=True)
+        executor.log_local_time()
 
     if STATIC_DEBUG:
         print("----------DEBUGGING SECTION----------")
@@ -89,46 +91,52 @@ def interpret(datalog_program_file_path):
                 continue
             non_dedup_relations.add(relation_name)
 
-    for rule_group in rule_groups["rule_groups"]:
-        executor.log(
-            "-----Start evaluating rule group[{}]-----".format(rule_group_index),
+    if SINGLE_QUERY_EVALUATION:
+        executor.non_recursive_single_query_evaluation(
+            rule_groups, rules, relation_def_map
         )
-        evaluated_rules = [rules[rule_index] for rule_index in rule_group]
-        if not rule_groups["rule_group_bitmap"][rule_group_index]:
-            executor.log(">>>>Evaluating Non-Recursive Rule<<<<<")
-            idb_relation_name = evaluated_rules[0]["head"]["name"]
-            executor.non_recursive_rule_eval(
-                idb_relation_name, catalog, evaluated_rules, relation_def_map
+    else:
+        for rule_group in rule_groups["rule_groups"]:
+            executor.log(
+                "-----Start evaluating rule group[{}]-----".format(rule_group_index),
             )
-            executor.log_local_time(
-                descrip="Rule Evaluation Time",
-            )
-            executor.update_local_time()
-            executor.log("-----SEPERATOR-----\n")
+            evaluated_rules = [rules[rule_index] for rule_index in rule_group]
+            if not rule_groups["rule_group_bitmap"][rule_group_index]:
+                executor.log(">>>>Evaluating Non-Recursive Rule<<<<<")
+                idb_relation_name = evaluated_rules[0]["head"]["name"]
+                executor.non_recursive_rule_eval(
+                    idb_relation_name, catalog, evaluated_rules, relation_def_map
+                )
+                executor.log_local_time(
+                    descrip="Rule Evaluation Time",
+                )
+                executor.update_local_time()
+                executor.log("-----SEPERATOR-----\n")
 
-        else:
-            executor.log(">>>>Evaluating Recursive Rules<<<<<")
-            executor.recursive_rules_eval(
-                catalog,
-                evaluated_rules,
-                relation_def_map,
-            )
-        rule_group_index += 1
+            else:
+                executor.log(">>>>Evaluating Recursive Rules<<<<<")
+                executor.recursive_rules_eval(
+                    catalog,
+                    evaluated_rules,
+                    relation_def_map,
+                )
+            rule_group_index += 1
 
-    executor.log_global_time(descrip="Total Evaluation Time")
-    if RETAIN_FINAL_OUTPUT_ONLY:
-        for relation in idb_decl:
-            if relation not in FINAL_OUTPUT_RELATIONS:
-                executor.drop_table(relation["name"])
+    if BACK_END == "quickstep":
+        executor.log_global_time(descrip="Total Evaluation Time")
+        if RETAIN_FINAL_OUTPUT_ONLY:
+            for relation in idb_decl:
+                if relation not in FINAL_OUTPUT_RELATIONS:
+                    executor.drop_table(relation["name"])
 
-    if WRITE_TO_CSV:
-        for relation in idb_decl:
-            if (not RETAIN_FINAL_OUTPUT_ONLY) or (
-                RETAIN_FINAL_OUTPUT_ONLY and relation in FINAL_OUTPUT_RELATIONS
-            ):
-                executor.output_data_from_table_to_csv(relation["name"])
+        if WRITE_TO_CSV:
+            for relation in idb_decl:
+                if (not RETAIN_FINAL_OUTPUT_ONLY) or (
+                    RETAIN_FINAL_OUTPUT_ONLY and relation in FINAL_OUTPUT_RELATIONS
+                ):
+                    executor.output_data_from_table_to_csv(relation["name"])
 
-    executor.stop()
+        executor.stop()
 
 
 def main():

@@ -12,6 +12,10 @@
         "QuickStep": {
                 "csv_delimiter": ","
         },
+        "Execution": {
+                "backend": "sql-server",
+                "single_query_evaluation": true
+        },
         "Input": {
                 "preload": true
         },
@@ -21,7 +25,7 @@
                 "final_output_relations": ["return"] 
 	}, 
         "Debug": {
-                "static_debug": true,
+                "static_debug": false,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,
@@ -36,9 +40,6 @@
 		"dedup_relation_list": ["return"],
                 "unified_idb_evaluation": false
         },
-	"Execution": {
-		"load_data_from_table": "simple_dedup"
-	},
         "Parameters": {
                 "threads_num": 40,
                 "block_size": 262144
