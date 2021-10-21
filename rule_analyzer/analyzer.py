@@ -199,7 +199,7 @@ def group_rules(rule_atom_map, sccs, dependency_graph):
     non-recursive rule with the same idb name in the same group
     """
     rule_groups = list()
-    non_recursive_rule_group_map = dict()
+    non_recursive_rule_group_map = collections.OrderedDict()
     rule_group_bitmap = list()
     for scc_key in sccs:
         if is_recursive_scc(sccs, scc_key, dependency_graph):
