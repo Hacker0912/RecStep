@@ -28,11 +28,14 @@ datalog_idb_declare returns [r]
     ;
 
 datalog_relation_schema returns [r]
-    : {schema = {'name': '', 'attributes': []}}
+    : {schema = {'name': '', 'attributes': [], 'keys': []}}
       relation_name = TOKEN_ID                    {schema['name'] = $relation_name.text}
       TOKEN_LEFT_PAREN
-      t1 = TOKEN_ID dt1 = data_type                {schema['attributes'].append(self.AtomArg($t1.text, $dt1.r))}
-      (TOKEN_COMMA t2 = TOKEN_ID dt2 = data_type   {schema['attributes'].append(self.AtomArg($t2.text, $dt2.r))})*
+      (t1 = non_key_attribute dt1 = data_type {schema['attributes'].append(self.AtomArg($t1.r, $dt1.r))}| 
+	   t2 = key_attribute {schema['keys'].append($t2.r)} dt2 = data_type {schema['attributes'].append(self.AtomArg($t2.r, $dt2.r))}) 
+      (TOKEN_COMMA 
+	   (t3 = non_key_attribute dt3 = data_type {schema['attributes'].append(self.AtomArg($t3.r, $dt3.r))}|
+	    t4 = key_attribute {schema['keys'].append($t4.r)} dt4 = data_type {schema['attributes'].append(self.AtomArg($t4.r, $dt4.r))}))*
       TOKEN_RIGHT_PAREN
       {$r = schema}
     ;
@@ -142,6 +145,14 @@ aggregation_expr returns [r]
 	  {$r = agg_dic}
 	;
 
+key_attribute returns [r]
+	: TOKEN_LEFT_BRACKET a1 = TOKEN_ID {$r = $a1.text} TOKEN_RIGHT_BRACKET
+	;
+
+non_key_attribute returns [r]
+	: a1 = TOKEN_ID  {$r = $a1.text}
+	;
+
 compare_op returns [r]
 	: op1 = TOKEN_NOT_EQUALS          {$r = $op1.text}         
     | op2 = TOKEN_EQUALS			  {$r = $op2.text}
@@ -240,4 +251,6 @@ TOKEN_LESS_THAN: '<';
 
 TOKEN_LEFT_PAREN: '(';
 TOKEN_RIGHT_PAREN: ')';
+TOKEN_LEFT_BRACKET: '[';
+TOKEN_RIGHT_BRACKET: ']';
 TOKEN_WS: [ \t\r\n]+ -> skip;

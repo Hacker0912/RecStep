@@ -866,7 +866,7 @@ class Executor(object):
         single_query_str = "WITH {} {}".format(
             ", ".join(tmp_table_queries), final_result_eval_str
         )
-        print(single_query_str)
+        # print(single_query_str)
 
     def output_data_from_table_to_csv(self, relation_name):
         self.__quickstep_shell_instance(relation_name, delimiter=CSV_DELIMITER)

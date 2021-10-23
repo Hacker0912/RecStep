@@ -13,154 +13,167 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3,")
-        buf.write("\u014b\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3.")
+        buf.write("\u0166\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
-        buf.write("\4\24\t\24\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\7\2\61\n\2")
-        buf.write("\f\2\16\2\64\13\2\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3")
-        buf.write("\3\3\7\3@\n\3\f\3\16\3C\13\3\3\3\3\3\3\4\3\4\3\4\3\4\3")
-        buf.write("\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\7\4S\n\4\f\4\16\4V\13\4")
-        buf.write("\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6\3")
-        buf.write("\6\3\6\7\6g\n\6\f\6\16\6j\13\6\3\6\3\6\3\7\3\7\3\7\5\7")
-        buf.write("q\n\7\3\7\3\7\5\7u\n\7\3\7\3\7\5\7y\n\7\3\7\3\7\3\7\3")
-        buf.write("\7\3\7\3\7\3\7\5\7\u0082\n\7\3\7\3\7\3\7\3\b\3\b\3\b\3")
-        buf.write("\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t")
-        buf.write("\u0097\n\t\3\t\3\t\7\t\u009b\n\t\f\t\16\t\u009e\13\t\3")
-        buf.write("\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u00ac")
-        buf.write("\n\t\3\t\3\t\3\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3\13")
-        buf.write("\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13")
-        buf.write("\3\13\5\13\u00c5\n\13\3\13\3\13\3\13\3\13\3\13\3\13\3")
-        buf.write("\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\5\13\u00d5\n\13")
-        buf.write("\7\13\u00d7\n\13\f\13\16\13\u00da\13\13\3\13\3\13\3\13")
-        buf.write("\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3")
-        buf.write("\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\5\16\u00f5\n\16")
-        buf.write("\3\16\3\16\3\16\3\16\3\16\3\16\5\16\u00fd\n\16\3\16\3")
-        buf.write("\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17")
-        buf.write("\u010a\n\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3")
-        buf.write("\20\3\20\3\20\3\20\3\20\3\20\3\20\5\20\u011b\n\20\3\21")
-        buf.write("\3\21\3\21\3\21\3\21\3\21\3\21\3\21\3\21\3\21\5\21\u0127")
-        buf.write("\n\21\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\5\22\u0131")
-        buf.write("\n\22\3\23\3\23\3\23\3\23\5\23\u0137\n\23\3\24\3\24\3")
-        buf.write("\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24")
-        buf.write("\3\24\3\24\3\24\5\24\u0149\n\24\3\24\2\2\25\2\4\6\b\n")
-        buf.write("\f\16\20\22\24\26\30\32\34\36 \"$&\2\2\2\u0166\2(\3\2")
-        buf.write("\2\2\4\67\3\2\2\2\6F\3\2\2\2\bZ\3\2\2\2\n`\3\2\2\2\fm")
-        buf.write("\3\2\2\2\16\u0086\3\2\2\2\20\u0089\3\2\2\2\22\u00af\3")
-        buf.write("\2\2\2\24\u00b3\3\2\2\2\26\u00de\3\2\2\2\30\u00e6\3\2")
-        buf.write("\2\2\32\u00ef\3\2\2\2\34\u0100\3\2\2\2\36\u011a\3\2\2")
-        buf.write("\2 \u0126\3\2\2\2\"\u0130\3\2\2\2$\u0136\3\2\2\2&\u0148")
-        buf.write("\3\2\2\2()\b\2\1\2)*\7\3\2\2*+\7\32\2\2+,\5\6\4\2,\62")
-        buf.write("\b\2\1\2-.\5\6\4\2./\b\2\1\2/\61\3\2\2\2\60-\3\2\2\2\61")
-        buf.write("\64\3\2\2\2\62\60\3\2\2\2\62\63\3\2\2\2\63\65\3\2\2\2")
-        buf.write("\64\62\3\2\2\2\65\66\b\2\1\2\66\3\3\2\2\2\678\b\3\1\2")
-        buf.write("89\7\4\2\29:\7\32\2\2:;\5\6\4\2;A\b\3\1\2<=\5\6\4\2=>")
-        buf.write("\b\3\1\2>@\3\2\2\2?<\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2")
-        buf.write("\2\2BD\3\2\2\2CA\3\2\2\2DE\b\3\1\2E\5\3\2\2\2FG\b\4\1")
-        buf.write("\2GH\7\25\2\2HI\b\4\1\2IJ\7*\2\2JK\7\25\2\2KL\5&\24\2")
-        buf.write("LT\b\4\1\2MN\7\30\2\2NO\7\25\2\2OP\5&\24\2PQ\b\4\1\2Q")
-        buf.write("S\3\2\2\2RM\3\2\2\2SV\3\2\2\2TR\3\2\2\2TU\3\2\2\2UW\3")
-        buf.write("\2\2\2VT\3\2\2\2WX\7+\2\2XY\b\4\1\2Y\7\3\2\2\2Z[\7\5\2")
-        buf.write("\2[\\\7\32\2\2\\]\5\n\6\2]^\b\5\1\2^_\7\2\2\3_\t\3\2\2")
-        buf.write("\2`a\b\6\1\2ab\5\f\7\2bh\b\6\1\2cd\5\f\7\2de\b\6\1\2e")
-        buf.write("g\3\2\2\2fc\3\2\2\2gj\3\2\2\2hf\3\2\2\2hi\3\2\2\2ik\3")
-        buf.write("\2\2\2jh\3\2\2\2kl\b\6\1\2l\13\3\2\2\2mp\b\7\1\2no\7!")
-        buf.write("\2\2oq\b\7\1\2pn\3\2\2\2pq\3\2\2\2qt\3\2\2\2rs\7\"\2\2")
-        buf.write("su\b\7\1\2tr\3\2\2\2tu\3\2\2\2ux\3\2\2\2vw\7#\2\2wy\b")
-        buf.write("\7\1\2xv\3\2\2\2xy\3\2\2\2yz\3\2\2\2z{\5\16\b\2{|\b\7")
-        buf.write("\1\2|}\7\26\2\2}\u0081\b\7\1\2~\177\5\20\t\2\177\u0080")
-        buf.write("\b\7\1\2\u0080\u0082\3\2\2\2\u0081~\3\2\2\2\u0081\u0082")
-        buf.write("\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0084\7\33\2\2\u0084")
-        buf.write("\u0085\b\7\1\2\u0085\r\3\2\2\2\u0086\u0087\5\24\13\2\u0087")
-        buf.write("\u0088\b\b\1\2\u0088\17\3\2\2\2\u0089\u009c\b\t\1\2\u008a")
-        buf.write("\u008b\5\24\13\2\u008b\u008c\b\t\1\2\u008c\u0097\3\2\2")
-        buf.write("\2\u008d\u008e\5\32\16\2\u008e\u008f\b\t\1\2\u008f\u0097")
-        buf.write("\3\2\2\2\u0090\u0091\5\26\f\2\u0091\u0092\b\t\1\2\u0092")
-        buf.write("\u0097\3\2\2\2\u0093\u0094\5\22\n\2\u0094\u0095\b\t\1")
-        buf.write("\2\u0095\u0097\3\2\2\2\u0096\u008a\3\2\2\2\u0096\u008d")
-        buf.write("\3\2\2\2\u0096\u0090\3\2\2\2\u0096\u0093\3\2\2\2\u0097")
-        buf.write("\u0098\3\2\2\2\u0098\u0099\7\30\2\2\u0099\u009b\3\2\2")
-        buf.write("\2\u009a\u0096\3\2\2\2\u009b\u009e\3\2\2\2\u009c\u009a")
-        buf.write("\3\2\2\2\u009c\u009d\3\2\2\2\u009d\u00ab\3\2\2\2\u009e")
-        buf.write("\u009c\3\2\2\2\u009f\u00a0\5\24\13\2\u00a0\u00a1\b\t\1")
-        buf.write("\2\u00a1\u00ac\3\2\2\2\u00a2\u00a3\5\32\16\2\u00a3\u00a4")
-        buf.write("\b\t\1\2\u00a4\u00ac\3\2\2\2\u00a5\u00a6\5\26\f\2\u00a6")
-        buf.write("\u00a7\b\t\1\2\u00a7\u00ac\3\2\2\2\u00a8\u00a9\5\22\n")
-        buf.write("\2\u00a9\u00aa\b\t\1\2\u00aa\u00ac\3\2\2\2\u00ab\u009f")
-        buf.write("\3\2\2\2\u00ab\u00a2\3\2\2\2\u00ab\u00a5\3\2\2\2\u00ab")
-        buf.write("\u00a8\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00ae\b\t\1\2")
-        buf.write("\u00ae\21\3\2\2\2\u00af\u00b0\7 \2\2\u00b0\u00b1\5\24")
-        buf.write("\13\2\u00b1\u00b2\b\n\1\2\u00b2\23\3\2\2\2\u00b3\u00b4")
-        buf.write("\b\13\1\2\u00b4\u00b5\7\25\2\2\u00b5\u00b6\b\13\1\2\u00b6")
-        buf.write("\u00c4\7*\2\2\u00b7\u00b8\7\25\2\2\u00b8\u00c5\b\13\1")
-        buf.write("\2\u00b9\u00ba\5\34\17\2\u00ba\u00bb\b\13\1\2\u00bb\u00c5")
-        buf.write("\3\2\2\2\u00bc\u00bd\7\27\2\2\u00bd\u00c5\b\13\1\2\u00be")
-        buf.write("\u00bf\5$\23\2\u00bf\u00c0\b\13\1\2\u00c0\u00c5\3\2\2")
-        buf.write("\2\u00c1\u00c2\5\30\r\2\u00c2\u00c3\b\13\1\2\u00c3\u00c5")
-        buf.write("\3\2\2\2\u00c4\u00b7\3\2\2\2\u00c4\u00b9\3\2\2\2\u00c4")
-        buf.write("\u00bc\3\2\2\2\u00c4\u00be\3\2\2\2\u00c4\u00c1\3\2\2\2")
-        buf.write("\u00c5\u00d8\3\2\2\2\u00c6\u00d4\7\30\2\2\u00c7\u00c8")
-        buf.write("\7\25\2\2\u00c8\u00d5\b\13\1\2\u00c9\u00ca\5\34\17\2\u00ca")
-        buf.write("\u00cb\b\13\1\2\u00cb\u00d5\3\2\2\2\u00cc\u00cd\7\27\2")
-        buf.write("\2\u00cd\u00d5\b\13\1\2\u00ce\u00cf\5$\23\2\u00cf\u00d0")
-        buf.write("\b\13\1\2\u00d0\u00d5\3\2\2\2\u00d1\u00d2\5\30\r\2\u00d2")
-        buf.write("\u00d3\b\13\1\2\u00d3\u00d5\3\2\2\2\u00d4\u00c7\3\2\2")
-        buf.write("\2\u00d4\u00c9\3\2\2\2\u00d4\u00cc\3\2\2\2\u00d4\u00ce")
-        buf.write("\3\2\2\2\u00d4\u00d1\3\2\2\2\u00d5\u00d7\3\2\2\2\u00d6")
-        buf.write("\u00c6\3\2\2\2\u00d7\u00da\3\2\2\2\u00d8\u00d6\3\2\2\2")
-        buf.write("\u00d8\u00d9\3\2\2\2\u00d9\u00db\3\2\2\2\u00da\u00d8\3")
-        buf.write("\2\2\2\u00db\u00dc\7+\2\2\u00dc\u00dd\b\13\1\2\u00dd\25")
-        buf.write("\3\2\2\2\u00de\u00df\b\f\1\2\u00df\u00e0\7\25\2\2\u00e0")
-        buf.write("\u00e1\b\f\1\2\u00e1\u00e2\7%\2\2\u00e2\u00e3\5\30\r\2")
-        buf.write("\u00e3\u00e4\b\f\1\2\u00e4\u00e5\b\f\1\2\u00e5\27\3\2")
-        buf.write("\2\2\u00e6\u00e7\b\r\1\2\u00e7\u00e8\7\25\2\2\u00e8\u00e9")
-        buf.write("\b\r\1\2\u00e9\u00ea\5\"\22\2\u00ea\u00eb\b\r\1\2\u00eb")
-        buf.write("\u00ec\7\25\2\2\u00ec\u00ed\b\r\1\2\u00ed\u00ee\b\r\1")
-        buf.write("\2\u00ee\31\3\2\2\2\u00ef\u00f4\b\16\1\2\u00f0\u00f1\7")
-        buf.write("\25\2\2\u00f1\u00f5\b\16\1\2\u00f2\u00f3\7\6\2\2\u00f3")
-        buf.write("\u00f5\b\16\1\2\u00f4\u00f0\3\2\2\2\u00f4\u00f2\3\2\2")
-        buf.write("\2\u00f5\u00f6\3\2\2\2\u00f6\u00f7\5\36\20\2\u00f7\u00fc")
-        buf.write("\b\16\1\2\u00f8\u00f9\7\25\2\2\u00f9\u00fd\b\16\1\2\u00fa")
-        buf.write("\u00fb\7\6\2\2\u00fb\u00fd\b\16\1\2\u00fc\u00f8\3\2\2")
-        buf.write("\2\u00fc\u00fa\3\2\2\2\u00fd\u00fe\3\2\2\2\u00fe\u00ff")
-        buf.write("\b\16\1\2\u00ff\33\3\2\2\2\u0100\u0101\b\17\1\2\u0101")
-        buf.write("\u0102\5 \21\2\u0102\u0103\b\17\1\2\u0103\u0109\7*\2\2")
-        buf.write("\u0104\u0105\7\25\2\2\u0105\u010a\b\17\1\2\u0106\u0107")
-        buf.write("\5\30\r\2\u0107\u0108\b\17\1\2\u0108\u010a\3\2\2\2\u0109")
-        buf.write("\u0104\3\2\2\2\u0109\u0106\3\2\2\2\u010a\u010b\3\2\2\2")
-        buf.write("\u010b\u010c\7+\2\2\u010c\u010d\b\17\1\2\u010d\35\3\2")
-        buf.write("\2\2\u010e\u010f\7$\2\2\u010f\u011b\b\20\1\2\u0110\u0111")
-        buf.write("\7%\2\2\u0111\u011b\b\20\1\2\u0112\u0113\7\'\2\2\u0113")
-        buf.write("\u011b\b\20\1\2\u0114\u0115\7&\2\2\u0115\u011b\b\20\1")
-        buf.write("\2\u0116\u0117\7)\2\2\u0117\u011b\b\20\1\2\u0118\u0119")
-        buf.write("\7(\2\2\u0119\u011b\b\20\1\2\u011a\u010e\3\2\2\2\u011a")
-        buf.write("\u0110\3\2\2\2\u011a\u0112\3\2\2\2\u011a\u0114\3\2\2\2")
-        buf.write("\u011a\u0116\3\2\2\2\u011a\u0118\3\2\2\2\u011b\37\3\2")
-        buf.write("\2\2\u011c\u011d\7\20\2\2\u011d\u0127\b\21\1\2\u011e\u011f")
-        buf.write("\7\21\2\2\u011f\u0127\b\21\1\2\u0120\u0121\7\22\2\2\u0121")
-        buf.write("\u0127\b\21\1\2\u0122\u0123\7\23\2\2\u0123\u0127\b\21")
-        buf.write("\1\2\u0124\u0125\7\24\2\2\u0125\u0127\b\21\1\2\u0126\u011c")
-        buf.write("\3\2\2\2\u0126\u011e\3\2\2\2\u0126\u0120\3\2\2\2\u0126")
-        buf.write("\u0122\3\2\2\2\u0126\u0124\3\2\2\2\u0127!\3\2\2\2\u0128")
-        buf.write("\u0129\7\34\2\2\u0129\u0131\b\22\1\2\u012a\u012b\7\35")
-        buf.write("\2\2\u012b\u0131\b\22\1\2\u012c\u012d\7\36\2\2\u012d\u0131")
-        buf.write("\b\22\1\2\u012e\u012f\7\37\2\2\u012f\u0131\b\22\1\2\u0130")
-        buf.write("\u0128\3\2\2\2\u0130\u012a\3\2\2\2\u0130\u012c\3\2\2\2")
-        buf.write("\u0130\u012e\3\2\2\2\u0131#\3\2\2\2\u0132\u0133\7\6\2")
-        buf.write("\2\u0133\u0137\b\23\1\2\u0134\u0135\7\7\2\2\u0135\u0137")
-        buf.write("\b\23\1\2\u0136\u0132\3\2\2\2\u0136\u0134\3\2\2\2\u0137")
-        buf.write("%\3\2\2\2\u0138\u0139\7\b\2\2\u0139\u0149\b\24\1\2\u013a")
-        buf.write("\u013b\7\t\2\2\u013b\u0149\b\24\1\2\u013c\u013d\7\n\2")
-        buf.write("\2\u013d\u0149\b\24\1\2\u013e\u013f\7\13\2\2\u013f\u0149")
-        buf.write("\b\24\1\2\u0140\u0141\7\f\2\2\u0141\u0149\b\24\1\2\u0142")
-        buf.write("\u0143\7\r\2\2\u0143\u0149\b\24\1\2\u0144\u0145\7\16\2")
-        buf.write("\2\u0145\u0149\b\24\1\2\u0146\u0147\7\17\2\2\u0147\u0149")
-        buf.write("\b\24\1\2\u0148\u0138\3\2\2\2\u0148\u013a\3\2\2\2\u0148")
-        buf.write("\u013c\3\2\2\2\u0148\u013e\3\2\2\2\u0148\u0140\3\2\2\2")
-        buf.write("\u0148\u0142\3\2\2\2\u0148\u0144\3\2\2\2\u0148\u0146\3")
-        buf.write("\2\2\2\u0149\'\3\2\2\2\30\62AThptx\u0081\u0096\u009c\u00ab")
-        buf.write("\u00c4\u00d4\u00d8\u00f4\u00fc\u0109\u011a\u0126\u0130")
-        buf.write("\u0136\u0148")
+        buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\3\2\3\2\3\2\3\2\3\2\3\2")
+        buf.write("\3\2\3\2\7\2\65\n\2\f\2\16\28\13\2\3\2\3\2\3\3\3\3\3\3")
+        buf.write("\3\3\3\3\3\3\3\3\3\3\7\3D\n\3\f\3\16\3G\13\3\3\3\3\3\3")
+        buf.write("\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4")
+        buf.write("X\n\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4d\n\4")
+        buf.write("\7\4f\n\4\f\4\16\4i\13\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3")
+        buf.write("\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6\7\6z\n\6\f\6\16\6}\13\6")
+        buf.write("\3\6\3\6\3\7\3\7\3\7\5\7\u0084\n\7\3\7\3\7\5\7\u0088\n")
+        buf.write("\7\3\7\3\7\5\7\u008c\n\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5")
+        buf.write("\7\u0095\n\7\3\7\3\7\3\7\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3")
+        buf.write("\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u00aa\n\t\3\t\3")
+        buf.write("\t\7\t\u00ae\n\t\f\t\16\t\u00b1\13\t\3\t\3\t\3\t\3\t\3")
+        buf.write("\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u00bf\n\t\3\t\3\t\3")
+        buf.write("\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13")
+        buf.write("\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\5\13\u00d8")
+        buf.write("\n\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13\3\13")
+        buf.write("\3\13\3\13\3\13\3\13\5\13\u00e8\n\13\7\13\u00ea\n\13\f")
+        buf.write("\13\16\13\u00ed\13\13\3\13\3\13\3\13\3\f\3\f\3\f\3\f\3")
+        buf.write("\f\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\16")
+        buf.write("\3\16\3\16\3\16\3\16\5\16\u0108\n\16\3\16\3\16\3\16\3")
+        buf.write("\16\3\16\3\16\5\16\u0110\n\16\3\16\3\16\3\17\3\17\3\17")
+        buf.write("\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u011d\n\17\3\17\3")
+        buf.write("\17\3\17\3\20\3\20\3\20\3\20\3\20\3\21\3\21\3\21\3\22")
+        buf.write("\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3\22")
+        buf.write("\5\22\u0136\n\22\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3")
+        buf.write("\23\3\23\3\23\5\23\u0142\n\23\3\24\3\24\3\24\3\24\3\24")
+        buf.write("\3\24\3\24\3\24\5\24\u014c\n\24\3\25\3\25\3\25\3\25\5")
+        buf.write("\25\u0152\n\25\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26")
+        buf.write("\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\5\26\u0164\n")
+        buf.write("\26\3\26\2\2\27\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36")
+        buf.write(" \"$&(*\2\2\2\u0181\2,\3\2\2\2\4;\3\2\2\2\6J\3\2\2\2\b")
+        buf.write("m\3\2\2\2\ns\3\2\2\2\f\u0080\3\2\2\2\16\u0099\3\2\2\2")
+        buf.write("\20\u009c\3\2\2\2\22\u00c2\3\2\2\2\24\u00c6\3\2\2\2\26")
+        buf.write("\u00f1\3\2\2\2\30\u00f9\3\2\2\2\32\u0102\3\2\2\2\34\u0113")
+        buf.write("\3\2\2\2\36\u0121\3\2\2\2 \u0126\3\2\2\2\"\u0135\3\2\2")
+        buf.write("\2$\u0141\3\2\2\2&\u014b\3\2\2\2(\u0151\3\2\2\2*\u0163")
+        buf.write("\3\2\2\2,-\b\2\1\2-.\7\3\2\2./\7\32\2\2/\60\5\6\4\2\60")
+        buf.write("\66\b\2\1\2\61\62\5\6\4\2\62\63\b\2\1\2\63\65\3\2\2\2")
+        buf.write("\64\61\3\2\2\2\658\3\2\2\2\66\64\3\2\2\2\66\67\3\2\2\2")
+        buf.write("\679\3\2\2\28\66\3\2\2\29:\b\2\1\2:\3\3\2\2\2;<\b\3\1")
+        buf.write("\2<=\7\4\2\2=>\7\32\2\2>?\5\6\4\2?E\b\3\1\2@A\5\6\4\2")
+        buf.write("AB\b\3\1\2BD\3\2\2\2C@\3\2\2\2DG\3\2\2\2EC\3\2\2\2EF\3")
+        buf.write("\2\2\2FH\3\2\2\2GE\3\2\2\2HI\b\3\1\2I\5\3\2\2\2JK\b\4")
+        buf.write("\1\2KL\7\25\2\2LM\b\4\1\2MW\7*\2\2NO\5 \21\2OP\5*\26\2")
+        buf.write("PQ\b\4\1\2QX\3\2\2\2RS\5\36\20\2ST\b\4\1\2TU\5*\26\2U")
+        buf.write("V\b\4\1\2VX\3\2\2\2WN\3\2\2\2WR\3\2\2\2Xg\3\2\2\2Yc\7")
+        buf.write("\30\2\2Z[\5 \21\2[\\\5*\26\2\\]\b\4\1\2]d\3\2\2\2^_\5")
+        buf.write("\36\20\2_`\b\4\1\2`a\5*\26\2ab\b\4\1\2bd\3\2\2\2cZ\3\2")
+        buf.write("\2\2c^\3\2\2\2df\3\2\2\2eY\3\2\2\2fi\3\2\2\2ge\3\2\2\2")
+        buf.write("gh\3\2\2\2hj\3\2\2\2ig\3\2\2\2jk\7+\2\2kl\b\4\1\2l\7\3")
+        buf.write("\2\2\2mn\7\5\2\2no\7\32\2\2op\5\n\6\2pq\b\5\1\2qr\7\2")
+        buf.write("\2\3r\t\3\2\2\2st\b\6\1\2tu\5\f\7\2u{\b\6\1\2vw\5\f\7")
+        buf.write("\2wx\b\6\1\2xz\3\2\2\2yv\3\2\2\2z}\3\2\2\2{y\3\2\2\2{")
+        buf.write("|\3\2\2\2|~\3\2\2\2}{\3\2\2\2~\177\b\6\1\2\177\13\3\2")
+        buf.write("\2\2\u0080\u0083\b\7\1\2\u0081\u0082\7!\2\2\u0082\u0084")
+        buf.write("\b\7\1\2\u0083\u0081\3\2\2\2\u0083\u0084\3\2\2\2\u0084")
+        buf.write("\u0087\3\2\2\2\u0085\u0086\7\"\2\2\u0086\u0088\b\7\1\2")
+        buf.write("\u0087\u0085\3\2\2\2\u0087\u0088\3\2\2\2\u0088\u008b\3")
+        buf.write("\2\2\2\u0089\u008a\7#\2\2\u008a\u008c\b\7\1\2\u008b\u0089")
+        buf.write("\3\2\2\2\u008b\u008c\3\2\2\2\u008c\u008d\3\2\2\2\u008d")
+        buf.write("\u008e\5\16\b\2\u008e\u008f\b\7\1\2\u008f\u0090\7\26\2")
+        buf.write("\2\u0090\u0094\b\7\1\2\u0091\u0092\5\20\t\2\u0092\u0093")
+        buf.write("\b\7\1\2\u0093\u0095\3\2\2\2\u0094\u0091\3\2\2\2\u0094")
+        buf.write("\u0095\3\2\2\2\u0095\u0096\3\2\2\2\u0096\u0097\7\33\2")
+        buf.write("\2\u0097\u0098\b\7\1\2\u0098\r\3\2\2\2\u0099\u009a\5\24")
+        buf.write("\13\2\u009a\u009b\b\b\1\2\u009b\17\3\2\2\2\u009c\u00af")
+        buf.write("\b\t\1\2\u009d\u009e\5\24\13\2\u009e\u009f\b\t\1\2\u009f")
+        buf.write("\u00aa\3\2\2\2\u00a0\u00a1\5\32\16\2\u00a1\u00a2\b\t\1")
+        buf.write("\2\u00a2\u00aa\3\2\2\2\u00a3\u00a4\5\26\f\2\u00a4\u00a5")
+        buf.write("\b\t\1\2\u00a5\u00aa\3\2\2\2\u00a6\u00a7\5\22\n\2\u00a7")
+        buf.write("\u00a8\b\t\1\2\u00a8\u00aa\3\2\2\2\u00a9\u009d\3\2\2\2")
+        buf.write("\u00a9\u00a0\3\2\2\2\u00a9\u00a3\3\2\2\2\u00a9\u00a6\3")
+        buf.write("\2\2\2\u00aa\u00ab\3\2\2\2\u00ab\u00ac\7\30\2\2\u00ac")
+        buf.write("\u00ae\3\2\2\2\u00ad\u00a9\3\2\2\2\u00ae\u00b1\3\2\2\2")
+        buf.write("\u00af\u00ad\3\2\2\2\u00af\u00b0\3\2\2\2\u00b0\u00be\3")
+        buf.write("\2\2\2\u00b1\u00af\3\2\2\2\u00b2\u00b3\5\24\13\2\u00b3")
+        buf.write("\u00b4\b\t\1\2\u00b4\u00bf\3\2\2\2\u00b5\u00b6\5\32\16")
+        buf.write("\2\u00b6\u00b7\b\t\1\2\u00b7\u00bf\3\2\2\2\u00b8\u00b9")
+        buf.write("\5\26\f\2\u00b9\u00ba\b\t\1\2\u00ba\u00bf\3\2\2\2\u00bb")
+        buf.write("\u00bc\5\22\n\2\u00bc\u00bd\b\t\1\2\u00bd\u00bf\3\2\2")
+        buf.write("\2\u00be\u00b2\3\2\2\2\u00be\u00b5\3\2\2\2\u00be\u00b8")
+        buf.write("\3\2\2\2\u00be\u00bb\3\2\2\2\u00bf\u00c0\3\2\2\2\u00c0")
+        buf.write("\u00c1\b\t\1\2\u00c1\21\3\2\2\2\u00c2\u00c3\7 \2\2\u00c3")
+        buf.write("\u00c4\5\24\13\2\u00c4\u00c5\b\n\1\2\u00c5\23\3\2\2\2")
+        buf.write("\u00c6\u00c7\b\13\1\2\u00c7\u00c8\7\25\2\2\u00c8\u00c9")
+        buf.write("\b\13\1\2\u00c9\u00d7\7*\2\2\u00ca\u00cb\7\25\2\2\u00cb")
+        buf.write("\u00d8\b\13\1\2\u00cc\u00cd\5\34\17\2\u00cd\u00ce\b\13")
+        buf.write("\1\2\u00ce\u00d8\3\2\2\2\u00cf\u00d0\7\27\2\2\u00d0\u00d8")
+        buf.write("\b\13\1\2\u00d1\u00d2\5(\25\2\u00d2\u00d3\b\13\1\2\u00d3")
+        buf.write("\u00d8\3\2\2\2\u00d4\u00d5\5\30\r\2\u00d5\u00d6\b\13\1")
+        buf.write("\2\u00d6\u00d8\3\2\2\2\u00d7\u00ca\3\2\2\2\u00d7\u00cc")
+        buf.write("\3\2\2\2\u00d7\u00cf\3\2\2\2\u00d7\u00d1\3\2\2\2\u00d7")
+        buf.write("\u00d4\3\2\2\2\u00d8\u00eb\3\2\2\2\u00d9\u00e7\7\30\2")
+        buf.write("\2\u00da\u00db\7\25\2\2\u00db\u00e8\b\13\1\2\u00dc\u00dd")
+        buf.write("\5\34\17\2\u00dd\u00de\b\13\1\2\u00de\u00e8\3\2\2\2\u00df")
+        buf.write("\u00e0\7\27\2\2\u00e0\u00e8\b\13\1\2\u00e1\u00e2\5(\25")
+        buf.write("\2\u00e2\u00e3\b\13\1\2\u00e3\u00e8\3\2\2\2\u00e4\u00e5")
+        buf.write("\5\30\r\2\u00e5\u00e6\b\13\1\2\u00e6\u00e8\3\2\2\2\u00e7")
+        buf.write("\u00da\3\2\2\2\u00e7\u00dc\3\2\2\2\u00e7\u00df\3\2\2\2")
+        buf.write("\u00e7\u00e1\3\2\2\2\u00e7\u00e4\3\2\2\2\u00e8\u00ea\3")
+        buf.write("\2\2\2\u00e9\u00d9\3\2\2\2\u00ea\u00ed\3\2\2\2\u00eb\u00e9")
+        buf.write("\3\2\2\2\u00eb\u00ec\3\2\2\2\u00ec\u00ee\3\2\2\2\u00ed")
+        buf.write("\u00eb\3\2\2\2\u00ee\u00ef\7+\2\2\u00ef\u00f0\b\13\1\2")
+        buf.write("\u00f0\25\3\2\2\2\u00f1\u00f2\b\f\1\2\u00f2\u00f3\7\25")
+        buf.write("\2\2\u00f3\u00f4\b\f\1\2\u00f4\u00f5\7%\2\2\u00f5\u00f6")
+        buf.write("\5\30\r\2\u00f6\u00f7\b\f\1\2\u00f7\u00f8\b\f\1\2\u00f8")
+        buf.write("\27\3\2\2\2\u00f9\u00fa\b\r\1\2\u00fa\u00fb\7\25\2\2\u00fb")
+        buf.write("\u00fc\b\r\1\2\u00fc\u00fd\5&\24\2\u00fd\u00fe\b\r\1\2")
+        buf.write("\u00fe\u00ff\7\25\2\2\u00ff\u0100\b\r\1\2\u0100\u0101")
+        buf.write("\b\r\1\2\u0101\31\3\2\2\2\u0102\u0107\b\16\1\2\u0103\u0104")
+        buf.write("\7\25\2\2\u0104\u0108\b\16\1\2\u0105\u0106\7\6\2\2\u0106")
+        buf.write("\u0108\b\16\1\2\u0107\u0103\3\2\2\2\u0107\u0105\3\2\2")
+        buf.write("\2\u0108\u0109\3\2\2\2\u0109\u010a\5\"\22\2\u010a\u010f")
+        buf.write("\b\16\1\2\u010b\u010c\7\25\2\2\u010c\u0110\b\16\1\2\u010d")
+        buf.write("\u010e\7\6\2\2\u010e\u0110\b\16\1\2\u010f\u010b\3\2\2")
+        buf.write("\2\u010f\u010d\3\2\2\2\u0110\u0111\3\2\2\2\u0111\u0112")
+        buf.write("\b\16\1\2\u0112\33\3\2\2\2\u0113\u0114\b\17\1\2\u0114")
+        buf.write("\u0115\5$\23\2\u0115\u0116\b\17\1\2\u0116\u011c\7*\2\2")
+        buf.write("\u0117\u0118\7\25\2\2\u0118\u011d\b\17\1\2\u0119\u011a")
+        buf.write("\5\30\r\2\u011a\u011b\b\17\1\2\u011b\u011d\3\2\2\2\u011c")
+        buf.write("\u0117\3\2\2\2\u011c\u0119\3\2\2\2\u011d\u011e\3\2\2\2")
+        buf.write("\u011e\u011f\7+\2\2\u011f\u0120\b\17\1\2\u0120\35\3\2")
+        buf.write("\2\2\u0121\u0122\7,\2\2\u0122\u0123\7\25\2\2\u0123\u0124")
+        buf.write("\b\20\1\2\u0124\u0125\7-\2\2\u0125\37\3\2\2\2\u0126\u0127")
+        buf.write("\7\25\2\2\u0127\u0128\b\21\1\2\u0128!\3\2\2\2\u0129\u012a")
+        buf.write("\7$\2\2\u012a\u0136\b\22\1\2\u012b\u012c\7%\2\2\u012c")
+        buf.write("\u0136\b\22\1\2\u012d\u012e\7\'\2\2\u012e\u0136\b\22\1")
+        buf.write("\2\u012f\u0130\7&\2\2\u0130\u0136\b\22\1\2\u0131\u0132")
+        buf.write("\7)\2\2\u0132\u0136\b\22\1\2\u0133\u0134\7(\2\2\u0134")
+        buf.write("\u0136\b\22\1\2\u0135\u0129\3\2\2\2\u0135\u012b\3\2\2")
+        buf.write("\2\u0135\u012d\3\2\2\2\u0135\u012f\3\2\2\2\u0135\u0131")
+        buf.write("\3\2\2\2\u0135\u0133\3\2\2\2\u0136#\3\2\2\2\u0137\u0138")
+        buf.write("\7\20\2\2\u0138\u0142\b\23\1\2\u0139\u013a\7\21\2\2\u013a")
+        buf.write("\u0142\b\23\1\2\u013b\u013c\7\22\2\2\u013c\u0142\b\23")
+        buf.write("\1\2\u013d\u013e\7\23\2\2\u013e\u0142\b\23\1\2\u013f\u0140")
+        buf.write("\7\24\2\2\u0140\u0142\b\23\1\2\u0141\u0137\3\2\2\2\u0141")
+        buf.write("\u0139\3\2\2\2\u0141\u013b\3\2\2\2\u0141\u013d\3\2\2\2")
+        buf.write("\u0141\u013f\3\2\2\2\u0142%\3\2\2\2\u0143\u0144\7\34\2")
+        buf.write("\2\u0144\u014c\b\24\1\2\u0145\u0146\7\35\2\2\u0146\u014c")
+        buf.write("\b\24\1\2\u0147\u0148\7\36\2\2\u0148\u014c\b\24\1\2\u0149")
+        buf.write("\u014a\7\37\2\2\u014a\u014c\b\24\1\2\u014b\u0143\3\2\2")
+        buf.write("\2\u014b\u0145\3\2\2\2\u014b\u0147\3\2\2\2\u014b\u0149")
+        buf.write("\3\2\2\2\u014c\'\3\2\2\2\u014d\u014e\7\6\2\2\u014e\u0152")
+        buf.write("\b\25\1\2\u014f\u0150\7\7\2\2\u0150\u0152\b\25\1\2\u0151")
+        buf.write("\u014d\3\2\2\2\u0151\u014f\3\2\2\2\u0152)\3\2\2\2\u0153")
+        buf.write("\u0154\7\b\2\2\u0154\u0164\b\26\1\2\u0155\u0156\7\t\2")
+        buf.write("\2\u0156\u0164\b\26\1\2\u0157\u0158\7\n\2\2\u0158\u0164")
+        buf.write("\b\26\1\2\u0159\u015a\7\13\2\2\u015a\u0164\b\26\1\2\u015b")
+        buf.write("\u015c\7\f\2\2\u015c\u0164\b\26\1\2\u015d\u015e\7\r\2")
+        buf.write("\2\u015e\u0164\b\26\1\2\u015f\u0160\7\16\2\2\u0160\u0164")
+        buf.write("\b\26\1\2\u0161\u0162\7\17\2\2\u0162\u0164\b\26\1\2\u0163")
+        buf.write("\u0153\3\2\2\2\u0163\u0155\3\2\2\2\u0163\u0157\3\2\2\2")
+        buf.write("\u0163\u0159\3\2\2\2\u0163\u015b\3\2\2\2\u0163\u015d\3")
+        buf.write("\2\2\2\u0163\u015f\3\2\2\2\u0163\u0161\3\2\2\2\u0164+")
+        buf.write("\3\2\2\2\32\66EWcg{\u0083\u0087\u008b\u0094\u00a9\u00af")
+        buf.write("\u00be\u00d7\u00e7\u00eb\u0107\u010f\u011c\u0135\u0141")
+        buf.write("\u014b\u0151\u0163")
         return buf.getvalue()
 
 
@@ -182,7 +195,7 @@ class DatalogParser ( Parser ):
                      "'_'", "','", "';'", "':'", "'.'", "'+'", "'-'", "'*'", 
                      "'/'", "'!'", "'[!dedup]'", "'[!set-diff]'", "'[dedup-only]'", 
                      "'!='", "'='", "'>='", "'>'", "'<='", "'<'", "'('", 
-                     "')'" ]
+                     "')'", "'['", "']'" ]
 
     symbolicNames = [ "<INVALID>", "TOKEN_EDB", "TOKEN_IDB", "TOKEN_RULE", 
                       "TOKEN_INTEGER", "TOKEN_STRING", "TOKEN_INT", "TOKEN_LONG", 
@@ -195,7 +208,8 @@ class DatalogParser ( Parser ):
                       "TOKEN_NON_DEDUP", "TOKEN_NON_SET_DIFF", "TOKEN_DEDUP_ONLY", 
                       "TOKEN_NOT_EQUALS", "TOKEN_EQUALS", "TOKEN_GREATER_EQUAL_THAN", 
                       "TOKEN_GREATER_THAN", "TOKEN_LESS_EQUAL_THAN", "TOKEN_LESS_THAN", 
-                      "TOKEN_LEFT_PAREN", "TOKEN_RIGHT_PAREN", "TOKEN_WS" ]
+                      "TOKEN_LEFT_PAREN", "TOKEN_RIGHT_PAREN", "TOKEN_LEFT_BRACKET", 
+                      "TOKEN_RIGHT_BRACKET", "TOKEN_WS" ]
 
     RULE_datalog_edb_declare = 0
     RULE_datalog_idb_declare = 1
@@ -211,16 +225,19 @@ class DatalogParser ( Parser ):
     RULE_math_expr = 11
     RULE_compare_expr = 12
     RULE_aggregation_expr = 13
-    RULE_compare_op = 14
-    RULE_aggregation_op = 15
-    RULE_math_op = 16
-    RULE_constant = 17
-    RULE_data_type = 18
+    RULE_key_attribute = 14
+    RULE_non_key_attribute = 15
+    RULE_compare_op = 16
+    RULE_aggregation_op = 17
+    RULE_math_op = 18
+    RULE_constant = 19
+    RULE_data_type = 20
 
     ruleNames =  [ "datalog_edb_declare", "datalog_idb_declare", "datalog_relation_schema", 
                    "datalog_rule_declare", "datalog_program", "datalog_rule", 
                    "head", "body", "negation", "atom", "assign", "math_expr", 
-                   "compare_expr", "aggregation_expr", "compare_op", "aggregation_op", 
+                   "compare_expr", "aggregation_expr", "key_attribute", 
+                   "non_key_attribute", "compare_op", "aggregation_op", 
                    "math_op", "constant", "data_type" ]
 
     EOF = Token.EOF
@@ -265,7 +282,9 @@ class DatalogParser ( Parser ):
     TOKEN_LESS_THAN=39
     TOKEN_LEFT_PAREN=40
     TOKEN_RIGHT_PAREN=41
-    TOKEN_WS=42
+    TOKEN_LEFT_BRACKET=42
+    TOKEN_RIGHT_BRACKET=43
+    TOKEN_WS=44
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
@@ -319,21 +338,21 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             edb_list = []
-            self.state = 39
+            self.state = 43
             self.match(DatalogParser.TOKEN_EDB)
-            self.state = 40
+            self.state = 44
             self.match(DatalogParser.TOKEN_COLON)
-            self.state = 41
+            self.state = 45
             localctx.schema1 = self.datalog_relation_schema()
             edb_list.append(localctx.schema1.r)
-            self.state = 48
+            self.state = 52
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==DatalogParser.TOKEN_ID:
-                self.state = 43
+                self.state = 47
                 localctx.schema2 = self.datalog_relation_schema()
                 edb_list.append(localctx.schema2.r)
-                self.state = 50
+                self.state = 54
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -383,21 +402,21 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             idb_list = []
-            self.state = 54
+            self.state = 58
             self.match(DatalogParser.TOKEN_IDB)
-            self.state = 55
+            self.state = 59
             self.match(DatalogParser.TOKEN_COLON)
-            self.state = 56
+            self.state = 60
             localctx.schema1 = self.datalog_relation_schema()
             idb_list.append(localctx.schema1.r)
-            self.state = 63
+            self.state = 67
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==DatalogParser.TOKEN_ID:
-                self.state = 58
+                self.state = 62
                 localctx.schema2 = self.datalog_relation_schema()
                 idb_list.append(localctx.schema2.r)
-                self.state = 65
+                self.state = 69
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -418,10 +437,14 @@ class DatalogParser ( Parser ):
             self.parser = parser
             self.r = None
             self.relation_name = None # Token
-            self.t1 = None # Token
+            self.t1 = None # Non_key_attributeContext
             self.dt1 = None # Data_typeContext
-            self.t2 = None # Token
+            self.t2 = None # Key_attributeContext
             self.dt2 = None # Data_typeContext
+            self.t3 = None # Non_key_attributeContext
+            self.dt3 = None # Data_typeContext
+            self.t4 = None # Key_attributeContext
+            self.dt4 = None # Data_typeContext
 
         def TOKEN_LEFT_PAREN(self):
             return self.getToken(DatalogParser.TOKEN_LEFT_PAREN, 0)
@@ -429,17 +452,28 @@ class DatalogParser ( Parser ):
         def TOKEN_RIGHT_PAREN(self):
             return self.getToken(DatalogParser.TOKEN_RIGHT_PAREN, 0)
 
-        def TOKEN_ID(self, i:int=None):
+        def TOKEN_ID(self):
+            return self.getToken(DatalogParser.TOKEN_ID, 0)
+
+        def non_key_attribute(self, i:int=None):
             if i is None:
-                return self.getTokens(DatalogParser.TOKEN_ID)
+                return self.getTypedRuleContexts(DatalogParser.Non_key_attributeContext)
             else:
-                return self.getToken(DatalogParser.TOKEN_ID, i)
+                return self.getTypedRuleContext(DatalogParser.Non_key_attributeContext,i)
+
 
         def data_type(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(DatalogParser.Data_typeContext)
             else:
                 return self.getTypedRuleContext(DatalogParser.Data_typeContext,i)
+
+
+        def key_attribute(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(DatalogParser.Key_attributeContext)
+            else:
+                return self.getTypedRuleContext(DatalogParser.Key_attributeContext,i)
 
 
         def TOKEN_COMMA(self, i:int=None):
@@ -461,33 +495,65 @@ class DatalogParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            schema = {'name': '', 'attributes': []}
-            self.state = 69
+            schema = {'name': '', 'attributes': [], 'keys': []}
+            self.state = 73
             localctx.relation_name = self.match(DatalogParser.TOKEN_ID)
             schema['name'] = (None if localctx.relation_name is None else localctx.relation_name.text)
-            self.state = 71
+            self.state = 75
             self.match(DatalogParser.TOKEN_LEFT_PAREN)
-            self.state = 72
-            localctx.t1 = self.match(DatalogParser.TOKEN_ID)
-            self.state = 73
-            localctx.dt1 = self.data_type()
-            schema['attributes'].append(self.AtomArg((None if localctx.t1 is None else localctx.t1.text), localctx.dt1.r))
-            self.state = 82
+            self.state = 85
+            self._errHandler.sync(self)
+            token = self._input.LA(1)
+            if token in [DatalogParser.TOKEN_ID]:
+                self.state = 76
+                localctx.t1 = self.non_key_attribute()
+                self.state = 77
+                localctx.dt1 = self.data_type()
+                schema['attributes'].append(self.AtomArg(localctx.t1.r, localctx.dt1.r))
+                pass
+            elif token in [DatalogParser.TOKEN_LEFT_BRACKET]:
+                self.state = 80
+                localctx.t2 = self.key_attribute()
+                schema['keys'].append(localctx.t2.r)
+                self.state = 82
+                localctx.dt2 = self.data_type()
+                schema['attributes'].append(self.AtomArg(localctx.t2.r, localctx.dt2.r))
+                pass
+            else:
+                raise NoViableAltException(self)
+
+            self.state = 101
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==DatalogParser.TOKEN_COMMA:
-                self.state = 75
+                self.state = 87
                 self.match(DatalogParser.TOKEN_COMMA)
-                self.state = 76
-                localctx.t2 = self.match(DatalogParser.TOKEN_ID)
-                self.state = 77
-                localctx.dt2 = self.data_type()
-                schema['attributes'].append(self.AtomArg((None if localctx.t2 is None else localctx.t2.text), localctx.dt2.r))
-                self.state = 84
+                self.state = 97
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [DatalogParser.TOKEN_ID]:
+                    self.state = 88
+                    localctx.t3 = self.non_key_attribute()
+                    self.state = 89
+                    localctx.dt3 = self.data_type()
+                    schema['attributes'].append(self.AtomArg(localctx.t3.r, localctx.dt3.r))
+                    pass
+                elif token in [DatalogParser.TOKEN_LEFT_BRACKET]:
+                    self.state = 92
+                    localctx.t4 = self.key_attribute()
+                    schema['keys'].append(localctx.t4.r)
+                    self.state = 94
+                    localctx.dt4 = self.data_type()
+                    schema['attributes'].append(self.AtomArg(localctx.t4.r, localctx.dt4.r))
+                    pass
+                else:
+                    raise NoViableAltException(self)
+
+                self.state = 103
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 85
+            self.state = 104
             self.match(DatalogParser.TOKEN_RIGHT_PAREN)
             localctx.r = schema
         except RecognitionException as re:
@@ -532,14 +598,14 @@ class DatalogParser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_datalog_rule_declare)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 88
+            self.state = 107
             self.match(DatalogParser.TOKEN_RULE)
-            self.state = 89
+            self.state = 108
             self.match(DatalogParser.TOKEN_COLON)
-            self.state = 90
+            self.state = 109
             localctx.dp = self.datalog_program()
             localctx.r = localctx.dp.r
-            self.state = 92
+            self.state = 111
             self.match(DatalogParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -580,17 +646,17 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             rule_list = []
-            self.state = 95
+            self.state = 114
             localctx.r1 = self.datalog_rule()
             rule_list.append(localctx.r1.r)
-            self.state = 102
+            self.state = 121
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << DatalogParser.TOKEN_ID) | (1 << DatalogParser.TOKEN_NON_DEDUP) | (1 << DatalogParser.TOKEN_NON_SET_DIFF) | (1 << DatalogParser.TOKEN_DEDUP_ONLY))) != 0):
-                self.state = 97
+                self.state = 116
                 localctx.r2 = self.datalog_rule()
                 rule_list.append(localctx.r2.r)
-                self.state = 104
+                self.state = 123
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -650,49 +716,49 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             rule_dic = {}
-            self.state = 110
+            self.state = 129
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==DatalogParser.TOKEN_NON_DEDUP:
-                self.state = 108
+                self.state = 127
                 self.match(DatalogParser.TOKEN_NON_DEDUP)
                 rule_dic['non-dedup'] = True
 
 
-            self.state = 114
+            self.state = 133
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==DatalogParser.TOKEN_NON_SET_DIFF:
-                self.state = 112
+                self.state = 131
                 self.match(DatalogParser.TOKEN_NON_SET_DIFF)
                 rule_dic['non-set-diff'] = True
 
 
-            self.state = 118
+            self.state = 137
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==DatalogParser.TOKEN_DEDUP_ONLY:
-                self.state = 116
+                self.state = 135
                 self.match(DatalogParser.TOKEN_DEDUP_ONLY)
                 rule_dic['dedup-only'] = True
 
 
-            self.state = 120
+            self.state = 139
             localctx.h = self.head()
             rule_dic['head'] = localctx.h.r
-            self.state = 122
+            self.state = 141
             self.match(DatalogParser.TOKEN_BODY_HEAD_SEP)
             rule_dic['body'] = None
-            self.state = 127
+            self.state = 146
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << DatalogParser.TOKEN_INTEGER) | (1 << DatalogParser.TOKEN_ID) | (1 << DatalogParser.TOKEN_NOT))) != 0):
-                self.state = 124
+                self.state = 143
                 localctx.b = self.body()
                 rule_dic['body'] = localctx.b.r
 
 
-            self.state = 129
+            self.state = 148
             self.match(DatalogParser.TOKEN_DOT)
             localctx.r = rule_dic
         except RecognitionException as re:
@@ -728,7 +794,7 @@ class DatalogParser ( Parser ):
         self.enterRule(localctx, 12, self.RULE_head)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 132
+            self.state = 151
             localctx.a = self.atom()
             localctx.r = localctx.a.r
         except RecognitionException as re:
@@ -802,68 +868,68 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             body_dic = {'atoms':[], 'compares': [], 'assigns':[], 'negations':[]}
-            self.state = 154
+            self.state = 173
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 148
+                    self.state = 167
                     self._errHandler.sync(self)
-                    la_ = self._interp.adaptivePredict(self._input,8,self._ctx)
+                    la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
                     if la_ == 1:
-                        self.state = 136
+                        self.state = 155
                         localctx.b1 = self.atom()
                         body_dic['atoms'].append(localctx.b1.r)
                         pass
 
                     elif la_ == 2:
-                        self.state = 139
+                        self.state = 158
                         localctx.b2 = self.compare_expr()
                         body_dic['compares'].append(localctx.b2.r)
                         pass
 
                     elif la_ == 3:
-                        self.state = 142
+                        self.state = 161
                         localctx.b3 = self.assign()
                         body_dic['assigns'].append(localctx.b3.r)
                         pass
 
                     elif la_ == 4:
-                        self.state = 145
+                        self.state = 164
                         localctx.b4 = self.negation()
                         body_dic['negations'].append(localctx.b4.r)
                         pass
 
 
-                    self.state = 150
+                    self.state = 169
                     self.match(DatalogParser.TOKEN_COMMA) 
-                self.state = 156
+                self.state = 175
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
 
-            self.state = 169
+            self.state = 188
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
             if la_ == 1:
-                self.state = 157
+                self.state = 176
                 localctx.b5 = self.atom()
                 body_dic['atoms'].append(localctx.b5.r)
                 pass
 
             elif la_ == 2:
-                self.state = 160
+                self.state = 179
                 localctx.b6 = self.compare_expr()
                 body_dic['compares'].append(localctx.b6.r)
                 pass
 
             elif la_ == 3:
-                self.state = 163
+                self.state = 182
                 localctx.b7 = self.assign()
                 body_dic['assigns'].append(localctx.b7.r)
                 pass
 
             elif la_ == 4:
-                self.state = 166
+                self.state = 185
                 localctx.b8 = self.negation()
                 body_dic['negations'].append(localctx.b8.r)
                 pass
@@ -906,9 +972,9 @@ class DatalogParser ( Parser ):
         self.enterRule(localctx, 16, self.RULE_negation)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 173
+            self.state = 192
             self.match(DatalogParser.TOKEN_NOT)
-            self.state = 174
+            self.state = 193
             localctx.a = self.atom()
             localctx.r = localctx.a.r
         except RecognitionException as re:
@@ -997,90 +1063,90 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             atom_dic = {'name': None, 'arg_list':[]}
-            self.state = 178
+            self.state = 197
             localctx.a1 = self.match(DatalogParser.TOKEN_ID)
             atom_dic['name'] = (None if localctx.a1 is None else localctx.a1.text)
-            self.state = 180
+            self.state = 199
             self.match(DatalogParser.TOKEN_LEFT_PAREN)
-            self.state = 194
+            self.state = 213
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,13,self._ctx)
             if la_ == 1:
-                self.state = 181
+                self.state = 200
                 localctx.a2 = self.match(DatalogParser.TOKEN_ID)
                 atom_dic['arg_list'].append(self.AtomArg((None if localctx.a2 is None else localctx.a2.text), 'variable'))
                 pass
 
             elif la_ == 2:
-                self.state = 183
+                self.state = 202
                 localctx.a3 = self.aggregation_expr()
                 atom_dic['arg_list'].append(self.AtomArg(localctx.a3.r, 'aggregation'))
                 pass
 
             elif la_ == 3:
-                self.state = 186
+                self.state = 205
                 localctx.a4 = self.match(DatalogParser.TOKEN_ANY)
                 atom_dic['arg_list'].append(self.AtomArg((None if localctx.a4 is None else localctx.a4.text), 'any'))
                 pass
 
             elif la_ == 4:
-                self.state = 188
+                self.state = 207
                 localctx.a5 = self.constant()
                 atom_dic['arg_list'].append(self.AtomArg((None if localctx.a5 is None else self._input.getText(localctx.a5.start,localctx.a5.stop)), 'constant'))
                 pass
 
             elif la_ == 5:
-                self.state = 191
+                self.state = 210
                 localctx.a6 = self.math_expr()
                 atom_dic['arg_list'].append(self.AtomArg(localctx.a6.r, 'math_expr'))
                 pass
 
 
-            self.state = 214
+            self.state = 233
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==DatalogParser.TOKEN_COMMA:
-                self.state = 196
+                self.state = 215
                 self.match(DatalogParser.TOKEN_COMMA)
-                self.state = 210
+                self.state = 229
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input,14,self._ctx)
                 if la_ == 1:
-                    self.state = 197
+                    self.state = 216
                     localctx.a7 = self.match(DatalogParser.TOKEN_ID)
                     atom_dic['arg_list'].append(self.AtomArg((None if localctx.a7 is None else localctx.a7.text), 'variable'))
                     pass
 
                 elif la_ == 2:
-                    self.state = 199
+                    self.state = 218
                     localctx.a8 = self.aggregation_expr()
                     atom_dic['arg_list'].append(self.AtomArg(localctx.a8.r, 'aggregation'))
                     pass
 
                 elif la_ == 3:
-                    self.state = 202
+                    self.state = 221
                     localctx.a9 = self.match(DatalogParser.TOKEN_ANY)
                     atom_dic['arg_list'].append(self.AtomArg((None if localctx.a9 is None else localctx.a9.text), 'any'))
                     pass
 
                 elif la_ == 4:
-                    self.state = 204
+                    self.state = 223
                     localctx.a10 = self.constant()
                     atom_dic['arg_list'].append(self.AtomArg((None if localctx.a10 is None else self._input.getText(localctx.a10.start,localctx.a10.stop)), 'constant'))
                     pass
 
                 elif la_ == 5:
-                    self.state = 207
+                    self.state = 226
                     localctx.a11 = self.math_expr()
                     atom_dic['arg_list'].append(self.AtomArg(localctx.a11.r, 'math_expr'))
                     pass
 
 
-                self.state = 216
+                self.state = 235
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 217
+            self.state = 236
             self.match(DatalogParser.TOKEN_RIGHT_PAREN)
             localctx.r = atom_dic
         except RecognitionException as re:
@@ -1124,12 +1190,12 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             assign_dic = {}
-            self.state = 221
+            self.state = 240
             localctx.a1 = self.match(DatalogParser.TOKEN_ID)
             assign_dic['lhs'] = (None if localctx.a1 is None else localctx.a1.text)
-            self.state = 223
+            self.state = 242
             self.match(DatalogParser.TOKEN_EQUALS)
-            self.state = 224
+            self.state = 243
             localctx.a2 = self.math_expr()
             assign_dic['rhs'] = localctx.a2.r
             localctx.r = assign_dic
@@ -1175,13 +1241,13 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             math_dic = {}
-            self.state = 229
+            self.state = 248
             localctx.m1 = self.match(DatalogParser.TOKEN_ID)
             math_dic['lhs'] = (None if localctx.m1 is None else localctx.m1.text)
-            self.state = 231
+            self.state = 250
             localctx.m2 = self.math_op()
             math_dic['op'] = localctx.m2.r
-            self.state = 233
+            self.state = 252
             localctx.m3 = self.match(DatalogParser.TOKEN_ID)
             math_dic['rhs'] = (None if localctx.m3 is None else localctx.m3.text)
             localctx.r = math_dic
@@ -1235,35 +1301,35 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             compare_dic = {}
-            self.state = 242
+            self.state = 261
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_ID]:
-                self.state = 238
+                self.state = 257
                 localctx.c1 = self.match(DatalogParser.TOKEN_ID)
                 compare_dic['lhs'] = [(None if localctx.c1 is None else localctx.c1.text), 'var']
                 pass
             elif token in [DatalogParser.TOKEN_INTEGER]:
-                self.state = 240
+                self.state = 259
                 localctx.c2 = self.match(DatalogParser.TOKEN_INTEGER)
                 compare_dic['lhs'] = [(None if localctx.c2 is None else localctx.c2.text), 'num']
                 pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 244
+            self.state = 263
             localctx.op = self.compare_op()
             compare_dic['op'] = localctx.op.r
-            self.state = 250
+            self.state = 269
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_ID]:
-                self.state = 246
+                self.state = 265
                 localctx.c4 = self.match(DatalogParser.TOKEN_ID)
                 compare_dic['rhs'] = [(None if localctx.c4 is None else localctx.c4.text), 'var']
                 pass
             elif token in [DatalogParser.TOKEN_INTEGER]:
-                self.state = 248
+                self.state = 267
                 localctx.c5 = self.match(DatalogParser.TOKEN_INTEGER)
                 compare_dic['rhs'] = [(None if localctx.c5 is None else localctx.c5.text), 'num']
                 pass
@@ -1320,30 +1386,110 @@ class DatalogParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             agg_dic = {'agg_op': None, 'agg_arg': None}
-            self.state = 255
+            self.state = 274
             localctx.a1 = self.aggregation_op()
             agg_dic['agg_op'] = localctx.a1.r
-            self.state = 257
+            self.state = 276
             self.match(DatalogParser.TOKEN_LEFT_PAREN)
-            self.state = 263
+            self.state = 282
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,16,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
             if la_ == 1:
-                self.state = 258
+                self.state = 277
                 localctx.a2 = self.match(DatalogParser.TOKEN_ID)
                 agg_dic['agg_arg'] = {'type': 'attribute', 'content': (None if localctx.a2 is None else localctx.a2.text)}
                 pass
 
             elif la_ == 2:
-                self.state = 260
+                self.state = 279
                 localctx.a3 = self.math_expr()
                 agg_dic['agg_arg'] = {'type': 'math_expr', 'content': localctx.a3.r}
                 pass
 
 
-            self.state = 265
+            self.state = 284
             self.match(DatalogParser.TOKEN_RIGHT_PAREN)
             localctx.r = agg_dic
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Key_attributeContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.r = None
+            self.a1 = None # Token
+
+        def TOKEN_LEFT_BRACKET(self):
+            return self.getToken(DatalogParser.TOKEN_LEFT_BRACKET, 0)
+
+        def TOKEN_RIGHT_BRACKET(self):
+            return self.getToken(DatalogParser.TOKEN_RIGHT_BRACKET, 0)
+
+        def TOKEN_ID(self):
+            return self.getToken(DatalogParser.TOKEN_ID, 0)
+
+        def getRuleIndex(self):
+            return DatalogParser.RULE_key_attribute
+
+
+
+
+    def key_attribute(self):
+
+        localctx = DatalogParser.Key_attributeContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 28, self.RULE_key_attribute)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 287
+            self.match(DatalogParser.TOKEN_LEFT_BRACKET)
+            self.state = 288
+            localctx.a1 = self.match(DatalogParser.TOKEN_ID)
+            localctx.r = (None if localctx.a1 is None else localctx.a1.text)
+            self.state = 290
+            self.match(DatalogParser.TOKEN_RIGHT_BRACKET)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class Non_key_attributeContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.r = None
+            self.a1 = None # Token
+
+        def TOKEN_ID(self):
+            return self.getToken(DatalogParser.TOKEN_ID, 0)
+
+        def getRuleIndex(self):
+            return DatalogParser.RULE_non_key_attribute
+
+
+
+
+    def non_key_attribute(self):
+
+        localctx = DatalogParser.Non_key_attributeContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 30, self.RULE_non_key_attribute)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 292
+            localctx.a1 = self.match(DatalogParser.TOKEN_ID)
+            localctx.r = (None if localctx.a1 is None else localctx.a1.text)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1393,44 +1539,44 @@ class DatalogParser ( Parser ):
     def compare_op(self):
 
         localctx = DatalogParser.Compare_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 28, self.RULE_compare_op)
+        self.enterRule(localctx, 32, self.RULE_compare_op)
         try:
-            self.state = 280
+            self.state = 307
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_NOT_EQUALS]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 268
+                self.state = 295
                 localctx.op1 = self.match(DatalogParser.TOKEN_NOT_EQUALS)
                 localctx.r = (None if localctx.op1 is None else localctx.op1.text)
                 pass
             elif token in [DatalogParser.TOKEN_EQUALS]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 270
+                self.state = 297
                 localctx.op2 = self.match(DatalogParser.TOKEN_EQUALS)
                 localctx.r = (None if localctx.op2 is None else localctx.op2.text)
                 pass
             elif token in [DatalogParser.TOKEN_GREATER_THAN]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 272
+                self.state = 299
                 localctx.op3 = self.match(DatalogParser.TOKEN_GREATER_THAN)
                 localctx.r = (None if localctx.op3 is None else localctx.op3.text)
                 pass
             elif token in [DatalogParser.TOKEN_GREATER_EQUAL_THAN]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 274
+                self.state = 301
                 localctx.op4 = self.match(DatalogParser.TOKEN_GREATER_EQUAL_THAN)
                 localctx.r = (None if localctx.op4 is None else localctx.op4.text)
                 pass
             elif token in [DatalogParser.TOKEN_LESS_THAN]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 276
+                self.state = 303
                 localctx.op5 = self.match(DatalogParser.TOKEN_LESS_THAN)
                 localctx.r = (None if localctx.op5 is None else localctx.op5.text)
                 pass
             elif token in [DatalogParser.TOKEN_LESS_EQUAL_THAN]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 278
+                self.state = 305
                 localctx.op6 = self.match(DatalogParser.TOKEN_LESS_EQUAL_THAN)
                 localctx.r = (None if localctx.op6 is None else localctx.op6.text)
                 pass
@@ -1482,38 +1628,38 @@ class DatalogParser ( Parser ):
     def aggregation_op(self):
 
         localctx = DatalogParser.Aggregation_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 30, self.RULE_aggregation_op)
+        self.enterRule(localctx, 34, self.RULE_aggregation_op)
         try:
-            self.state = 292
+            self.state = 319
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_MIN]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 282
+                self.state = 309
                 localctx.op1 = self.match(DatalogParser.TOKEN_MIN)
                 localctx.r = (None if localctx.op1 is None else localctx.op1.text)
                 pass
             elif token in [DatalogParser.TOKEN_MAX]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 284
+                self.state = 311
                 localctx.op2 = self.match(DatalogParser.TOKEN_MAX)
                 localctx.r = (None if localctx.op2 is None else localctx.op2.text)
                 pass
             elif token in [DatalogParser.TOKEN_SUM]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 286
+                self.state = 313
                 localctx.op3 = self.match(DatalogParser.TOKEN_SUM)
                 localctx.r = (None if localctx.op3 is None else localctx.op3.text)
                 pass
             elif token in [DatalogParser.TOKEN_COUNT]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 288
+                self.state = 315
                 localctx.op4 = self.match(DatalogParser.TOKEN_COUNT)
                 localctx.r = (None if localctx.op4 is None else localctx.op4.text)
                 pass
             elif token in [DatalogParser.TOKEN_COUNT_DISTINCT]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 290
+                self.state = 317
                 localctx.op5 = self.match(DatalogParser.TOKEN_COUNT_DISTINCT)
                 localctx.r = (None if localctx.op5 is None else localctx.op5.text)
                 pass
@@ -1561,32 +1707,32 @@ class DatalogParser ( Parser ):
     def math_op(self):
 
         localctx = DatalogParser.Math_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_math_op)
+        self.enterRule(localctx, 36, self.RULE_math_op)
         try:
-            self.state = 302
+            self.state = 329
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_PLUS]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 294
+                self.state = 321
                 localctx.op1 = self.match(DatalogParser.TOKEN_PLUS)
                 localctx.r = (None if localctx.op1 is None else localctx.op1.text)
                 pass
             elif token in [DatalogParser.TOKEN_MINUS]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 296
+                self.state = 323
                 localctx.op2 = self.match(DatalogParser.TOKEN_MINUS)
                 localctx.r = (None if localctx.op2 is None else localctx.op2.text)
                 pass
             elif token in [DatalogParser.TOKEN_MULT]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 298
+                self.state = 325
                 localctx.op3 = self.match(DatalogParser.TOKEN_MULT)
                 localctx.r = (None if localctx.op3 is None else localctx.op3.text)
                 pass
             elif token in [DatalogParser.TOKEN_DIV]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 300
+                self.state = 327
                 localctx.op4 = self.match(DatalogParser.TOKEN_DIV)
                 localctx.r = (None if localctx.op4 is None else localctx.op4.text)
                 pass
@@ -1626,20 +1772,20 @@ class DatalogParser ( Parser ):
     def constant(self):
 
         localctx = DatalogParser.ConstantContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_constant)
+        self.enterRule(localctx, 38, self.RULE_constant)
         try:
-            self.state = 308
+            self.state = 335
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_INTEGER]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 304
+                self.state = 331
                 localctx.c1 = self.match(DatalogParser.TOKEN_INTEGER)
                 localctx.r = (None if localctx.c1 is None else localctx.c1.text)
                 pass
             elif token in [DatalogParser.TOKEN_STRING]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 306
+                self.state = 333
                 localctx.c2 = self.match(DatalogParser.TOKEN_STRING)
                 localctx.r = (None if localctx.c2 is None else localctx.c2.text)
                 pass
@@ -1703,56 +1849,56 @@ class DatalogParser ( Parser ):
     def data_type(self):
 
         localctx = DatalogParser.Data_typeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_data_type)
+        self.enterRule(localctx, 40, self.RULE_data_type)
         try:
-            self.state = 326
+            self.state = 353
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [DatalogParser.TOKEN_INT]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 310
+                self.state = 337
                 localctx.dt1 = self.match(DatalogParser.TOKEN_INT)
                 localctx.r = (None if localctx.dt1 is None else localctx.dt1.text)
                 pass
             elif token in [DatalogParser.TOKEN_LONG]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 312
+                self.state = 339
                 localctx.dt2 = self.match(DatalogParser.TOKEN_LONG)
                 localctx.r = (None if localctx.dt2 is None else localctx.dt2.text)
                 pass
             elif token in [DatalogParser.TOKEN_FLOAT]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 314
+                self.state = 341
                 localctx.dt3 = self.match(DatalogParser.TOKEN_FLOAT)
                 localctx.r = (None if localctx.dt3 is None else localctx.dt3.text)
                 pass
             elif token in [DatalogParser.TOKEN_DOUBLE]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 316
+                self.state = 343
                 localctx.dt4 = self.match(DatalogParser.TOKEN_DOUBLE)
                 localctx.r = (None if localctx.dt4 is None else localctx.dt4.text)
                 pass
             elif token in [DatalogParser.TOKEN_VARCHAR]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 318
+                self.state = 345
                 localctx.dt5 = self.match(DatalogParser.TOKEN_VARCHAR)
                 localctx.r = (None if localctx.dt5 is None else localctx.dt5.text)
                 pass
             elif token in [DatalogParser.TOKEN_CHAR]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 320
+                self.state = 347
                 localctx.dt6 = self.match(DatalogParser.TOKEN_CHAR)
                 localctx.r = (None if localctx.dt6 is None else localctx.dt6.text)
                 pass
             elif token in [DatalogParser.TOKEN_DATE]:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 322
+                self.state = 349
                 localctx.dt7 = self.match(DatalogParser.TOKEN_DATE)
                 localctx.r = (None if localctx.dt7 is None else localctx.dt7.text)
                 pass
             elif token in [DatalogParser.TOKEN_DATETIME]:
                 self.enterOuterAlt(localctx, 8)
-                self.state = 324
+                self.state = 351
                 localctx.dt8 = self.match(DatalogParser.TOKEN_DATETIME)
                 localctx.r = (None if localctx.dt8 is None else localctx.dt8.text)
                 pass

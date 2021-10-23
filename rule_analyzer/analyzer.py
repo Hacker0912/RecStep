@@ -97,7 +97,7 @@ def compute_rule_sccs(dependency_map):
     rule_assigned_map = [0] * len(dependency_map)
     dfs_order_list = list()
     # strongly connected components
-    sccs = collections.OrderedDict({})
+    sccs = collections.OrderedDict()
 
     # depth-first search to compute the transponse graph order
     def visit(r):
@@ -220,4 +220,5 @@ def group_rules(rule_atom_map, sccs, dependency_graph):
             else:
                 non_recursive_rule_group_map[head_atom].extend(sccs[scc_key])
 
+    rule_groups.reverse()
     return {"rule_groups": rule_groups, "rule_group_bitmap": rule_group_bitmap}

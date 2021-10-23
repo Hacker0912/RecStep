@@ -49,15 +49,13 @@ class DatalogProgram(object):
         ) = construct_dependency_graph(rules_tree)
 
         self.sccs = compute_rule_sccs(self.dependency_graph)
-        # Reverse scc ordered dictionary and the new order of sccs would be the scc evaluation order
-        self.sccs = collections.OrderedDict(reversed(list(self.sccs.items())))
-
         if self.__print_datalog_program:
             print(
                 "Number of the rule strongly connected components (rscc): {}".format(
                     len(self.sccs)
                 )
             )
+            print("\nrule strongly connected components in reverse evaluation order: ")
             print("<rscc index>: <rscc key> - <indices of rules>\n")
             scc_index = 0
             for scc_key in self.sccs:
