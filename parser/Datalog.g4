@@ -6,9 +6,10 @@ grammar Datalog;
 @parser::members {
 
 class AtomArg():
-    def __init__(self, arg_name, arg_type):
+    def __init__(self, arg_name, arg_type, key_attribute=False):
         self.name = arg_name
         self.type = arg_type
+        self.key_attribute = key_attribute
 }
 
 datalog_edb_declare returns[r]
@@ -28,17 +29,16 @@ datalog_idb_declare returns [r]
     ;
 
 datalog_relation_schema returns [r]
-    : {schema = {'name': '', 'attributes': [], 'keys': []}}
+    : {schema = {'name': '', 'attributes': []}}
       relation_name = TOKEN_ID                    {schema['name'] = $relation_name.text}
       TOKEN_LEFT_PAREN
-      (t1 = non_key_attribute dt1 = data_type {schema['attributes'].append(self.AtomArg($t1.r, $dt1.r))}| 
-	   t2 = key_attribute {schema['keys'].append($t2.r)} dt2 = data_type {schema['attributes'].append(self.AtomArg($t2.r, $dt2.r))}) 
+      t1 = attribute {schema['attributes'].append(self.AtomArg($t1.r['name'], $t1.r['type'], $t1.r['is_key']))}
       (TOKEN_COMMA 
-	   (t3 = non_key_attribute dt3 = data_type {schema['attributes'].append(self.AtomArg($t3.r, $dt3.r))}|
-	    t4 = key_attribute {schema['keys'].append($t4.r)} dt4 = data_type {schema['attributes'].append(self.AtomArg($t4.r, $dt4.r))}))*
+	   t2 = attribute {schema['attributes'].append(self.AtomArg($t2.r['name'], $t2.r['type'], $t2.r['is_key']))})*
       TOKEN_RIGHT_PAREN
       {$r = schema}
     ;
+
 
 datalog_rule_declare returns [r]
     : TOKEN_RULE TOKEN_COLON dp = datalog_program {$r = $dp.r} EOF
@@ -53,15 +53,15 @@ datalog_program returns [r]
 
 /** Rule that has no body must be the rule specifying "facts insertion" **/
 datalog_rule returns [r]
-    : {rule_dic = {}}
-		(TOKEN_NON_DEDUP {rule_dic['non-dedup'] = True})? 
-		(TOKEN_NON_SET_DIFF {rule_dic['non-set-diff'] = True})?
-                (TOKEN_DEDUP_ONLY {rule_dic['dedup-only'] = True})?
-	    h = head {rule_dic['head'] = $h.r}
-	    TOKEN_BODY_HEAD_SEP {rule_dic['body'] = None}
-	    (b = body {rule_dic['body'] = $b.r})?
+    : {rule_map = {}}
+		(TOKEN_NON_DEDUP {rule_map['non-dedup'] = True})? 
+		(TOKEN_NON_SET_DIFF {rule_map['non-set-diff'] = True})?
+                (TOKEN_DEDUP_ONLY {rule_map['dedup-only'] = True})?
+	    h = head {rule_map['head'] = $h.r}
+	    TOKEN_BODY_HEAD_SEP {rule_map['body'] = None}
+	    (b = body {rule_map['body'] = $b.r})?
 	    TOKEN_DOT
-	  {$r = rule_dic}
+	  {$r = rule_map}
     ;
 
 head returns [r]
@@ -70,17 +70,17 @@ head returns [r]
 	;
 
 body returns [r] 
-    : {body_dic = {'atoms':[], 'compares': [], 'assigns':[], 'negations':[]}}
-	  ((b1 = atom 			{body_dic['atoms'].append($b1.r)} | 
-	   	b2 = compare_expr 	{body_dic['compares'].append($b2.r)} | 
-	  	b3 = assign 		{body_dic['assigns'].append($b3.r)} | 
-	    b4 = negation 		{body_dic['negations'].append($b4.r)}) 
+    : {body_map = {'atoms':[], 'compares': [], 'assigns':[], 'negations':[]}}
+	  ((b1 = atom 			{body_map['atoms'].append($b1.r)} | 
+	   	b2 = compare_expr 	{body_map['compares'].append($b2.r)} | 
+	  	b3 = assign 		{body_map['assigns'].append($b3.r)} | 
+	    b4 = negation 		{body_map['negations'].append($b4.r)}) 
 		TOKEN_COMMA)*
-	  ((b5 = atom 			{body_dic['atoms'].append($b5.r)} |
-		b6 = compare_expr 	{body_dic['compares'].append($b6.r)} |
-		b7 = assign		    {body_dic['assigns'].append($b7.r)} |
-		b8 = negation 		{body_dic['negations'].append($b8.r)}))
-	  {$r = body_dic}
+	  ((b5 = atom 			{body_map['atoms'].append($b5.r)} |
+		b6 = compare_expr 	{body_map['compares'].append($b6.r)} |
+		b7 = assign		    {body_map['assigns'].append($b7.r)} |
+		b8 = negation 		{body_map['negations'].append($b8.r)}))
+	  {$r = body_map}
 	;
 
 
@@ -90,67 +90,80 @@ negation returns [r]
 	;
 
 atom returns [r]
-	: {atom_dic = {'name': None, 'arg_list':[]}}
-	  a1 = TOKEN_ID 		  {atom_dic['name'] = $a1.text}  
+	: {atom_map = {'name': None, 'arg_list':[]}}
+	  a1 = TOKEN_ID 		  {atom_map['name'] = $a1.text}  
 	  TOKEN_LEFT_PAREN 
-	  (a2 = TOKEN_ID 		  {atom_dic['arg_list'].append(self.AtomArg($a2.text, 'variable'))} |
-	   a3 = aggregation_expr  {atom_dic['arg_list'].append(self.AtomArg($a3.r, 'aggregation'))} |
-	   a4 = TOKEN_ANY 		  {atom_dic['arg_list'].append(self.AtomArg($a4.text, 'any'))} |
-	   a5 = constant 		  {atom_dic['arg_list'].append(self.AtomArg($a5.text, 'constant'))} |
-	   a6 = math_expr         {atom_dic['arg_list'].append(self.AtomArg($a6.r, 'math_expr'))})
+	  (a2 = TOKEN_ID 		  {atom_map['arg_list'].append(self.AtomArg($a2.text, 'variable'))} |
+	   a3 = aggregation_expr  {atom_map['arg_list'].append(self.AtomArg($a3.r, 'aggregation'))} |
+	   a4 = TOKEN_ANY 		  {atom_map['arg_list'].append(self.AtomArg($a4.text, 'any'))} |
+	   a5 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a5.text, 'constant'))} |
+	   a6 = math_expr         {atom_map['arg_list'].append(self.AtomArg($a6.r, 'math_expr'))})
 	  (TOKEN_COMMA 
-	   (a7 = TOKEN_ID 		  {atom_dic['arg_list'].append(self.AtomArg($a7.text, 'variable'))} |
-		a8 = aggregation_expr {atom_dic['arg_list'].append(self.AtomArg($a8.r, 'aggregation'))}|
-		a9 = TOKEN_ANY		  {atom_dic['arg_list'].append(self.AtomArg($a9.text, 'any'))} |
-		a10 = constant 		  {atom_dic['arg_list'].append(self.AtomArg($a10.text, 'constant'))} |
-		a11 = math_expr       {atom_dic['arg_list'].append(self.AtomArg($a11.r, 'math_expr'))}))*
+	   (a7 = TOKEN_ID 		  {atom_map['arg_list'].append(self.AtomArg($a7.text, 'variable'))} |
+		a8 = aggregation_expr {atom_map['arg_list'].append(self.AtomArg($a8.r, 'aggregation'))}|
+		a9 = TOKEN_ANY		  {atom_map['arg_list'].append(self.AtomArg($a9.text, 'any'))} |
+		a10 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a10.text, 'constant'))} |
+		a11 = math_expr       {atom_map['arg_list'].append(self.AtomArg($a11.r, 'math_expr'))}))*
 	  TOKEN_RIGHT_PAREN
-	  {$r = atom_dic}
+	  {$r = atom_map}
 	;
 
 assign returns [r] 
-	: {assign_dic = {}}
-	  a1 = TOKEN_ID 	  {assign_dic['lhs'] = $a1.text} 
+	: {assign_map = {}}
+	  a1 = TOKEN_ID 	  {assign_map['lhs'] = $a1.text} 
 	  TOKEN_EQUALS
-	  a2 = math_expr 	  {assign_dic['rhs'] = $a2.r}
-	  {$r = assign_dic}
+	  a2 = math_expr 	  {assign_map['rhs'] = $a2.r}
+	  {$r = assign_map}
 	;
 
 math_expr returns [r]
-	: {math_dic = {}}
-	  m1 = TOKEN_ID		  {math_dic['lhs'] = $m1.text} 
-	  m2 = math_op		  {math_dic['op'] = $m2.r}
-      m3 = TOKEN_ID 	  {math_dic['rhs'] = $m3.text}
-	  {$r = math_dic}
+	: {math_map = {}}
+	  m1 = TOKEN_ID		  {math_map['lhs'] = $m1.text} 
+	  m2 = math_op		  {math_map['op'] = $m2.r}
+      m3 = TOKEN_ID 	  {math_map['rhs'] = $m3.text}
+	  {$r = math_map}
 	;
 
 compare_expr returns [r]
-	: {compare_dic = {}}
-      (c1 = TOKEN_ID      {compare_dic['lhs'] = [$c1.text, 'var']} |
-       c2 = TOKEN_INTEGER  {compare_dic['lhs'] = [$c2.text, 'num']})
-       op = compare_op	  {compare_dic['op'] = $op.r}
-      (c4 = TOKEN_ID      {compare_dic['rhs'] = [$c4.text, 'var']} |
-       c5 = TOKEN_INTEGER  {compare_dic['rhs'] = [$c5.text, 'num']})
-	  {$r = compare_dic}
+	: {compare_map = {}}
+      (c1 = TOKEN_ID      {compare_map['lhs'] = [$c1.text, 'var']} |
+       c2 = TOKEN_INTEGER  {compare_map['lhs'] = [$c2.text, 'num']})
+       op = compare_op	  {compare_map['op'] = $op.r}
+      (c4 = TOKEN_ID      {compare_map['rhs'] = [$c4.text, 'var']} |
+       c5 = TOKEN_INTEGER  {compare_map['rhs'] = [$c5.text, 'num']})
+	  {$r = compare_map}
 	; 
 
 
 aggregation_expr returns [r]
-	: {agg_dic = {'agg_op': None, 'agg_arg': None}}
-	  a1 = aggregation_op {agg_dic['agg_op'] = $a1.r}
+	: {agg_map = {'agg_op': None, 'agg_arg': None}}
+	  a1 = aggregation_op {agg_map['agg_op'] = $a1.r}
 	  TOKEN_LEFT_PAREN
-	  (a2 = TOKEN_ID 	  {agg_dic['agg_arg'] = {'type': 'attribute', 'content': $a2.text}} |
-	   a3 = math_expr     {agg_dic['agg_arg'] = {'type': 'math_expr', 'content': $a3.r}})
+	  (a2 = TOKEN_ID 	  {agg_map['agg_arg'] = {'type': 'attribute', 'content': $a2.text}} |
+	   a3 = math_expr     {agg_map['agg_arg'] = {'type': 'math_expr', 'content': $a3.r}})
 	  TOKEN_RIGHT_PAREN 
-	  {$r = agg_dic}
+	  {$r = agg_map}
+	;
+
+attribute returns [r]
+	: a1 = non_key_attribute {$r = $a1.r}
+	| a2 = key_attribute {$r = $a2.r}
 	;
 
 key_attribute returns [r]
-	: TOKEN_LEFT_BRACKET a1 = TOKEN_ID {$r = $a1.text} TOKEN_RIGHT_BRACKET
+	: {attribute_map = {'name': None, 'type': None, 'is_key': True}}
+	  TOKEN_LEFT_BRACKET 
+	  a1 = TOKEN_ID {attribute_map['name'] = $a1.text}
+	  TOKEN_RIGHT_BRACKET
+	  d1 = data_type {attribute_map['type'] = $d1.r}
+	  {$r = attribute_map}
 	;
 
 non_key_attribute returns [r]
-	: a1 = TOKEN_ID  {$r = $a1.text}
+	: {attribute_map = {'name': None, 'type': None, 'is_key': False}}
+	  a1 = TOKEN_ID {attribute_map['name'] = $a1.text} 
+	  d1 = data_type {attribute_map['type'] = $d1.r}
+	  {$r = attribute_map}
 	;
 
 compare_op returns [r]
@@ -167,7 +180,7 @@ aggregation_op returns [r]
 	| op2 = TOKEN_MAX   {$r = $op2.text}
 	| op3 = TOKEN_SUM	{$r = $op3.text}
 	| op4 = TOKEN_COUNT {$r = $op4.text}
-        | op5 = TOKEN_COUNT_DISTINCT {$r = $op5.text}
+    | op5 = TOKEN_COUNT_DISTINCT {$r = $op5.text}
 	;
 
 math_op returns [r] 

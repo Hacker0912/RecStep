@@ -1,12 +1,11 @@
 import sys
-import time
-import collections
 from copy import deepcopy
 
 from execution.config import *
 from execution.executor import Executor
-
 from parser.datalog_program import DatalogProgram
+
+import cqa.conquer.rewriter as conquer_rewriter
 
 
 def interpret(datalog_program_file_path):
@@ -28,8 +27,18 @@ def interpret(datalog_program_file_path):
     idb_decl = datalog_program.idb_decl
     rule_groups = datalog_program.rule_groups
 
+    if CQA_REWRITING:
+        if len(rules) > 1:
+            raise Exception(
+                "CQA rewriting only supports a single non-recursive Datalog rule"
+            )
+
+        if CQA_ALGO == "conquer":
+            rewrite_sql = conquer_rewriter.rewrite(edb_decl, rules[0])
+            return
+
     if not INTERPRET:
-        sys.exit()
+        return
 
     # Build a mapping between relation name and the corresponding relation definition
     relation_def_map = dict()

@@ -2,9 +2,6 @@ from antlr4 import *
 from parser.datalog_parser import DatalogParser
 from parser.datalog_lexer import DatalogLexer
 
-import collections
-from typing import List
-
 from rule_analyzer.analyzer import *
 
 
@@ -26,19 +23,19 @@ class DatalogProgram(object):
         parser = DatalogParser(stream)
         parser.buildParseTrees = False
         # AST of the given datalog program
-        self.edb_decl = edb_decl_tree = parser.datalog_edb_declare().r
-        self.idb_decl = idb_decl_tree = parser.datalog_idb_declare().r
-        self.rules = rules_tree = parser.datalog_rule_declare().r
+        self.edb_decl = parser.datalog_edb_declare().r
+        self.idb_decl = parser.datalog_idb_declare().r
+        self.rules = parser.datalog_rule_declare().r
 
         if self.__print_datalog_program:
             print("EDB_DECL:")
-            self.iterate_datalog_edb_idb_decl(edb_decl_tree)
+            self.iterate_datalog_edb_idb_decl(self.edb_decl)
             print()
             print("IDB_DECL:")
-            self.iterate_datalog_edb_idb_decl(idb_decl_tree)
+            self.iterate_datalog_edb_idb_decl(self.idb_decl)
             print()
             print("RULE_DECL:")
-            self.iterate_datalog_program(rules_tree)
+            self.iterate_datalog_program(self.rules)
             print()
             print("DEPENDENCY_GRAPH: ")
             print()
@@ -46,7 +43,7 @@ class DatalogProgram(object):
         (
             self.dependency_graph,
             self.negation_dependency_map,
-        ) = construct_dependency_graph(rules_tree)
+        ) = construct_dependency_graph(self.rules)
 
         self.sccs = compute_rule_sccs(self.dependency_graph)
         if self.__print_datalog_program:
@@ -75,7 +72,7 @@ class DatalogProgram(object):
             print("The Datalog program is stratifiable")
 
         self.rule_groups = group_rules(
-            construct_rule_atom_map(rules_tree), self.sccs, self.dependency_graph
+            construct_rule_atom_map(self.rules), self.sccs, self.dependency_graph
         )
 
         if self.__print_datalog_program:
@@ -86,7 +83,7 @@ class DatalogProgram(object):
             for rule_group in self.rule_groups["rule_groups"]:
                 print("rule indices: {}".format(rule_group))
                 for rule_index in rule_group:
-                    print(self.iterate_datalog_rule(rules_tree[rule_index]))
+                    print(self.iterate_datalog_rule(self.rules[rule_index]))
                 print()
 
     @staticmethod

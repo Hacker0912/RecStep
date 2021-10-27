@@ -12,6 +12,10 @@
         "QuickStep": {
                 "csv_delimiter": ","
         },
+        "CQA": {
+                "rewriting": true,
+                "algorithm": "conquer"
+        },        
         "Execution": {
                 "backend": "sql-server",
                 "single_query_evaluation": true

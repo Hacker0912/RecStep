@@ -269,14 +269,14 @@ def generate_constant_constraint_str(
             atom_attribute_type = relation_def_map[atom_name]["relation"]["attributes"][
                 atom_arg_index
             ].type
-            atom_arg_constant_constraint = atom_constant_constraints[atom_arg_index]
+            constant_constraint = atom_constant_constraints[atom_arg_index]
             if atom_attribute_type in ["int", "long", "double", "float"]:
                 constant_constraint_str = "{}.{} = {}".format(
-                    atom_alias, atom_attribute_name, atom_arg_constant_constraint
+                    atom_alias, atom_attribute_name, constant_constraint
                 )
             elif atom_attribute_type == "str":
                 constant_constraint_str = "{}.{} = '{}'".format(
-                    atom_alias, atom_attribute_name, atom_arg_constant_constraint
+                    atom_alias, atom_attribute_name, constant_constraint
                 )
             constant_constraint_strs.append(constant_constraint_str)
 

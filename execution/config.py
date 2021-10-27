@@ -41,6 +41,11 @@ UNIFIED_IDB_EVALUATION = config["Optimization"]["unified_idb_evaluation"]
 QUICKSTEP_SHELL_DIR = config["QuickStep_Shell_Dir"]
 BACK_END = config["Execution"]["backend"]
 SINGLE_QUERY_EVALUATION = config["Execution"]["single_query_evaluation"]
+##############################
+# Consistent Query Answering #
+##############################
+CQA_REWRITING = config["CQA"]["rewriting"]
+CQA_ALGO = config["CQA"]["algorithm"]
 ######################
 #  System Parameters #
 ######################
