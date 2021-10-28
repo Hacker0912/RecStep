@@ -117,18 +117,29 @@ def rewrite_join(
     print("\n-----selection predicates string-----\n")
     print(selection_predicates_str)
 
-    relation_key_attributes_null_strs = list()
+    negated_selection_predicates_str = get_selection_predicates(
+        rule["body"]["atoms"],
+        constant_constraint_map,
+        relation_attributes_map,
+        negation=True,
+    )
+    print("\n-----negated selection predicates string-----\n")
+    print(negated_selection_predicates_str)
+
+    filter_or_strs = list()
     for relation in rooted_tree_relations:
-        relation_key_attributes_null_strs.extend(
+        filter_or_strs.extend(
             [
                 "{}.{} IS NULL".format(relation, attribute.name)
                 for attribute in relation_attributes_map[relation]
                 if attribute.key_attribute and relation != root
             ]
         )
-    relation_key_attributes_null_str = " OR ".join(relation_key_attributes_null_strs)
-    print("\n-----relation key attributes null str-----\n")
-    print(relation_key_attributes_null_str)
+    if len(negated_selection_predicates_str) > 0:
+        filter_or_strs.append(negated_selection_predicates_str)
+    filter_or_str = " OR ".join(filter_or_strs)
+    if len(filter_or_str) > 0:
+        filter_or_str = "({})".format(filter_or_str)
 
     candidate_query = generate_candidate_query(
         root_relation_key_str,
@@ -144,11 +155,11 @@ def rewrite_join(
         relation_attributes_map,
         join_graph.join_graph,
         root,
-        key_to_key_join_predicates_str,
-        relation_key_attributes_null_str,
+        root_relation_keys,
         root_relation_key_str,
         candidate_key_str,
-        root_relation_keys,
+        key_to_key_join_predicates_str,
+        filter_or_str,
     )
     print("\n-----filter query-----\n")
     print(filter_query)
@@ -194,12 +205,14 @@ def generate_candidate_query(
         where_predicates.append(join_predicate_str)
     if len(selection_predicates_str) > 0:
         where_predicates.append(selection_predicates_str)
+    if len(where_predicates) > 0:
+        where_str = " WHERE {}".format(" AND ".join(where_predicates))
+
     return "SELECT DISTINCT {}, {} FROM {}{}".format(
         root_relation_key_str,
         projection_attributes_str,
         candidate_relations_str,
-        join_predicate_str,
-        selection_predicates_str,
+        where_str,
     )
 
 
@@ -207,32 +220,29 @@ def generate_filter_query(
     relation_attributes_map,
     join_graph,
     root,
-    key_to_key_join_predicates_str,
-    relation_key_attributes_null_str,
+    root_relation_keys,
     root_relation_key_str,
     candidate_key_str,
-    root_relation_keys,
+    key_to_key_join_predicates_str,
+    filter_or_str,
 ):
     left_outer_join_str = generate_left_outer_join(
         relation_attributes_map, join_graph, root
     )
 
-    key_to_key_and_relation_key_attributes_null = list()
+    where_str = ""
+    where_predicates = list()
     if len(key_to_key_join_predicates_str) > 0:
-        key_to_key_and_relation_key_attributes_null.append(
-            key_to_key_join_predicates_str
-        )
+        where_predicates.append(key_to_key_join_predicates_str)
 
-    if len(relation_key_attributes_null_str) > 0:
-        key_to_key_and_relation_key_attributes_null.append(
-            "({})".format(relation_key_attributes_null_str)
-        )
+    if len(filter_or_str) > 0:
+        where_predicates.append(filter_or_str)
 
-    key_to_key_and_relation_key_attributes_null_str = " AND ".join(
-        key_to_key_and_relation_key_attributes_null
-    )
+    if len(where_predicates) > 0:
+        where_str = " WHERE {}".format(" AND ".join(where_predicates))
+
     join_graph_filter_str = (
-        "SELECT {} FROM Candidates C JOIN {} ON {} LEFT OUTER JOIN {} WHERE {}".format(
+        "SELECT {} FROM Candidates C JOIN {} ON {} LEFT OUTER JOIN {}{}".format(
             root_relation_key_str,
             root,
             ", ".join(
@@ -242,7 +252,7 @@ def generate_filter_query(
                 ]
             ),
             left_outer_join_str,
-            key_to_key_and_relation_key_attributes_null_str,
+            where_str,
         )
     )
 
