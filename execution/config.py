@@ -46,6 +46,7 @@ SINGLE_QUERY_EVALUATION = config["Execution"]["single_query_evaluation"]
 ##############################
 CQA_REWRITING = config["CQA"]["rewriting"]
 CQA_ALGO = config["CQA"]["algorithm"]
+PAIR_PRUNING_RULES = config["CQA"]["pair_pruning_rules"]
 ######################
 #  System Parameters #
 ######################

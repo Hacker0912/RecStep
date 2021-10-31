@@ -6,8 +6,15 @@ from rule_analyzer import translator
 class JoinGraph(object):
     """DEF 3 http://www.cs.toronto.edu/~afuxman/publications/sigmod05.pdf"""
 
-    def __init__(self, rule, variable_arg_to_atom_map, relation_attributes_map):
+    def __init__(
+        self,
+        rule,
+        variable_arg_to_atom_map,
+        relation_attributes_map,
+        c_forest_check=True,
+    ):
         self.check_self_join(rule["body"]["atoms"])
+        self.c_forest_check = c_forest_check
         join_map = translator.extract_join_map(variable_arg_to_atom_map)
         print("-----join map-----")
         print(join_map)
@@ -17,7 +24,8 @@ class JoinGraph(object):
         )
         print("-----key_to_key_join_map-----:")
         print(self.key_to_key_join_map)
-        self.check_full_key_join(relation_attributes_map)
+        if self.c_forest_check:
+            self.check_full_key_join(relation_attributes_map)
 
     def __str__(self):
         return str(self.join_graph)
@@ -57,6 +65,7 @@ class JoinGraph(object):
     def visualize_join_graph(self):
         g = nx.DiGraph(directed=True)
         for node in self.join_graph:
+            g.add_node(node)
             for child_node in self.join_graph[node]["children"]:
                 g.add_edge(node, child_node)
         pos = nx.spring_layout(g)
@@ -84,13 +93,14 @@ class JoinGraph(object):
                 relation_name = body_atoms[atom_index]["name"]
                 if len(join_map[var][atom_index]) > 1:
                     for var_index in join_map[var][atom_index]:
-                        if not relation_attributes_map[relation_name][
-                            var_index
-                        ].key_attribute:
-                            raise Exception(
-                                """Self-loop found when constructing the join graph - 
-                                (same non-key variable appears twice in the same atom)"""
-                            )
+                        if self.c_forest_check:
+                            if not relation_attributes_map[relation_name][
+                                var_index
+                            ].key_attribute:
+                                raise Exception(
+                                    """Self-loop found when constructing the join graph - 
+                                    (same non-key variable appears twice in the same atom)"""
+                                )
                 join_arg_indexes = join_map[var][atom_index]
                 # construct edge between relations
                 for other_atom_index in join_map[var]:
@@ -100,13 +110,14 @@ class JoinGraph(object):
                     other_relation_name = body_atoms[other_atom_index]["name"]
                     if len(join_map[var][other_atom_index]) > 1:
                         for var_index in join_map[var][other_atom_index]:
-                            if not relation_attributes_map[relation_name][
-                                var_index
-                            ].key_attribute:
-                                raise Exception(
-                                    """Self-loop found when constructing the join graph - 
-                                    (same non-key variable appears twice in the same atom)"""
-                                )
+                            if self.c_forest_check:
+                                if not relation_attributes_map[relation_name][
+                                    var_index
+                                ].key_attribute:
+                                    raise Exception(
+                                        """Self-loop found when constructing the join graph - 
+                                        (same non-key variable appears twice in the same atom)"""
+                                    )
                     other_atom_join_arg_indexes = join_map[var][other_atom_index]
                     for join_arg_index in join_arg_indexes:
                         for other_join_arg_index in other_atom_join_arg_indexes:
@@ -117,11 +128,12 @@ class JoinGraph(object):
                                 other_relation_name
                             ][other_join_arg_index].key_attribute
                             if (not is_arg_index_key) and (not is_other_arg_index_key):
-                                raise Exception(
-                                    "Non-key to non-key join found between {} and {}".format(
-                                        relation_name, other_relation_name
+                                if self.c_forest_check:
+                                    raise Exception(
+                                        "Non-key to non-key join found between {} and {}".format(
+                                            relation_name, other_relation_name
+                                        )
                                     )
-                                )
 
                             if (not is_arg_index_key) or (not is_other_arg_index_key):
                                 if relation_name not in join_graph:

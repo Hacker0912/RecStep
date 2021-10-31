@@ -14,7 +14,8 @@
         },
         "CQA": {
                 "rewriting": true,
-                "algorithm": "conquer"
+                "algorithm": "pair-pruning",
+                "pair_pruning_rules": true
         },        
         "Execution": {
                 "backend": "sql-server",
@@ -29,7 +30,7 @@
                 "final_output_relations": ["return"] 
 	}, 
         "Debug": {
-                "static_debug": false,
+                "static_debug": true,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,

@@ -6,6 +6,7 @@ from execution.executor import Executor
 from parser.datalog_program import DatalogProgram
 
 import cqa.conquer.rewriter as conquer_rewriter
+import cqa.pair_pruning.rewriter as pair_pruning_rewriter
 
 
 def interpret(datalog_program_file_path):
@@ -28,14 +29,22 @@ def interpret(datalog_program_file_path):
     rule_groups = datalog_program.rule_groups
 
     if CQA_REWRITING:
-        if len(rules) > 1:
+        if len(rules) > 1 and not PAIR_PRUNING_RULES:
             raise Exception(
-                "CQA rewriting only supports a single non-recursive Datalog rule"
+                "CQA currently rewriting only supports a single non-recursive Datalog rule"
             )
 
         if CQA_ALGO == "conquer":
             rewrite_sql = conquer_rewriter.rewrite(edb_decl, rules[0])
-            return
+
+        if CQA_ALGO == "pair-pruning":
+            rewrite_sql = pair_pruning_rewriter.rewrite(
+                edb_decl,
+                rules,
+                visualize_join_graph=True,
+            )
+
+        return
 
     if not INTERPRET:
         return
