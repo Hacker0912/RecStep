@@ -7,6 +7,7 @@ from parser.datalog_program import DatalogProgram
 
 import cqa.conquer.rewriter as conquer_rewriter
 import cqa.pair_pruning.rewriter as pair_pruning_rewriter
+import cqa.fastfo.rewriter as fastfo_rewriter
 
 
 def interpret(datalog_program_file_path):
@@ -22,7 +23,9 @@ def interpret(datalog_program_file_path):
     Iterative evaluation process (For recursive rules if any):
     """
     # Get the data structures storing the information of the input datalog program
-    datalog_program = DatalogProgram(datalog_program_file_path)
+    datalog_program = DatalogProgram(
+        datalog_program_file_path, print_datalog_program=False
+    )
     rules = datalog_program.rules
     edb_decl = datalog_program.edb_decl
     idb_decl = datalog_program.idb_decl
@@ -34,15 +37,14 @@ def interpret(datalog_program_file_path):
                 "CQA currently rewriting only supports a single non-recursive Datalog rule"
             )
 
+        if CQA_ALGO == "fastfo":
+            rewrite_sql = fastfo_rewriter.rewrite(edb_decl, rules[0], verbose=False)
+
         if CQA_ALGO == "conquer":
             rewrite_sql = conquer_rewriter.rewrite(edb_decl, rules[0])
 
         if CQA_ALGO == "pair-pruning":
-            rewrite_sql = pair_pruning_rewriter.rewrite(
-                edb_decl,
-                rules,
-                visualize_join_graph=True,
-            )
+            print("TODO")
 
         return
 

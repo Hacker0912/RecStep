@@ -31,7 +31,7 @@ def construct_rule_atom_map(datalog_program):
     return rule_atom_map
 
 
-def construct_dependency_graph(datalog_program):
+def construct_dependency_graph(datalog_program, verbose=False):
     rule_number = len(datalog_program)
     dependency_map = collections.OrderedDict({})
     negation_dependency_map = collections.OrderedDict({})
@@ -65,27 +65,29 @@ def construct_dependency_graph(datalog_program):
                     dependency_map[rule_index].add(dependent_rule_index)
                     negation_dependency_map[rule_index].add(dependent_rule_index)
 
-    for rule_index in dependency_map:
-        if len(dependency_map[rule_index]) == 0:
-            continue
-        dependent_rule_indices = sorted(list(dependency_map[rule_index]))
-        dependent_rules = ", ".join(
-            ["rule_{}".format(i) for i in dependent_rule_indices]
-        )
-        print("rule_{}: {}".format(rule_index, dependent_rules))
+    if verbose:
+        for rule_index in dependency_map:
+            if len(dependency_map[rule_index]) == 0:
+                continue
+            dependent_rule_indices = sorted(list(dependency_map[rule_index]))
+            dependent_rules = ", ".join(
+                ["rule_{}".format(i) for i in dependent_rule_indices]
+            )
+            print("rule_{}: {}".format(rule_index, dependent_rules))
 
-    print()
-    print("NEGATION_DEPENDENCY_GRAPH:")
-    for rule_index in negation_dependency_map:
-        if len(negation_dependency_map[rule_index]) == 0:
-            continue
-        negation_dependent_rule_indices = sorted(
-            list(negation_dependency_map[rule_index])
-        )
-        negation_dedpendent_rules = ", ".join(
-            ["rule_{}".format(i) for i in negation_dependent_rule_indices]
-        )
-        print("rule_{}: {}".format(rule_index, negation_dedpendent_rules))
+    if verbose:
+        print()
+        print("NEGATION_DEPENDENCY_GRAPH:")
+        for rule_index in negation_dependency_map:
+            if len(negation_dependency_map[rule_index]) == 0:
+                continue
+            negation_dependent_rule_indices = sorted(
+                list(negation_dependency_map[rule_index])
+            )
+            negation_dedpendent_rules = ", ".join(
+                ["rule_{}".format(i) for i in negation_dependent_rule_indices]
+            )
+            print("rule_{}: {}".format(rule_index, negation_dedpendent_rules))
 
     return dependency_map, negation_dependency_map
 

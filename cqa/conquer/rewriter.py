@@ -4,64 +4,118 @@ from rule_analyzer import translator
 from collections import OrderedDict
 
 
-def rewrite(edb_decl, rule, visualize_join_graph=True, c_forest_check=True):
+def rewrite(
+    edb_decl,
+    rule,
+    visualize_join_graph=True,
+    c_forest_check=True,
+    c_forest_merge_evaluation=True,
+):
     variable_arg_to_atom_map = translator.extract_variable_arg_to_atom_map(
         rule["body"]["atoms"]
     )
-
+    if STATIC_DEBUG:
+        print("\n-----variable arguments to atom mapping-----\n")
+        print(variable_arg_to_atom_map)
     selection_map = translator.extract_selection_map(
         rule["head"], variable_arg_to_atom_map
-    )["head_arg_to_body_atom_arg_map"]
+    )
+    # here we currently only handle boolean and non-boolean conjunctive queries without aggregation
+    selection_type_map = selection_map["head_arg_type_map"]
+    selection_map = selection_map["head_arg_to_body_atom_arg_map"]
+    selection_variable_map = OrderedDict()
+    index = 0
+    for projection_pos in selection_map:
+        if selection_type_map[projection_pos] == "var":
+            selection_variable_map[index] = selection_map[projection_pos]
+            index += 1
+
+    if STATIC_DEBUG:
+        print("\n-----selection map-----\n")
+        print(selection_variable_map)
 
     constant_constraint_map = translator.extract_constant_constraint_map(
         rule["body"]["atoms"]
     )
+    if STATIC_DEBUG:
+        print("\n-----constant constraint map-----\n")
+        print(constant_constraint_map)
 
     relation_attributes_map = dict()
     for relation in edb_decl:
         relation_attributes_map[relation["name"]] = relation["attributes"]
 
+    selection_atom_arg_index_pairs = set()
+    for projection_pos in selection_variable_map:
+        atom_index = selection_variable_map[projection_pos]["atom_index"]
+        arg_index = selection_variable_map[projection_pos]["arg_index"]
+        selection_atom_arg_index_pairs.add((atom_index, arg_index))
+
     join_graph = JoinGraph(
         rule,
+        selection_atom_arg_index_pairs,
         variable_arg_to_atom_map,
         relation_attributes_map,
         c_forest_check=c_forest_check,
     )
     if STATIC_DEBUG:
-        print("\n-----join graph-----")
+        print("\n-----join graph-----\n")
         print(join_graph)
         print("\n----roots of join graph-----\n")
         print(join_graph.get_roots())
     if visualize_join_graph:
         join_graph.visualize_join_graph()
 
-    multiple_roots = len(join_graph.get_roots()) > 1
-    consistent_tree_queries = list()
-    for root in join_graph.get_roots():
-        if STATIC_DEBUG:
+    join_graph_roots = join_graph.get_roots()
+    if STATIC_DEBUG:
+        for root in join_graph_roots:
             print("\n----root of the tree: {}-----\n".format(root))
-        rooted_tree_relations = get_rooted_tree_relations(join_graph.join_graph, root)
-        if STATIC_DEBUG:
+            rooted_tree_relations = get_rooted_tree_relations(
+                join_graph.join_graph, root
+            )
             print("\n-----relations of current rooted join tree-----\n")
             print(rooted_tree_relations)
 
-        consistent_tree_query = rewrite_join(
+    if c_forest_merge_evaluation or len(join_graph_roots) == 1:
+        print("\n-----Unified Evaluation for C-Forest-----\n")
+        consistent_query = rewrite_join(
             rule,
-            join_graph,
-            root,
-            rooted_tree_relations,
+            join_graph.join_graph,
+            join_graph.key_to_key_join_map,
+            join_graph.get_roots(),
             relation_attributes_map,
-            selection_map,
+            selection_variable_map,
             constant_constraint_map,
-            c_forest=multiple_roots,
         )
-        if STATIC_DEBUG:
-            print("\n-----consistent query-----\n")
-            print(consistent_tree_query)
-        consistent_tree_queries.append(consistent_tree_query)
+    else:
+        print("\n-----Decoupled Evaluation for C-Tree in C-Forest-----\n")
+        for root in join_graph_roots:
+            rooted_tree = join_graph.get_rooted_tree_join_graph(root)
+            rooted_tree_key_to_key_join_map = (
+                join_graph.get_rooted_tree_key_to_key_join_map(root)
+            )
+            rooted_tree_selection_map = join_graph.get_rooted_tree_selection_map(
+                root, rule["body"]["atoms"], selection_map
+            )
+            rooted_tree_constant_constraint_map = (
+                join_graph.get_rooted_tree_constant_constraint_map(
+                    root, rule["body"]["atoms"], constant_constraint_map
+                )
+            )
+            consistent_tree_query = rewrite_join(
+                rule,
+                rooted_tree,
+                rooted_tree_key_to_key_join_map,
+                [root],
+                relation_attributes_map,
+                rooted_tree_selection_map,
+                rooted_tree_constant_constraint_map,
+            )
 
-    if multiple_roots:
-        return consistent_tree_queries
+    if STATIC_DEBUG:
+        print("\n-----consistent query-----\n")
+        print(consistent_query)
+    return consistent_query
 
 
 def get_rooted_tree_relations(join_graph, root):
@@ -77,32 +131,31 @@ def get_rooted_tree_relations(join_graph, root):
     return rooted_tree_relations
 
 
-def merge_consistent_tree_quries(consistent_tree_queries):
-    print("TODO")
-
-
 def rewrite_join(
     rule,
     join_graph,
-    root,
-    rooted_tree_relations,
+    key_to_key_join_map,
+    roots,
     relation_attributes_map,
     selection_map,
     constant_constraint_map,
-    c_forest=False,
+    tmp_table_suffix=None,
 ):
-    root_relation_keys = [
-        attribute.name
-        for attribute in relation_attributes_map[root]
-        if attribute.key_attribute
-    ]
+    if tmp_table_suffix is None:
+        tmp_table_suffix = "_".join(roots)
+
+    root_relation_keys = OrderedDict()
+    for root in roots:
+        for attribute in relation_attributes_map[root]:
+            if attribute.key_attribute and attribute not in root_relation_keys:
+                root_relation_keys[attribute.name] = root
+
     if STATIC_DEBUG:
         print("\n-----root relation keys-----\n")
         print(root_relation_keys)
 
     projection_attributes = get_projection_attributes(
         rule["body"]["atoms"],
-        rooted_tree_relations,
         selection_map,
         relation_attributes_map,
     )
@@ -110,17 +163,12 @@ def rewrite_join(
         print("\n-----projection attributes-----\n")
         print(projection_attributes)
 
-    key_to_key_join_predicates = get_key_to_key_join_predicates(
-        join_graph.key_to_key_join_map,
-        rooted_tree_relations,
-    )
+    key_to_key_join_predicates = get_key_to_key_join_predicates(key_to_key_join_map)
     if STATIC_DEBUG:
         print("\n-----key-to-key join predicates-----\n")
         print(key_to_key_join_predicates)
 
-    non_key_to_key_join_predicates = get_non_key_to_key_join_predicates(
-        join_graph.join_graph, rooted_tree_relations
-    )
+    non_key_to_key_join_predicates = get_non_key_to_key_join_predicates(join_graph)
     if STATIC_DEBUG:
         print("\n-----non-key-to-key join predicates-----\n")
         print(non_key_to_key_join_predicates)
@@ -146,10 +194,9 @@ def rewrite_join(
         print(negated_selection_predicates)
 
     candidate_query = generate_candidate_query(
-        root,
+        join_graph,
         root_relation_keys,
         projection_attributes,
-        rooted_tree_relations,
         key_to_key_join_predicates,
         non_key_to_key_join_predicates,
         selection_predicates,
@@ -160,34 +207,33 @@ def rewrite_join(
 
     filter_query = generate_filter_query(
         relation_attributes_map,
-        join_graph.join_graph,
-        root,
+        join_graph,
+        roots,
         root_relation_keys,
         key_to_key_join_predicates,
-        rooted_tree_relations,
         negated_selection_predicates,
+        tmp_table_suffix,
     )
     if STATIC_DEBUG:
         print("\n-----filter query-----\n")
         print(filter_query)
 
     consistent_answer_query = generate_consistent_answer_query(
-        root, projection_attributes, root_relation_keys
+        projection_attributes, root_relation_keys, tmp_table_suffix
     )
     if STATIC_DEBUG:
         print("\n-----consistent answer query-----\n")
         print(consistent_answer_query)
 
-    if c_forest:
-        consistent_answer_query = ",\n\tConsistent_{} AS (\n\t{}\n\t)".format(
-            root, consistent_answer_query
-        )
-    else:
-        consistent_answer_query = "\n\t{}".format(consistent_answer_query)
+    consistent_answer_query = "\n\t{}".format(consistent_answer_query)
 
     conquer_query = (
         "WITH Candidates_{} AS (\n\t{}\n), \n\tFilter_{} AS (\n\t\t{}\n){}".format(
-            root, candidate_query, root, filter_query, consistent_answer_query
+            tmp_table_suffix,
+            candidate_query,
+            tmp_table_suffix,
+            filter_query,
+            consistent_answer_query,
         )
     )
 
@@ -195,21 +241,20 @@ def rewrite_join(
 
 
 def generate_candidate_query(
-    root,
+    join_graph,
     root_relation_keys,
     projection_attributes,
-    rooted_tree_relations,
     key_to_key_join_predicates,
     non_key_to_key_join_predicates,
     selection_predicates,
 ):
     # Deduplication between root keys and projected attributes
     projected_attributes = OrderedDict()
-    for key in root_relation_keys:
-        projected_attributes[key] = root
-    for attribute in projection_attributes:
-        if attribute not in projected_attributes:
-            projected_attributes[attribute] = projection_attributes[attribute]
+    for key_attribute in root_relation_keys:
+        projected_attributes[key_attribute] = root_relation_keys[key_attribute]
+    for key_attribute in projection_attributes:
+        if key_attribute not in projected_attributes:
+            projected_attributes[key_attribute] = projection_attributes[key_attribute]
 
     where_str = ""
     where_predicates = list()
@@ -229,7 +274,7 @@ def generate_candidate_query(
                 for attribute in projected_attributes
             ]
         ),
-        ", ".join(rooted_tree_relations),
+        ", ".join([relation for relation in join_graph]),
         where_str,
     )
 
@@ -237,14 +282,18 @@ def generate_candidate_query(
 def generate_filter_query(
     relation_attributes_map,
     join_graph,
-    root,
+    roots,
     root_relation_keys,
     key_to_key_join_predicates,
-    rooted_tree_relations,
     negated_selection_predicateds,
+    tmp_table_suffix,
 ):
-    left_outer_join_str = generate_left_outer_join(
-        relation_attributes_map, join_graph, root
+    left_outer_join_strs = [
+        generate_left_outer_join(relation_attributes_map, join_graph, root)
+        for root in roots
+    ]
+    left_outer_join_str = " LEFT OUTER JOIN ".join(
+        [loj for loj in left_outer_join_strs if len(loj) > 0]
     )
 
     where_str = ""
@@ -252,12 +301,12 @@ def generate_filter_query(
     negation_predicates = list()
     if len(key_to_key_join_predicates) > 0:
         where_predicates.append(" AND ".join(key_to_key_join_predicates))
-    for relation in rooted_tree_relations:
+    for relation in join_graph:
         negation_predicates.extend(
             [
                 "{}.{} IS NULL".format(relation, attribute.name)
                 for attribute in relation_attributes_map[relation]
-                if attribute.key_attribute and relation != root
+                if attribute.key_attribute and relation not in roots
             ]
         )
     negation_predicates.extend(negated_selection_predicateds)
@@ -267,19 +316,36 @@ def generate_filter_query(
         where_str = " WHERE {}".format(" AND ".join(where_predicates))
 
     inconsistent_filter_strs = list()
-    candidate_key_attributes = ", ".join(root_relation_keys)
-    if len(left_outer_join_str) > 0:
-        join_graph_filter_str = (
-            "SELECT {} FROM Candidates_{} C JOIN {} ON {} LEFT OUTER JOIN {}{}".format(
-                candidate_key_attributes,
+    candidate_key_attributes = ", ".join(
+        ["C.{}".format(key_attribute) for key_attribute in root_relation_keys]
+    )
+    inverse_root_key_relation_map = OrderedDict()
+    for key_attribute in root_relation_keys:
+        root = root_relation_keys[key_attribute]
+        if root not in inverse_root_key_relation_map:
+            inverse_root_key_relation_map[root] = list()
+        inverse_root_key_relation_map[root].append(key_attribute)
+
+    root_key_attribute_join_strs = list()
+    for root in inverse_root_key_relation_map:
+        root_key_attribute_join_strs.append(
+            "JOIN {} ON {}".format(
                 root,
-                root,
-                ", ".join(
+                " AND ".join(
                     [
-                        "C.{} = {}.{}".format(root_key, root, root_key)
-                        for root_key in root_relation_keys
+                        "C.{} = {}.{}".format(key_attribute, root, key_attribute)
+                        for key_attribute in inverse_root_key_relation_map[root]
                     ]
                 ),
+            )
+        )
+
+    if len(left_outer_join_str) > 0:
+        join_graph_filter_str = (
+            "SELECT {} FROM Candidates_{} C {} LEFT OUTER JOIN {}{}".format(
+                candidate_key_attributes,
+                tmp_table_suffix,
+                " ".join(root_key_attribute_join_strs),
                 left_outer_join_str,
                 where_str,
             )
@@ -288,7 +354,7 @@ def generate_filter_query(
 
     inconsistent_block_filter_str = (
         "SELECT {} FROM Candidates_{} C GROUP BY {} HAVING COUNT(*) > 1".format(
-            candidate_key_attributes, root, candidate_key_attributes
+            candidate_key_attributes, tmp_table_suffix, candidate_key_attributes
         )
     )
     inconsistent_filter_strs.append(inconsistent_block_filter_str)
@@ -296,9 +362,12 @@ def generate_filter_query(
 
 
 def generate_consistent_answer_query(
-    root, projection_attributes, root_relation_keys, set_semantics=True
+    projection_attributes,
+    root_relation_keys,
+    tmp_table_suffix,
+    set_semantics=True,
 ):
-    key_join_str = ", ".join(
+    key_join_str = " AND ".join(
         [
             "C.{} = F.{}".format(key_attribute, key_attribute)
             for key_attribute in root_relation_keys
@@ -313,40 +382,35 @@ def generate_consistent_answer_query(
 
     if set_semantics:
         return "SELECT DISTINCT {} FROM Candidates_{} C WHERE NOT EXISTS (SELECT * FROM Filter_{} F WHERE {})".format(
-            projection_attributes_str, root, root, key_join_str
+            projection_attributes_str, tmp_table_suffix, tmp_table_suffix, key_join_str
         )
     else:
-        return "SELECT DISTINCT {} FROM Candidates_{} C WHERE NOT EXISTS (SELECT * FROM Filter F WHERE {})".format(
-            projection_attributes_str, root, key_join_str
+        return "SELECT DISTINCT {} FROM Candidates_{} C WHERE NOT EXISTS (SELECT * FROM Filter_{} F WHERE {})".format(
+            projection_attributes_str, tmp_table_suffix, tmp_table_suffix, key_join_str
         )
 
 
 def get_projection_attributes(
     body_atoms,
-    rooted_tree_relations,
     selection_map,
     relation_attributes_map,
 ):
     projection_attributes = OrderedDict()
-    for project_index in selection_map:
-        atom_index = selection_map[project_index]["atom_index"]
-        arg_index = selection_map[project_index]["arg_index"]
+    for projection_pos in selection_map:
+        atom_index = selection_map[projection_pos]["atom_index"]
+        arg_index = selection_map[projection_pos]["arg_index"]
         relation_name = body_atoms[atom_index]["name"]
-        if relation_name not in rooted_tree_relations:
-            continue
         attribute_name = relation_attributes_map[relation_name][arg_index].name
         projection_attributes[attribute_name] = relation_name
 
     return projection_attributes
 
 
-def get_key_to_key_join_predicates(key_to_key_join_map, rooted_tree_relations):
+def get_key_to_key_join_predicates(key_to_key_join_map):
     key_to_key_joins = list()
     for var in key_to_key_join_map:
         prev_key_attribute = None
         for relation in key_to_key_join_map[var]:
-            if relation not in rooted_tree_relations:
-                continue
             for attribute in key_to_key_join_map[var][relation]:
                 key_attribute = "{}.{}".format(relation, attribute)
                 if prev_key_attribute == None:
@@ -359,11 +423,9 @@ def get_key_to_key_join_predicates(key_to_key_join_map, rooted_tree_relations):
     return key_to_key_joins
 
 
-def get_non_key_to_key_join_predicates(join_graph, rooted_tree_relations):
+def get_non_key_to_key_join_predicates(join_graph):
     non_key_to_key_joins = list()
     for relation in join_graph:
-        if relation not in rooted_tree_relations:
-            continue
         for child_relation in join_graph[relation]["children"]:
             for var in join_graph[relation]["children"][child_relation]:
                 parent_attributes = join_graph[relation]["children"][child_relation][
@@ -389,10 +451,8 @@ def get_selection_predicates(
 ):
     predicates = list()
     predicate_operator = "="
-    # predicate_concat_token = " AND "
     if negation:
         predicate_operator = "!="
-        # predicate_concat_token = " OR "
 
     for atom_index in constant_constraint_map:
         relation_name = body_atoms[atom_index]["name"]
@@ -417,7 +477,6 @@ def get_selection_predicates(
                 )
             predicates.append(constant_constraint_str)
 
-    # return predicate_concat_token.join(predicates)
     return predicates
 
 

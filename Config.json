@@ -14,12 +14,14 @@
         },
         "CQA": {
                 "rewriting": true,
-                "algorithm": "pair-pruning",
+                "algorithm": "fastfo",
                 "pair_pruning_rules": true
         },        
         "Execution": {
                 "backend": "sql-server",
-                "single_query_evaluation": true
+                "single_query_evaluation": true,
+                "single_query_evaluation_intermediate_distinct": true,
+                "single_query_evaluation_final_output_store": false
         },
         "Input": {
                 "preload": true
@@ -30,7 +32,7 @@
                 "final_output_relations": ["return"] 
 	}, 
         "Debug": {
-                "static_debug": true,
+                "static_debug": false,
                 "dynamic_debug": false,
                 "dynamic_debug_iter_num": 1,
                 "cost_model_check": false,

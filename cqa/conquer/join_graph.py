@@ -1,6 +1,8 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from execution.config import STATIC_DEBUG
 from rule_analyzer import translator
+from collections import OrderedDict
 
 
 class JoinGraph(object):
@@ -9,21 +11,28 @@ class JoinGraph(object):
     def __init__(
         self,
         rule,
+        selection_atom_arg_index_pairs,
         variable_arg_to_atom_map,
         relation_attributes_map,
         c_forest_check=True,
     ):
         self.check_self_join(rule["body"]["atoms"])
         self.c_forest_check = c_forest_check
+        self.cache = dict()
         join_map = translator.extract_join_map(variable_arg_to_atom_map)
-        print("-----join map-----")
-        print(join_map)
-        self.key_to_key_join_map = dict()
+        if STATIC_DEBUG:
+            print("-----join map-----")
+            print(join_map)
+        self.key_to_key_join_map = OrderedDict()
         self.join_graph = self.construct_join_graph(
-            rule["body"]["atoms"], relation_attributes_map, join_map
+            rule["body"]["atoms"],
+            relation_attributes_map,
+            selection_atom_arg_index_pairs,
+            join_map,
         )
-        print("-----key_to_key_join_map-----:")
-        print(self.key_to_key_join_map)
+        if STATIC_DEBUG:
+            print("-----key_to_key_join_map-----:")
+            print(self.key_to_key_join_map)
         if self.c_forest_check:
             self.check_full_key_join(relation_attributes_map)
 
@@ -51,7 +60,7 @@ class JoinGraph(object):
 
     def get_roots(self):
         roots = list()
-        in_degree_map = dict()
+        in_degree_map = OrderedDict()
         for node in self.join_graph:
             in_degree_map[node] = 0
         for node in self.join_graph:
@@ -61,6 +70,79 @@ class JoinGraph(object):
             if in_degree_map[node] == 0:
                 roots.append(node)
         return roots
+
+    def get_rooted_tree_relations(self, root):
+        if "rooted_tree_relations" not in self.cache:
+            self.cache["rooted_tree_relations"] = dict()
+        if root in self.cache["rooted_tree_relations"]:
+            return self.cache["rooted_tree_relations"][root]
+        rooted_tree_relations = set()
+        bfs_q = list()
+        bfs_q.append(root)
+        while len(bfs_q) > 0:
+            relation_node = bfs_q.pop()
+            rooted_tree_relations.add(relation_node)
+            for child_relation in self.join_graph[relation_node]["children"]:
+                bfs_q.append(child_relation)
+
+        self.cache["rooted_tree_relations"][root] = rooted_tree_relations
+        return rooted_tree_relations
+
+    def get_rooted_tree_join_graph(self, root):
+        rooted_tree_relations = self.get_rooted_tree_relations(root)
+        rooted_tree_join_graph = OrderedDict()
+        for relation in self.join_graph:
+            if relation not in rooted_tree_relations:
+                continue
+            rooted_tree_join_graph[relation] = self.join_graph[relation]
+
+    def get_rooted_tree_key_to_key_join_map(self, root):
+        rooted_tree_relations = self.get_rooted_tree_relations(root)
+        rooted_tree_key_to_key_join_map = OrderedDict()
+        for join_var in self.key_to_key_join_map:
+            rooted_tree_key_to_key_join_map[join_var] = self.key_to_key_join_map[
+                join_var
+            ]
+            keep = False
+            relation_count = 0
+            for relation in self.key_to_key_join_map[join_var]:
+                if relation in rooted_tree_relations:
+                    rooted_tree_key_to_key_join_map[join_var][
+                        relation
+                    ] = self.key_to_key_join_map[join_var][relation]
+                    relation_count += 1
+                    if len(rooted_tree_key_to_key_join_map[join_var][relation] > 1):
+                        keep = True
+            if relation_count > 1 or keep:
+                continue
+            else:
+                del rooted_tree_key_to_key_join_map[join_var]
+        return rooted_tree_key_to_key_join_map
+
+    def get_rooted_tree_selection_map(self, root, body_atoms, selection_map):
+        rooted_tree_relations = self.get_rooted_tree_relations(root)
+        rooted_tree_selection_map = OrderedDict()
+        index = 0
+        for projection_pos in selection_map:
+            atom_index = selection_map[projection_pos]["atom_index"]
+            relation_name = body_atoms[atom_index]["name"]
+            if relation_name in rooted_tree_relations:
+                rooted_tree_selection_map[index] = selection_map[projection_pos]
+                index += 1
+        return rooted_tree_selection_map
+
+    def get_rooted_tree_constant_constraint_map(
+        self, root, body_atoms, constant_constraint_map
+    ):
+        rooted_tree_relations = self.get_rooted_tree_relations(root)
+        rooted_tree_constaint_constraint_map = OrderedDict()
+        for atom_index in constant_constraint_map:
+            relation_name = body_atoms[atom_index]["name"]
+            if relation_name in rooted_tree_relations:
+                rooted_tree_constaint_constraint_map[
+                    atom_index
+                ] = constant_constraint_map[atom_index]
+        return rooted_tree_constaint_constraint_map
 
     def visualize_join_graph(self):
         g = nx.DiGraph(directed=True)
@@ -85,13 +167,23 @@ class JoinGraph(object):
                     "Self-join detected - rewriting supports only self-join-free queries"
                 )
 
-    def construct_join_graph(self, body_atoms, relation_attributes_map, join_map):
-        join_graph = dict()
+    def construct_join_graph(
+        self,
+        body_atoms,
+        relation_attributes_map,
+        selection_atom_arg_index_pairs,
+        join_map,
+    ):
+        join_graph = OrderedDict()
         for var in join_map:
             for atom_index in join_map[var]:
                 # name this relation R
                 relation_name = body_atoms[atom_index]["name"]
                 if len(join_map[var][atom_index]) > 1:
+                    if var not in self.key_to_key_join_map:
+                        self.key_to_key_join_map[var] = OrderedDict()
+                    if relation_name not in self.key_to_key_join_map[var]:
+                        self.key_to_key_join_map[var][relation_name] = list()
                     for var_index in join_map[var][atom_index]:
                         if self.c_forest_check:
                             if not relation_attributes_map[relation_name][
@@ -101,16 +193,21 @@ class JoinGraph(object):
                                     """Self-loop found when constructing the join graph - 
                                     (same non-key variable appears twice in the same atom)"""
                                 )
+                        self.key_to_key_join_map[var][relation_name].append(
+                            relation_attributes_map[relation_name][var_index].name
+                        )
+
                 join_arg_indexes = join_map[var][atom_index]
                 # construct edge between relations
                 for other_atom_index in join_map[var]:
-                    if atom_index == other_atom_index:
+                    if atom_index <= other_atom_index:
                         continue
                     # name this relation S
                     other_relation_name = body_atoms[other_atom_index]["name"]
                     if len(join_map[var][other_atom_index]) > 1:
                         for var_index in join_map[var][other_atom_index]:
                             if self.c_forest_check:
+                                # TODO: free variables checking
                                 if not relation_attributes_map[relation_name][
                                     var_index
                                 ].key_attribute:
@@ -129,6 +226,7 @@ class JoinGraph(object):
                             ][other_join_arg_index].key_attribute
                             if (not is_arg_index_key) and (not is_other_arg_index_key):
                                 if self.c_forest_check:
+                                    # TODO: free variables checking
                                     raise Exception(
                                         "Non-key to non-key join found between {} and {}".format(
                                             relation_name, other_relation_name
@@ -136,16 +234,35 @@ class JoinGraph(object):
                                     )
 
                             if (not is_arg_index_key) or (not is_other_arg_index_key):
+                                # free variables of a query do not introduce arcs to the join graph
+                                #  TODO: this part needs more careful thinking
+                                if (
+                                    atom_index,
+                                    join_arg_index,
+                                ) in selection_atom_arg_index_pairs or (
+                                    other_atom_index,
+                                    other_join_arg_index,
+                                ) in selection_atom_arg_index_pairs:
+                                    print(
+                                        "{} and {} join on free variable {}".format(
+                                            relation_name, other_relation_name, var
+                                        )
+                                    )
+
                                 if relation_name not in join_graph:
-                                    join_graph[relation_name] = dict()
-                                    join_graph[relation_name]["children"] = dict()
+                                    join_graph[relation_name] = OrderedDict()
+                                    join_graph[relation_name][
+                                        "children"
+                                    ] = OrderedDict()
                                 if other_relation_name not in join_graph:
-                                    join_graph[other_relation_name] = dict()
-                                    join_graph[other_relation_name]["children"] = dict()
+                                    join_graph[other_relation_name] = OrderedDict()
+                                    join_graph[other_relation_name][
+                                        "children"
+                                    ] = OrderedDict()
                             else:
                                 # there will be no edge for key-to-key join
                                 if var not in self.key_to_key_join_map:
-                                    self.key_to_key_join_map[var] = dict()
+                                    self.key_to_key_join_map[var] = OrderedDict()
                                 if relation_name not in self.key_to_key_join_map[var]:
                                     self.key_to_key_join_map[var][
                                         relation_name
@@ -194,7 +311,7 @@ class JoinGraph(object):
                             ):
                                 join_graph[parent_relation]["children"][
                                     child_relation
-                                ] = dict()
+                                ] = OrderedDict()
 
                             if (
                                 var
@@ -204,7 +321,7 @@ class JoinGraph(object):
                             ):
                                 join_graph[parent_relation]["children"][child_relation][
                                     var
-                                ] = dict()
+                                ] = OrderedDict()
                                 join_graph[parent_relation]["children"][child_relation][
                                     var
                                 ]["parent_attributes"] = [
@@ -226,6 +343,6 @@ class JoinGraph(object):
         for atom in body_atoms:
             relation_name = atom["name"]
             if relation_name not in join_graph:
-                join_graph[relation_name] = dict()
-                join_graph[relation_name]["children"] = dict()
+                join_graph[relation_name] = OrderedDict()
+                join_graph[relation_name]["children"] = OrderedDict()
         return join_graph

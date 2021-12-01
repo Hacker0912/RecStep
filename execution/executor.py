@@ -844,7 +844,6 @@ class Executor(object):
                     eval_rule,
                     relation_def_map,
                     None,
-                    iter_num=0,
                     recursive=False,
                 )
                 sub_queries.append(sub_query)
@@ -852,7 +851,10 @@ class Executor(object):
             if group_index != (rule_group_num - 1):
                 # query evaluating the intermediate result into the temporary tables (i.e. with t as)
                 eval_str = generate_unified_idb_evaluation_str(
-                    idb_relation_name, sub_queries, with_subquery=True
+                    idb_relation_name,
+                    sub_queries,
+                    with_subquery=True,
+                    distinct=INTERMEDIATE_DISTINCT,
                 )
                 tmp_table_queries.append(eval_str)
             else:
@@ -860,13 +862,14 @@ class Executor(object):
                     idb_relation_name,
                     sub_queries,
                     with_subquery=False,
-                    select_into=True,
+                    store_output=FINAL_OUTPUT_STORE,
+                    distinct=True,
                 )
 
         single_query_str = "WITH {} {}".format(
             ", ".join(tmp_table_queries), final_result_eval_str
         )
-        # print(single_query_str)
+        print(single_query_str)
 
     def output_data_from_table_to_csv(self, relation_name):
         self.__quickstep_shell_instance(relation_name, delimiter=CSV_DELIMITER)

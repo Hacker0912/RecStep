@@ -394,26 +394,50 @@ def generate_unified_idb_evaluation_str(
     with_subquery=False,
     select_into=False,
     distinct=False,
+    store_output=True,
 ):
     union_all_sub_query_str = " UNION ALL ".join(sub_query_list)
     if not with_subquery:
-        if not select_into:
-            eval_m_delta_str = "INSERT INTO {} SELECT * FROM ({}) t;".format(
+        if not store_output:
+            if distinct:
+                eval_m_delta_str = "SELECT DISTINCT * FROM ({}) t;".format(
+                    union_all_sub_query_str
+                )
+            else:
+                eval_m_delta_str = "SELECT * FROM ({}) t;".format(
+                    union_all_sub_query_str
+                )
+        else:
+            if not select_into:
+                if distinct:
+                    eval_m_delta_str = (
+                        "INSERT INTO {} SELECT DISTINCT * FROM ({}) t;".format(
+                            idb_table_name, union_all_sub_query_str
+                        )
+                    )
+                else:
+                    eval_m_delta_str = "INSERT INTO {} SELECT * FROM ({}) t;".format(
+                        idb_table_name, union_all_sub_query_str
+                    )
+            else:
+                if distinct:
+                    eval_m_delta_str = "SELECT DISTINCT * INTO {} FROM ({}) t;".format(
+                        idb_table_name, union_all_sub_query_str
+                    )
+                else:
+                    eval_m_delta_str = "SELECT * INTO {} FROM ({}) t;".format(
+                        idb_table_name, union_all_sub_query_str
+                    )
+    else:
+        if distinct:
+            eval_m_delta_str = " {} AS (SELECT DISTINCT * FROM ({}) t)".format(
                 idb_table_name, union_all_sub_query_str
             )
         else:
-            if distinct:
-                eval_m_delta_str = "SELECT DISTINCT * INTO {} FROM ({}) t;".format(
-                    idb_table_name, union_all_sub_query_str
-                )
-            else:
-                eval_m_delta_str = "SELECT * INTO {} FROM ({}) t;".format(
-                    idb_table_name, union_all_sub_query_str
-                )
-    else:
-        eval_m_delta_str = " {} AS (SELECT * FROM ({}) t)".format(
-            idb_table_name, union_all_sub_query_str
-        )
+            eval_m_delta_str = " {} AS (SELECT * FROM ({}) t)".format(
+                idb_table_name, union_all_sub_query_str
+            )
+
     return eval_m_delta_str
 
 
@@ -515,7 +539,7 @@ def generate_set_diff_str(l_table, r_table, dest_table, aggregation_map):
 
 
 def gen_rule_eval_sql_str(
-    datalog_rule, relation_def_map, eval_idb_rule_maps, iter_num, recursive=False
+    datalog_rule, relation_def_map, eval_idb_rule_maps, iter_num=0, recursive=False
 ):
     # map attributes to be projected
     head = datalog_rule["head"]

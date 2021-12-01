@@ -41,6 +41,10 @@ UNIFIED_IDB_EVALUATION = config["Optimization"]["unified_idb_evaluation"]
 QUICKSTEP_SHELL_DIR = config["QuickStep_Shell_Dir"]
 BACK_END = config["Execution"]["backend"]
 SINGLE_QUERY_EVALUATION = config["Execution"]["single_query_evaluation"]
+INTERMEDIATE_DISTINCT = config["Execution"][
+    "single_query_evaluation_intermediate_distinct"
+]
+FINAL_OUTPUT_STORE = config["Execution"]["single_query_evaluation_final_output_store"]
 ##############################
 # Consistent Query Answering #
 ##############################

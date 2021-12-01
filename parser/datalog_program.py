@@ -6,7 +6,7 @@ from rule_analyzer.analyzer import *
 
 
 class DatalogProgram(object):
-    def __init__(self, datalog_file_path, print_datalog_program=True):
+    def __init__(self, datalog_file_path, print_datalog_program=True, verbose=False):
         self.__print_datalog_program = print_datalog_program
 
         try:
@@ -68,8 +68,9 @@ class DatalogProgram(object):
                             The Datalog program is NOT stratifiable"
             )
         else:
-            print("No directed cycle with a negative edge being detected:")
-            print("The Datalog program is stratifiable")
+            if verbose:
+                print("No directed cycle with a negative edge being detected:")
+                print("The Datalog program is stratifiable")
 
         self.rule_groups = group_rules(
             construct_rule_atom_map(self.rules), self.sccs, self.dependency_graph
@@ -103,6 +104,8 @@ class DatalogProgram(object):
 
     @staticmethod
     def iterate_datalog_rule(datalog_rule):
+        if datalog_rule is None:
+            return ""
         """
         Iterate each specific component in a datalog rule (head and body)
         """
