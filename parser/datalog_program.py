@@ -6,7 +6,7 @@ from rule_analyzer.analyzer import *
 
 
 class DatalogProgram(object):
-    def __init__(self, datalog_file_path, print_datalog_program=True, verbose=False):
+    def __init__(self, datalog_file_path, print_datalog_program=True, verbose=True):
         self.__print_datalog_program = print_datalog_program
 
         try:
@@ -27,6 +27,8 @@ class DatalogProgram(object):
         self.idb_decl = parser.datalog_idb_declare().r
         self.rules = parser.datalog_rule_declare().r
 
+        (self.dependency_graph, self.negation_dependency_map) = construct_dependency_graph(self.rules)
+
         if self.__print_datalog_program:
             print("EDB_DECL:")
             self.iterate_datalog_edb_idb_decl(self.edb_decl)
@@ -39,11 +41,8 @@ class DatalogProgram(object):
             print()
             print("DEPENDENCY_GRAPH: ")
             print()
-
-        (
-            self.dependency_graph,
-            self.negation_dependency_map,
-        ) = construct_dependency_graph(self.rules)
+            for rule in self.dependency_graph:
+                print("rule {}: {}".format(rule, self.dependency_graph[rule]))
 
         self.sccs = compute_rule_sccs(self.dependency_graph)
         if self.__print_datalog_program:

@@ -1,14 +1,14 @@
 EDB_DECL:
-assign(x int, y int)
-load(x int, y int)
-store(x int, y int)
-addressOf(x int, y int)
+Assign(x int, y int)
+Load(x int, y int)
+Store(x int, y int)
+AddressOf(x int, y int)
 
 IDB_DECL:
-pointsTo(x int, y int)
+PointsTo(x int, y int)
 
 RULE_DECL:
-pointsTo(y, x) :− addressOf(y, x).
-pointsTo(y, x) :− assign(y, z), pointsTo(z, x).
-pointsTo(y, w) :− load(y, x), pointsTo(x, z), pointsTo(z, w).
-pointsTo(z, w) :− store(y, x), pointsTo(y, z), pointsTo(x, w).
+PointsTo(y, x) :− AddressOf(y, x).
+PointsTo(y, x) :− Assign(y, z), PointsTo(z, x).
+PointsTo(y, w) :− Load(y, x), PointsTo(x, z), PointsTo(z, w).
+PointsTo(z, w) :− Store(y, x), PointsTo(y, z), PointsTo(x, w).

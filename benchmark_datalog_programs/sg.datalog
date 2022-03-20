@@ -1,9 +1,9 @@
 EDB_DECL:
-arc(x int, y int)
+Arc(x int, y int)
 
 IDB_DECL:
-sg(x int, y int)
+Sg(x int, y int)
 
 RULE_DECL:
-sg(x, y) :- arc(p, x), arc(p, y), x != y.
-sg(x, y) :- arc(a, x), sg(a, b), arc(b, y).
+Sg(x, y) :- Arc(p, x), Arc(p, y), x != y.
+Sg(x, y) :- Arc(a, x), Sg(a, b), Arc(b, y).

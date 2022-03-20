@@ -1,9 +1,9 @@
 EDB_DECL:
-arc(x int, y int)
+Arc(x int, y int)
 
 IDB_DECL:
-reach(x int)
+Reach(x int)
 
 RULE_DECL:
-reach(1) :-.
-reach(y) :- reach(x), arc(x,y).
+Reach(1) :-.
+Reach(y) :- Reach(x), Arc(x,y).

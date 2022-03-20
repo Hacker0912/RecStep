@@ -1,13 +1,13 @@
 EDB_DECL:
-arc(x int, y int)
+Arc(x int, y int)
 
 IDB_DECL:
-cc3(x int, y int)
-cc2(x int, y int)
-cc(x int)
+Cc3(x int, y int)
+Cc2(x int, y int)
+Cc(x int)
 
 RULE_DECL:
-cc3(x, MIN(x)) :- arc(x, _).
-cc3(y, MIN(z)) :- cc3(x,z), arc(x,y).
-cc2(x, MIN(y)) :- cc3(x,y). 
-cc(x) :- cc2(_,x).
+Cc3(x, MIN(x)) :- Arc(x, _).
+Cc3(y, MIN(z)) :- Cc3(x,z), Arc(x,y).
+Cc2(x, MIN(y)) :- Cc3(x,y). 
+Cc(x) :- Cc2(_,x).

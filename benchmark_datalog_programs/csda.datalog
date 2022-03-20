@@ -1,10 +1,10 @@
 EDB_DECL:
-nullEdge(src int, dest int)
-arc(src int, dest int)
+NullEdge(src int, dest int)
+Arc(src int, dest int)
 
 IDB_DECL:
-null(src int, dest int)
+Null(src int, dest int)
 
 RULE_DECL:
-null(x, y) :- nullEdge(x, y).
-null(x, y) :- null(x, w), arc(w, y).
+Null(x, y) :- NullEdge(x, y).
+Null(x, y) :- Null(x, w), Arc(w, y).

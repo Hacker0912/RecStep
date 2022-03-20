@@ -216,7 +216,7 @@ class Executor(object):
         if before_recursive_evaluation_check:
             for relation_name in relation_set:
                 delta_relation_key = "{}_delta".format(relation_name)
-                delta_size = self.get_table_size(delta_relation_key)
+                delta_size = self.get_table_size(catalog, delta_relation_key)
                 is_delta_empty = is_delta_empty and delta_size == 0
             return is_delta_empty
 
@@ -224,7 +224,7 @@ class Executor(object):
             delta_relation_key = "{}_delta".format(relation_name)
             m_delta_table_name = "{}_m_delta".format(relation_name)
             common_table_name = "{}_common_delta".format(relation_name)
-            delta_size = self.get_table_size(delta_relation_key)
+            delta_size = self.get_table_size(catalog, delta_relation_key)
             is_delta_empty = is_delta_empty and (delta_size == 0)
             catalog["optimization"][delta_relation_key]["size"] = delta_size
             catalog["optimization"][relation_name]["size"] += delta_size
@@ -671,7 +671,7 @@ class Executor(object):
                             idb_relation["name"]
                         ]
                         self.update_local_time()
-                        self.analyze([m_delta_relation_table], count=True)
+                        self.analyze([m_delta_relation_table.table_name], count=True)
                         self.set_diff(
                             m_delta_relation_table,
                             original_relation_table,
@@ -699,7 +699,7 @@ class Executor(object):
                         self.__quickstep_shell_instance.drop_table(prev_table_name)
                         self.__quickstep_shell_instance.create_table(prev_table)
                         self.__quickstep_shell_instance.load_data_from_table(
-                            idb_table, prev_table
+                            idb_table, prev_table, deduplication=False
                         )
                         self.analyze(table_list=[prev_table_name], count=True)
                         self.log_local_time()
@@ -709,7 +709,7 @@ class Executor(object):
                     self.log("Update IDB (union delta)")
                     self.update_local_time()
                     self.__quickstep_shell_instance.load_data_from_table(
-                        delta_table, idb_table
+                        delta_table, idb_table, deduplication=False
                     )
                     self.analyze(table_list=[idb_table.table_name], count=True)
                     self.log_local_time()
@@ -761,7 +761,7 @@ class Executor(object):
                 if idb not in FINAL_OUTPUT_RELATIONS:
                     self.__quickstep_shell_instance.drop_table(idb)
 
-    def non_recursive_rule_eval(
+    def non_recursive_rules_eval(
         self, idb_relation_name, catalog, non_recursive_rules, relation_def_map
     ):
 
@@ -811,18 +811,18 @@ class Executor(object):
                     print("-----nonrecursive evaluation str-----")
                     print(eval_str)
 
-            if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
-                self.execute(eval_str)
-            else:
-                # create tmp table
-                idb_relation = relation_def_map[idb_relation_name]["relation"]
-                tmp_table = self.create_table_from_relation(
-                    idb_relation, table_name=target_table_name
-                )
-                self.execute(eval_str)
-                self.__quickstep_shell_instance.dedup_table(
-                    tmp_table, dest_table_name=idb_relation_name
-                )
+                if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
+                    self.execute(eval_str)
+                else:
+                    # create tmp table
+                    idb_relation = relation_def_map[idb_relation_name]["relation"]
+                    tmp_table = self.create_table_from_relation(
+                        idb_relation, table_name=target_table_name
+                    )
+                    self.execute(eval_str)
+                    self.__quickstep_shell_instance.dedup_table(
+                        tmp_table, dest_table_name=idb_relation_name
+                    )
 
         self.analyze([idb_relation_name], count=True)
         row_num = self.count_rows(idb_relation_name)

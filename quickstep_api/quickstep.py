@@ -162,7 +162,7 @@ class QuickStep(object):
         tmp_table = deepcopy(dest_table)
         if not deduplication:
             # insert all tuples from the source table directly into the target table
-            insert_command = "INSERT INTO {} SELECT * FROM {}".format(
+            insert_command = "INSERT INTO {} SELECT * FROM {};".format(
                 dest_table.table_name, src_table.table_name
             )
             self.sql_command(insert_command)

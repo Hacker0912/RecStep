@@ -223,4 +223,5 @@ def group_rules(rule_atom_map, sccs, dependency_graph):
                 non_recursive_rule_group_map[head_atom].extend(sccs[scc_key])
 
     rule_groups.reverse()
+    rule_group_bitmap.reverse()
     return {"rule_groups": rule_groups, "rule_group_bitmap": rule_group_bitmap}

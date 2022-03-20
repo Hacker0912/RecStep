@@ -1,3 +1,7 @@
+import matplotlib
+
+matplotlib._log.disabled = True
+
 import sys
 from copy import deepcopy
 
@@ -24,7 +28,7 @@ def interpret(datalog_program_file_path):
     """
     # Get the data structures storing the information of the input datalog program
     datalog_program = DatalogProgram(
-        datalog_program_file_path, print_datalog_program=False
+        datalog_program_file_path, print_datalog_program=True
     )
     rules = datalog_program.rules
     edb_decl = datalog_program.edb_decl
@@ -124,7 +128,7 @@ def interpret(datalog_program_file_path):
             if not rule_groups["rule_group_bitmap"][rule_group_index]:
                 executor.log(">>>>Evaluating Non-Recursive Rule<<<<<")
                 idb_relation_name = evaluated_rules[0]["head"]["name"]
-                executor.non_recursive_rule_eval(
+                executor.non_recursive_rules_eval(
                     idb_relation_name, catalog, evaluated_rules, relation_def_map
                 )
                 executor.log_local_time(
@@ -132,7 +136,6 @@ def interpret(datalog_program_file_path):
                 )
                 executor.update_local_time()
                 executor.log("-----SEPERATOR-----\n")
-
             else:
                 executor.log(">>>>Evaluating Recursive Rules<<<<<")
                 executor.recursive_rules_eval(

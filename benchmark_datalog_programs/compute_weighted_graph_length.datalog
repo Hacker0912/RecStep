@@ -1,9 +1,9 @@
 EDB_DECL:
-arc(x int, y int, z int)
+Arc(x int, y int, z int)
 
 IDB_DECL:
-path(x int, y int, w int)
+Path(x int, y int, w int)
 
 RULE_DECL:
-path(x, y, w) :- arc(x, y, w).
-path(x, y, d1+d2) :- path(x, z, d1), arc(z, y, d2).
+Path(x, y, w) :- Arc(x, y, w).
+Path(x, y, d1+d2) :- Path(x, z, d1), Arc(z, y, d2).

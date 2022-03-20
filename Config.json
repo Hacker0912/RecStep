@@ -13,22 +13,22 @@
                 "csv_delimiter": ","
         },
         "CQA": {
-                "rewriting": true,
+                "rewriting": false,
                 "algorithm": "fastfo",
                 "pair_pruning_rules": true
         },        
         "Execution": {
-                "backend": "sql-server",
-                "single_query_evaluation": true,
+                "backend": "quickstep",
+                "single_query_evaluation": false,
                 "single_query_evaluation_intermediate_distinct": true,
                 "single_query_evaluation_final_output_store": false
         },
         "Input": {
-                "preload": true
+                "preload": false
         },
 	"Output": {
 		"write_to_csv": false,
-                "retain_final_output_only": true,
+                "retain_final_output_only": false,
                 "final_output_relations": ["return"] 
 	}, 
         "Debug": {
@@ -43,9 +43,9 @@
 		"analyze_all_tables": false,
                 "dynamic_set_diff": true,
                 "default_set_diff_alg": 2,
-		"selective_dedup": true,
-		"dedup_relation_list": ["return"],
-                "unified_idb_evaluation": false
+		"selective_dedup": false,
+		"dedup_relation_list": [],
+                "unified_idb_evaluation": true
         },
         "Parameters": {
                 "threads_num": 40,

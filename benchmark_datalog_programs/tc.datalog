@@ -1,12 +1,12 @@
 EDB_DECL:
-arc(x int, y int)
+Arc(x int, y int)
 
 IDB_DECL:
-tc(x int, y int)
+Tc(x int, y int)
 
 RULE_DECL:
-tc(x, y) :- arc(x, y).
-tc(x, y) :- tc(x, w), arc(w, y).
+Tc(x, y) :- Arc(x, y).
+Tc(x, y) :- Tc(x, w), Arc(w, y).
 
 
 
