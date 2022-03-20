@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "#! $(which python3)" > recstep
+cat interpreter.py >> recstep 
+chmod +x recstep
+
+echo "export PATH=\$PATH:$(pwd)" >> ~/.bashrc
+source ~/.bashrc
+
