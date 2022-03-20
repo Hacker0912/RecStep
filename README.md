@@ -35,6 +35,9 @@ sudo apt-get install -y python3-pip python-dev build-essential
 sudo pip3 install psutil
 sudo pip3 install antlr4-python3-runtime
 ```
+
+**Note:** python version >= 3.8 is required.
+
 **3. Checkout the code:**
 ```bash
 git clone https://github.com/Hacker0912/RecStep/
