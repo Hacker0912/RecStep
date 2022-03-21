@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from execution.config import *
 from execution.executor import Executor
+from execution import quickstep_client
 from parser.datalog_program import DatalogProgram
 
 import cqa.conquer.rewriter as conquer_rewriter
@@ -163,13 +164,8 @@ def interpret(datalog_program_file_path):
 
 
 def main():
-    try:
-        input_datalog_program_file_path = sys.argv[1]
-    except Exception as e:
-        print(e)
-        raise Exception("The file specifying the datalog program is missing")
-
-    interpret(input_datalog_program_file_path)
+    quickstep_client.start_quickstep_instance()
+    interpret(PROGRAM)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,17 @@
+import os
 import json
+from utility import argparser
 
-config_json_file_name = "Config.json"
-with open(config_json_file_name) as config_json_file:
+options = argparser.recstep_argument_parser()
+
+config_json_file_path = "Config.json"
+if os.getenv("CONFIG_FILE_DIR"):
+    config_json_file_path = "{}/Config.json".format(os.getenv("CONFIG_FILE_DIR"))
+
+if options.config:
+    config_json_file_path = options.config
+
+with open(config_json_file_path) as config_json_file:
     config = json.load(config_json_file)
 
 ###############
@@ -65,3 +75,13 @@ TUPLE_NUM_PER_BLOCK = config["Parameters"]["block_size"]
 LOG_DIR = config["Logging"]["logging_directory"]
 STDOUT = bool(config["Logging"]["logging_level"]["stdout"])
 LOG = bool(config["Logging"]["logging_level"]["info_log"])
+
+PROGRAM = options.program
+if PROGRAM is None:
+    raise Exception("The datalog program is not specified")
+
+# Configurations provided through command line have higher priority
+if options.input:
+    INPUT_DIR = options.input
+if options.jobs:
+    THREADS_NUM = options.jobs

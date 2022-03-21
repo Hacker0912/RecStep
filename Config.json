@@ -20,7 +20,7 @@
         "Execution": {
                 "backend": "quickstep",
                 "single_query_evaluation": false,
-                "single_query_evaluation_intermediate_distinct": true,
+                "single_query_evaluation_intermediate_distinct": false,
                 "single_query_evaluation_final_output_store": false
         },
         "Input": {
@@ -29,7 +29,7 @@
 	"Output": {
 		"write_to_csv": false,
                 "retain_final_output_only": false,
-                "final_output_relations": ["return"] 
+                "final_output_relations": [] 
 	}, 
         "Debug": {
                 "static_debug": false,
