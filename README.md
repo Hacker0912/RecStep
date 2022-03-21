@@ -19,7 +19,7 @@ The repo contains the code of **RecStep** which was described in the PVLDB 2019 
     numpages = {14}
     }
 
-**Note:** The following set-up steps have been specifically tested on *Ubuntu 18.04.1 LTS*. And thus we recommend using *Ubuntu 18.04.1 LTS* as your testbed OS if you want to play with RecStep. It should also be feasible to set-up the RecStep backend on Ubuntu of other versions (e.g., 14.04, 16.04), but it may require a little bit more efforts as configuring the corresponding dependencies as required in Ubuntu of different versions might be slighly different. 
+**Note:** The following set-up steps have been specifically tested on *Ubuntu 18.04.1 LTS*. And thus we recommend using *Ubuntu 18.04.1 LTS* as your testbed OS if you want to play with RecStep. It should also be feasible to set-up the RecStep backend on Ubuntu of other versions (e.g., 14.04, 16.04), but it may require more efforts as configuring the corresponding dependencies as required in Ubuntu of different versions might be different. 
 
 
 ### Set-up Instructions
@@ -46,7 +46,7 @@ git clone https://github.com/Hacker0912/RecStep/
 * We need to change the value of "Quickstep_Shell_Dir" in "Config.json" to be the directory containing the compiled Quickstep executable binaries (***quickstep_client*** and ***quickstep_cli_shell***). For example, if ***quickstep-datalog*** repo is cloned into the path ***/fastdisk/local/quickstep-datalog***, then you should set the value to be ***"/fastdisk/local/quickstep-datalog/build"***
 
 * You can also change the values of other configuraiton variables in "Config.json" for your purposes, such as the input data directory ***Input_Dir*** and the number of threads you want to use when running RecStep ***threads_num***. But I recommend you to keep other configuration values
-as they are for easiness. Also, the ***Logging***, ***Debug*** configuration variables were only there for debugging/analysis purposes just as their names suggest - so you can just leave them unchanged. ***Optimization*** configuration variables are already set in the *optimal* way as stated in the paper, but we may temporarily need to change them a little bit for now if we want to run datalog programs involving *recursive-aggregation* (e.g., benchmark_programs/cc.datalog, benchmark_programs/sssp.datalog) - set ***dynamic_set_diff*** to be false. This is mainly due to the emerging bugs recently found in the backend due to the third-party dependency updates - we will get it fixed later and then this limit will be gone. 
+as they are for easiness. Also, the ***Logging***, ***Debug*** configuration variables were only there for debugging/analysis purposes just as their names suggest - so you can just leave them unchanged. ***Optimization*** configuration variables are already set in the *optimal* way as stated in the paper, but we may temporarily need to change them a little bit for now if we want to run datalog programs involving *recursive-aggregation* (e.g., benchmark_programs/cc.datalog, benchmark_programs/sssp.datalog) - set ***dynamic_set_diff*** to be false. This is mainly due to the emerging bugs recently found in the backend due to the third-party dependency updates.
 
 That's it! And now you can start playing with *RecStep*, let's get into more details with a toy example: 
 
@@ -83,4 +83,24 @@ python3 quickstep_shell.py --mode interactive
 command "\d" could be used to list all the tables in the current quickstep database instance. The "qsstor" folder contains all the data files of the current database instance. More details regarding the use of quickstep can be found at **[Quickstep](https://github.com/apache/incubator-retired-quickstep)**. If you encounter other issues when using RecStep or the quickstep shell, you could send an email to zhiwei@cs.wisc.edu for more help and we will get back to you at our earliest convenience.
 
 **Note:** Parallel Bit-Matrix Evaluation (PBME) has not been intergrated into the RecStep compiler yet. PBME has been designed/implemented specifically for the "dense graph" computation to prove its efficiency in cases where the size of input graph is relatively small in terms of number of vertices but the intermediate results are huge. We currently support PBME evaluation on *Transitive Closure (tc)* and *Same Generation (sg)* as stated in the paper but they are not directly runnable from the compiler itself.
+
+### Running ***Recstep*** directly through command line from any directory 
+It is possible to run RecStep directly through the command line from any directory and overwrite the configraution values at runtime for convenience of experiments. To achieve this, a few additional simple steps are needed:
+
+1. Generate the executable RecStep file named "recstep" and add the directory in which RecStep is installed to $PATH variable:
+``` bash
+./configure
+```
+
+2. Add the directory in which the configuration json file (named Config.json) is located to the environment variable **CONFIG_FILE_DIR**. For example, if the Recstep is install in the directory /fastdisk/RecStep and there is a configuration file under the directory (/fastdisk/RecStep/Config.json), you could execute the following bash commands:
+``` bash
+echo "export CONFIG_FILE_DIR=/fastdisk/RecStep" >> ~/.bashrc
+source ~/.bashrc
+```
+
+3. Then you should be able to run recstep directly through the command line:
+``` bash
+recstep --program <Datalog Program Path> --input <Input Directory> --jobs <Workers/Number of Threads>
+```
+
 
