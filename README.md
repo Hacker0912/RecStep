@@ -56,22 +56,14 @@ That's it! And now you can start playing with *RecStep*, let's get into more det
 2. Now you should put the input files (which should be in csv format as required) into the input directory as configured earlier (which by default is "./Input"). For example, in *tc.datalog*, the 
 only input/EDB is **arc(x  int, y int)**, a relation with two integer attributes. Then the input file should have ***exactly the same name*** as the relation plus the ***.csv*** after. Each line of the input file represents a single tuple and attributes are seperated by ','. An example file could also be found in the folder ***Input***. 
 
-3. Then you should start the quickstep backend in the background:
-```bash
-python3 quickstep_shell.py --mode network --initialize &
-```
-or in a separate terminal window:
-```bash
-python3 quickstep_shell.py --mode network --initialize
-```
 
-4. Finally, you can start run RecStep to evaluate the datalog program 
+3. Finally, you can start run RecStep to evaluate the datalog program 
 ``` bash
-python3 interpreter.py <datalog_program_file_path> 
+python3 interpreter.py --program <datalog_program_file_path> 
 ```
 For this specific example, you should run the command:
 ``` bash
-python3 interpreter.py ./benchmark_datalog_programs/tc.datalog
+python3 interpreter.py --program ./benchmark_datalog_programs/tc.datalog
 ```
 
 5. Check your results directly using the interactive quickstep shell:
