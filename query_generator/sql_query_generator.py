@@ -54,10 +54,10 @@ def generate_select(
             aggregate_func_arg_str = ""
             aggregate_func_str = aggregation_map[arg_index]
             if head_arg_to_body_atom_arg_map[arg_index]["type"] == "attribute":
-                mapped_arg_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
+                mapped_atom_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
                     "atom_index"
                 ]
-                mapped_atom_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
+                mapped_arg_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
                     "arg_index"
                 ]
                 aggregate_func_arg_str = "{}.{}".format(
