@@ -510,7 +510,7 @@ def generate_intersect_str(l_table, r_table, aggregation_map, sub_query=False):
 
     if sub_query:
         intersection_str = "SELECT {} FROM {} WHERE {}".format(
-            project_str, l_table_name, constraint_str
+            project_str, r_table_name, constraint_str
         )
     else:
         intersection_str = "SELECT {} FROM {}, {} WHERE {}".format(
