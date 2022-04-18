@@ -247,10 +247,10 @@ class Executor(object):
             l_table, r_table and dest_table have the same schema
 
         Args:
-            quickstep_shell_instance:
-            l_table:
-            r_table:
-            dest_table:
+            quickstep_shell_instance: the shell instance communicating with quickstep
+            l_table: the candidate table
+            r_table: the filtering table
+            dest_table:the destination table
 
         Returns:
         """
