@@ -467,7 +467,7 @@ def generate_intersect_str(l_table, r_table, aggregation_map, sub_query=False):
         if l_table_attri[1] != r_table_attri[1]:
             raise Exception("generate_intersect_str: Inconsistent attribute types")
 
-        project_attributes.append("{}.{}".format(r_table_name, r_table_attri[0]))
+        project_attributes.append("{}.{}".format(l_table_name, l_table_attri[0]))
     project_str = ", ".join(project_attributes)
 
     aggregation_op = None
@@ -505,7 +505,7 @@ def generate_intersect_str(l_table, r_table, aggregation_map, sub_query=False):
 
     if sub_query:
         intersection_str = "SELECT {} FROM {} WHERE {}".format(
-            project_str, r_table_name, constraint_str
+            project_str, l_table_name, constraint_str
         )
     else:
         intersection_str = "SELECT {} FROM {}, {} WHERE {}".format(
