@@ -33,7 +33,8 @@ The instruction can be found at https://github.com/Hacker0912/quickstep-datalog
 ``` bash
 sudo apt-get install -y python3-pip python-dev build-essential
 sudo pip3 install psutil
-sudo pip3 install antlr4-python3-runtime
+sudo pip3 install antlr4-python3-runtime==4.8
+sudo pip3 install networkx
 ```
 
 **Note:** python version >= 3.8 is required.
