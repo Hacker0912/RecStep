@@ -27,7 +27,10 @@ class DatalogProgram(object):
         self.idb_decl = parser.datalog_idb_declare().r
         self.rules = parser.datalog_rule_declare().r
 
-        (self.dependency_graph, self.negation_dependency_map) = construct_dependency_graph(self.rules)
+        (
+            self.dependency_graph,
+            self.negation_dependency_map,
+        ) = construct_dependency_graph(self.rules)
 
         if self.__print_datalog_program:
             print("EDB_DECL:")
@@ -102,6 +105,28 @@ class DatalogProgram(object):
             print(relation_str)
 
     @staticmethod
+    def arg_str(arg):
+        if arg.type == "aggregation":
+            if arg.name["agg_arg"]["type"] == "attribute":
+                arg_str = "{}({})".format(
+                    arg.name["agg_op"], arg.name["agg_arg"]["content"]
+                )
+            if arg.name["agg_arg"]["type"] == "math_expr":
+                arg_str = "{}({}{}{})".format(
+                    arg.name["agg_op"],
+                    arg.name["agg_arg"]["content"]["lhs"],
+                    arg.name["agg_arg"]["content"]["op"],
+                    arg.name["agg_arg"]["content"]["rhs"],
+                )
+        elif arg.type == "math_expr":
+            arg_str = "{}{}{}".format(
+                arg.name["lhs"]["value"], arg.name["op"], arg.name["rhs"]["value"]
+            )
+        else:
+            arg_str = arg.name
+        return arg_str
+
+    @staticmethod
     def iterate_datalog_rule(datalog_rule):
         if datalog_rule is None:
             return ""
@@ -126,43 +151,32 @@ class DatalogProgram(object):
 
         head_args_strs = list()
         for arg in head_arg_list:
-            if arg.type == "aggregation":
-                if arg.name["agg_arg"]["type"] == "attribute":
-                    head_arg_str = "{}({})".format(
-                        arg.name["agg_op"], arg.name["agg_arg"]["content"]
-                    )
-                if arg.name["agg_arg"]["type"] == "math_expr":
-                    head_arg_str = "{}({}{}{})".format(
-                        arg.name["agg_op"],
-                        arg.name["agg_arg"]["content"]["lhs"],
-                        arg.name["agg_arg"]["content"]["op"],
-                        arg.name["agg_arg"]["content"]["rhs"],
-                    )
-            elif arg.type == "math_expr":
-                head_arg_str = "{}{}{}".format(
-                    arg.name["lhs"], arg.name["op"], arg.name["rhs"]
-                )
-            else:
-                head_arg_str = arg.name
-            head_args_strs.append(head_arg_str)
+            head_args_strs.append(DatalogProgram.arg_str(arg))
         head_str = "{}({})".format(head["name"], ", ".join(head_args_strs))
 
         body_item_strs = list()
         for atom in body_atoms:
             body_item_strs.append(
                 "{}({})".format(
-                    atom["name"], ", ".join([arg.name for arg in atom["arg_list"]])
+                    atom["name"],
+                    ", ".join(
+                        [DatalogProgram.arg_str(arg) for arg in atom["arg_list"]]
+                    ),
                 )
             )
-        for compare in body_comparisons:
+        for comparison in body_comparisons:
             body_item_strs.append(
-                "{} {} {}".format(compare["lhs"][0], compare["op"], compare["rhs"][0])
+                "{} {} {}".format(
+                    comparison["lhs"]["value"],
+                    comparison["op"],
+                    comparison["rhs"]["value"],
+                )
             )
         for negation in body_negations:
             body_item_strs.append(
                 "!{}({})".format(
                     negation["name"],
-                    ", ".join([arg.name for arg in negation["arg_list"]]),
+                    ", ".join([self.arg_str(arg) for arg in negation["arg_list"]]),
                 )
             )
         for assign in body_assignments:

@@ -10,6 +10,9 @@ class AtomArg():
         self.name = arg_name
         self.type = arg_type
         self.key_attribute = key_attribute
+
+    def __str__(self):
+	    return f"{self.name}, {self.type}, {self.key_attribute}"
 }
 
 datalog_edb_declare returns[r]
@@ -111,26 +114,18 @@ atom returns [r]
 assign returns [r] 
 	: {assign_map = {}}
 	  a1 = TOKEN_ID 	  {assign_map['lhs'] = $a1.text} 
-	  TOKEN_EQUALS
+	  TOKEN_ASSIGN
 	  a2 = math_expr 	  {assign_map['rhs'] = $a2.r}
 	  {$r = assign_map}
 	;
 
-math_expr returns [r]
-	: {math_map = {}}
-	  m1 = TOKEN_ID		  {math_map['lhs'] = $m1.text} 
-	  m2 = math_op		  {math_map['op'] = $m2.r}
-      m3 = TOKEN_ID 	  {math_map['rhs'] = $m3.text}
-	  {$r = math_map}
-	;
-
 compare_expr returns [r]
 	: {compare_map = {}}
-      (c1 = TOKEN_ID      {compare_map['lhs'] = [$c1.text, 'var']} |
-       c2 = TOKEN_INTEGER  {compare_map['lhs'] = [$c2.text, 'num']})
+      (c1 = TOKEN_ID      {compare_map['lhs'] = {"type": "variable", "value": $c1.text}} |
+       c2 = number        {compare_map['lhs'] = {"type": "number", "value": $c2.text}})
        op = compare_op	  {compare_map['op'] = $op.r}
-      (c4 = TOKEN_ID      {compare_map['rhs'] = [$c4.text, 'var']} |
-       c5 = TOKEN_INTEGER  {compare_map['rhs'] = [$c5.text, 'num']})
+      (c4 = TOKEN_ID      {compare_map['rhs'] = {"type": "variable", "value": $c4.text}} |
+       c5 = number        {compare_map['rhs'] = {"type": "number", "value": $c5.text}})
 	  {$r = compare_map}
 	; 
 
@@ -143,6 +138,16 @@ aggregation_expr returns [r]
 	   a3 = math_expr     {agg_map['agg_arg'] = {'type': 'math_expr', 'content': $a3.r}})
 	  TOKEN_RIGHT_PAREN 
 	  {$r = agg_map}
+	;
+
+math_expr returns [r]
+	: {math_map = {}}
+	  (m1 = TOKEN_ID	  {math_map['lhs'] = {"type": "variable", "value": $m1.text}} |
+	   m2 = number        {math_map['lhs'] = {"type": "number", "value": $m2.text}})
+	   m3 = math_op		  {math_map['op'] = $m3.r}
+      (m4 = TOKEN_ID 	  {math_map['rhs'] = {"type": "variable", "value": $m4.text}} |
+	   m5 = number        {math_map['rhs'] = {"type": "number", "value": $m5.text}})
+	  {$r = math_map}
 	;
 
 attribute returns [r]
@@ -191,8 +196,12 @@ math_op returns [r]
 	;	
 
 constant returns [r]
-	: c1 = TOKEN_INTEGER {$r = $c1.text}
-	| c2 = TOKEN_STRING {$r = $c2.text}
+	: c1 = number {$r = {"type": "number", "value": $c1.r}}
+	| c2 = TOKEN_STRING {$r = {"type": "string", "value": $c2.text}}
+	;
+
+number returns [r]
+	: n1 = TOKEN_INTEGER {$r = {"type": "int", "value": $n1.text}}
 	;
 
 data_type returns [r]
@@ -212,7 +221,7 @@ TOKEN_IDB: 'IDB_DECL';
 TOKEN_RULE: 'RULE_DECL';
 
 /** Constants **/
-TOKEN_INTEGER: [-+]?[0-9]+;
+TOKEN_INTEGER: [0-9]+;
 TOKEN_STRING: '\''([A-Za-z] | [0-9])+'\'';
 
 /** Data Types **/
@@ -242,11 +251,11 @@ TOKEN_COLON: ':';
 TOKEN_DOT: '.';
 
 /** Arithmetic Operators **/
+TOKEN_ASSIGN: '=';
 TOKEN_PLUS: '+';
 TOKEN_MINUS: '-';
 TOKEN_MULT: '*';
 TOKEN_DIV: '/';
-
 TOKEN_NOT: '!';
 
 /** Rule Computation Flags **/
@@ -256,7 +265,7 @@ TOKEN_DEDUP_ONLY: '[dedup-only]';
 
 /** Comparison Operators **/
 TOKEN_NOT_EQUALS: '!=';
-TOKEN_EQUALS: '=';
+TOKEN_EQUALS: '==';
 TOKEN_GREATER_EQUAL_THAN: '>=';
 TOKEN_GREATER_THAN: '>';
 TOKEN_LESS_EQUAL_THAN: '<=';
@@ -267,3 +276,4 @@ TOKEN_RIGHT_PAREN: ')';
 TOKEN_LEFT_BRACKET: '[';
 TOKEN_RIGHT_BRACKET: ']';
 TOKEN_WS: [ \t\r\n]+ -> skip;
+LINE_COMMENT: '#' ~[\r\n]* -> skip;

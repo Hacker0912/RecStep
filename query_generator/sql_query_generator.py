@@ -40,7 +40,7 @@ def generate_select(
     selection_index = 0
     for arg_index in range(head_arg_num):
         select_item_str = ""
-        if head_arg_type_map[arg_index] == "var":
+        if head_arg_type_map[arg_index] == "variable":
             mapped_atom_index = head_arg_to_body_atom_arg_map[arg_index]["atom_index"]
             mapped_arg_index = head_arg_to_body_atom_arg_map[arg_index]["arg_index"]
             select_item_str = "{}.{}".format(
@@ -209,7 +209,7 @@ def generate_comparison_str(
                 base_variable_side = comparison["base_variable_side"]
                 compare_op = comparison["compare_op"]
                 other_side_type = comparison["other_side_type"]
-                if other_side_type == "num":
+                if other_side_type == "number":
                     compare_value = comparison["numerical_value"]
                     if base_variable_side == "l":
                         comparison_str = "{}.{} {} {}".format(
@@ -220,7 +220,7 @@ def generate_comparison_str(
                             compare_value, compare_op, atom_alias, atom_attribute
                         )
                     comparison_strs.append(comparison_str)
-                elif other_side_type == "var":
+                elif other_side_type == "variable":
                     other_side_atom_index = comparison["other_side_atom_index"]
                     other_side_arg_index = comparison["other_side_arg_index"]
                     other_side_atom_alias = body_atom_aliases[other_side_atom_index]
@@ -292,7 +292,6 @@ def generate_negation_str(
     body_atom_aliases,
     negation_atom_aliases,
 ):
-
     negation_map = negation_maps["negation_map"]
     anti_join_map = negation_maps["anti_join_map"]
     negation_strs = list()
