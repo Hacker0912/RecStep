@@ -133,7 +133,7 @@ class QuickStep(object):
 
     def output_data_from_table_to_csv(self, table_name, delimiter):
         output_file_name = "{}.csv".format(table_name)
-        output_data_command = "COPY {} TO '{}' WITH (DELIMETER '{}');".format(
+        output_data_command = "COPY {} TO '{}' WITH (DELIMITER '{}');".format(
             table_name, output_file_name, delimiter
         )
         self.sql_command(output_data_command)

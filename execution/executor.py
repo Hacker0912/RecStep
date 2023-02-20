@@ -9,6 +9,7 @@ from query_generator.sql_query_generator import *
 
 import collections
 import time
+import os
 from copy import deepcopy
 
 
@@ -74,9 +75,20 @@ class Executor(object):
         """
         table_name = relation["name"]
         input_file_name = "{}/{}.csv".format(INPUT_DIR, table_name)
-        self.__quickstep_shell_instance.load_data_from_file(
-            table_name, input_file_name, delimiter
-        )
+        if not os.path.isfile(input_file_name):
+            raise Exception(
+                "Input file specified {} does NOT exist!".format(input_file_name)
+            )
+        try:
+            self.__quickstep_shell_instance.load_data_from_file(
+                table_name, input_file_name, delimiter
+            )
+        except:
+            except_msg = "Loading data from input file {} for table {} with delimiter {} failed, \
+                          please check the input data (e.g., if the data matches the schema of {})".format(
+                table_name, input_file_name, delimiter, table_name
+            )
+            raise Exception(except_msg)
 
     def count_rows(self, table_name):
         row_num = self.__quickstep_shell_instance.count_rows(table_name)
@@ -764,7 +776,6 @@ class Executor(object):
     def non_recursive_rules_eval(
         self, idb_relation_name, catalog, non_recursive_rules, relation_def_map
     ):
-
         sub_queries = list()
         for eval_rule in non_recursive_rules:
             self.log(DatalogProgram.iterate_datalog_rule(eval_rule))
@@ -872,7 +883,9 @@ class Executor(object):
         print(single_query_str)
 
     def output_data_from_table_to_csv(self, relation_name):
-        self.__quickstep_shell_instance(relation_name, delimiter=CSV_DELIMITER)
+        self.__quickstep_shell_instance.output_data_from_table_to_csv(
+            relation_name, delimiter=CSV_DELIMITER
+        )
 
     def stop(self):
         self.__quickstep_shell_instance.stop()
