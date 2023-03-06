@@ -1,0 +1,9 @@
+EDB_DECL:
+arc(x int, y int)
+
+IDB_DECL:
+presum(x int, y int)
+
+RULE_DECL:
+presum(x, MAX(y)) :- x=0, y=0.
+# presum(i, MAX(z+v)) :- presum(i-1,z), arc(i,v).
