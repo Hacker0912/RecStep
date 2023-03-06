@@ -16,10 +16,12 @@ def extract_variable_arg_to_atom_map(body_atoms):
 
     Return:
         variable_arg_to_atom_map: {<key, value>}
-            key - argument name
+            key - the name of variable appearing in the argument (e.g., x for T(x); x, y for T(y-1, x))
             value - {<key, value>}
                     key - atom index
-                    value - list of argument index
+                    value - list of dictionaries:
+                        for each dictionary, it contains the argument index, type
+                            and the arg object if the arg is not a variable (e.g., math expression)
     """
     body_atom_num = len(body_atoms)
     variable_arg_to_atom_map = collections.OrderedDict()
@@ -29,13 +31,27 @@ def extract_variable_arg_to_atom_map(body_atoms):
         atom_arg_num = len(atom_arg_list)
         for arg_index in range(atom_arg_num):
             arg = atom_arg_list[arg_index]
-            if arg.type != "variable":
+            if arg.type != "variable" and arg.type != "math_expr":
                 continue
-            if arg.name not in variable_arg_to_atom_map:
-                variable_arg_to_atom_map[arg.name] = collections.OrderedDict()
-            if atom_index not in variable_arg_to_atom_map[arg.name]:
-                variable_arg_to_atom_map[arg.name][atom_index] = list()
-            variable_arg_to_atom_map[arg.name][atom_index].append(arg_index)
+            variables = list()
+            if arg.type == "variable":
+                variables.append(arg.object)
+            if arg.type == "math_expr":
+                if arg.object["lhs"]["type"] == "variable":
+                    variables.append(arg.object["lhs"]["value"])
+                if arg.object["rhs"]["type"] == "variable":
+                    variables.append(arg.object["rhs"]["value"])
+            if len(variables) == 0:
+                continue
+            for variable in variables:
+                if variable not in variable_arg_to_atom_map:
+                    variable_arg_to_atom_map[variable] = collections.OrderedDict()
+                if atom_index not in variable_arg_to_atom_map[arg.object]:
+                    variable_arg_to_atom_map[variable][atom_index] = list()
+                arg_dict = {"arg_index": arg_index, "arg_type": arg.type}
+                if arg.type == "math_expr":
+                    arg_dict["arg_object"] = arg.object
+                variable_arg_to_atom_map[variable][atom_index].append(arg_dict)
 
     return variable_arg_to_atom_map
 
@@ -45,18 +61,42 @@ def search_argument_mapping_in_body_atoms(variable_arg_to_atom_map, var_name):
 
     Args:
         variable_arg_to_atom_map:
-            mapping between
-            each body variable argument to the indexes of body atoms containing the argument
+            mapping between variable to the args of the body atoms containing the argument
         var_name:
             the variable name
     """
     atom_index_to_arg_index_map = variable_arg_to_atom_map[var_name]
     # return the the indices of the first mapped atom and argument found
     for atom_index in atom_index_to_arg_index_map:
-        for arg_index in atom_index_to_arg_index_map[atom_index]:
-            return {"atom_index": atom_index, "arg_index": arg_index}
+        for arg in atom_index_to_arg_index_map[atom_index]:
+            if arg["arg_type"] == "variable":
+                return {"atom_index": atom_index, "arg_index": arg["arg_index"]}
 
     return None
+
+
+def search_math_expr_arg_mapping_in_body_atoms(math_expr, variable_arg_to_atom_map):
+    # empty dict means the arg of the math expression is a constant
+    lhs_variable_arg_mapping = {}
+    rhs_variable_arg_mapping = {}
+    if math_expr["lhs"] == "variable":
+        lhs_variable_arg_name = math_expr["lhs"]["value"]
+        lhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
+            variable_arg_to_atom_map, lhs_variable_arg_name
+        )
+    if math_expr["rhs"] == "variable":
+        rhs_variable_arg_name = math_expr["rhs"]["value"]
+        rhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
+            variable_arg_to_atom_map, rhs_variable_arg_name
+        )
+
+    math_op = math_expr["op"]
+    return {
+        "type": "math_expr",
+        "lhs_map": lhs_variable_arg_mapping,
+        "rhs_map": rhs_variable_arg_mapping,
+        "math_op": math_op,
+    }
 
 
 def extract_selection_map(head, variable_arg_to_atom_map):
@@ -82,7 +122,7 @@ def extract_selection_map(head, variable_arg_to_atom_map):
     for arg_index in range(head_arg_num):
         head_arg = head_arg_list[arg_index]
         if head_arg.type == "variable":
-            head_arg_name = head_arg.name
+            head_arg_name = head_arg.object
             head_arg_type_map.append("variable")
             head_arg_to_body_atom_arg_map[
                 arg_index
@@ -91,9 +131,9 @@ def extract_selection_map(head, variable_arg_to_atom_map):
             )
 
         elif head_arg.type == "aggregation":
-            head_arg_name = head_arg.name["agg_arg"]
+            head_arg_name = head_arg.object["agg_arg"]
             head_arg_type_map.append("agg")
-            head_aggregation_map[arg_index] = head_arg.name["agg_op"]
+            head_aggregation_map[arg_index] = head_arg.object["agg_op"]
             if head_arg_name["type"] == "attribute":
                 head_arg_to_body_arg_map = search_argument_mapping_in_body_atoms(
                     variable_arg_to_atom_map, head_arg_name["content"]
@@ -104,44 +144,24 @@ def extract_selection_map(head, variable_arg_to_atom_map):
                 }
             elif head_arg_name["type"] == "math_expr":
                 math_expr = head_arg_name["content"]
-                lhs_variable_arg_name = math_expr["lhs"]
-                rhs_variable_arg_name = math_expr["rhs"]
-                math_op = math_expr["op"]
-                lhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
-                    variable_arg_to_atom_map, lhs_variable_arg_name
+                head_arg_to_body_atom_arg_map[
+                    arg_index
+                ] = search_math_expr_arg_mapping_in_body_atoms(
+                    math_expr, variable_arg_to_atom_map
                 )
-                rhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
-                    variable_arg_to_atom_map, rhs_variable_arg_name
-                )
-                head_arg_to_body_atom_arg_map[arg_index] = {
-                    "type": "math_expr",
-                    "lhs_map": lhs_variable_arg_mapping,
-                    "rhs_map": rhs_variable_arg_mapping,
-                    "math_op": math_op,
-                }
 
         elif head_arg.type == "math_expr":
             head_arg_type_map.append("math_expr")
-            math_expr = head_arg.name
-            lhs_variable_arg_name = math_expr["lhs"]
-            rhs_variable_arg_name = math_expr["rhs"]
-            math_op = math_expr["op"]
-            lhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
-                variable_arg_to_atom_map, lhs_variable_arg_name
+            math_expr = head_arg.object
+            head_arg_to_body_atom_arg_map[
+                arg_index
+            ] = search_math_expr_arg_mapping_in_body_atoms(
+                math_expr, variable_arg_to_atom_map
             )
-            rhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
-                variable_arg_to_atom_map, rhs_variable_arg_name
-            )
-            head_arg_to_body_atom_arg_map[arg_index] = {
-                "type": "math_expr",
-                "lhs_map": lhs_variable_arg_mapping,
-                "rhs_map": rhs_variable_arg_mapping,
-                "math_op": math_op,
-            }
 
         elif head_arg.type == "constant":
             head_arg_type_map.append("constant")
-            head_arg_to_body_atom_arg_map[arg_index] = head_arg.name
+            head_arg_to_body_atom_arg_map[arg_index] = head_arg.object
 
     return {
         "head_arg_to_body_atom_arg_map": head_arg_to_body_atom_arg_map,
@@ -161,22 +181,25 @@ def extract_join_map(variable_arg_to_atom_map):
             mapping beween join variable name to the indices of join atoms and variable positions
     """
     join_map = collections.OrderedDict()
+    # Iterate grounded variables
     for var in variable_arg_to_atom_map:
         join_on_var = False
         # same variable shown in different atoms
         if len(variable_arg_to_atom_map[var]) > 1:
             join_on_var = True
         # same variable shown more than once in the same atom
-        for atom in variable_arg_to_atom_map[var]:
-            if len(variable_arg_to_atom_map[var][atom]) > 1:
-                join_on_var = True
-                break
+        if not join_on_var:
+            for atom in variable_arg_to_atom_map[var]:
+                if len(variable_arg_to_atom_map[var][atom]) > 1:
+                    join_on_var = True
+                    break
         if join_on_var:
             join_map[var] = variable_arg_to_atom_map[var]
 
     # Conditionally support some more complex join cases - join between variable and mathematical expression
     # https://github.com/Hacker0912/RecStep/issues/5#issue-1566057619
     # e.g., arc(t, _), elem(t-1, j, w)
+
     return join_map
 
 
@@ -270,8 +293,8 @@ def extract_constant_constraint_map(body_atoms):
         atom_arg_num = len(atom_arg_list)
         for arg_index in range(atom_arg_num):
             arg_type = atom_arg_list[arg_index].type
-            arg_name = atom_arg_list[arg_index].name
             if arg_type == "constant":
+                arg_name = atom_arg_list[arg_index].object
                 if atom_index not in constant_constraint_map:
                     constant_constraint_map[atom_index] = dict()
                 constant_constraint_map[atom_index][arg_index] = arg_name
@@ -304,7 +327,7 @@ def extract_negation_map(body_negation_atoms, variable_arg_to_atom_map):
         negation_atom_map = negation_map[negation_index]
         for arg_index in range(negation_arg_num):
             negation_arg = negation_arg_list[arg_index]
-            negation_arg_name = negation_arg.name
+            negation_arg_name = negation_arg.object
             negation_arg_type = negation_arg.type
             negation_atom_map[arg_index] = dict()
             negation_atom_map[arg_index]["arg_name"] = negation_arg_name

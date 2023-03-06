@@ -96,7 +96,7 @@ class DatalogProgram(object):
         """
         for relation in relations:
             attribute_name_type_pairs = [
-                "{} {}".format(attribute.name, attribute.type)
+                "{} {}".format(attribute.object, attribute.type)
                 for attribute in relation["attributes"]
             ]
             relation_str = "{}({})".format(
@@ -107,23 +107,23 @@ class DatalogProgram(object):
     @staticmethod
     def arg_str(arg):
         if arg.type == "aggregation":
-            if arg.name["agg_arg"]["type"] == "attribute":
+            if arg.object["agg_arg"]["type"] == "attribute":
                 arg_str = "{}({})".format(
-                    arg.name["agg_op"], arg.name["agg_arg"]["content"]
+                    arg.object["agg_op"], arg.object["agg_arg"]["content"]
                 )
-            if arg.name["agg_arg"]["type"] == "math_expr":
+            if arg.object["agg_arg"]["type"] == "math_expr":
                 arg_str = "{}({}{}{})".format(
-                    arg.name["agg_op"],
-                    arg.name["agg_arg"]["content"]["lhs"],
-                    arg.name["agg_arg"]["content"]["op"],
-                    arg.name["agg_arg"]["content"]["rhs"],
+                    arg.object["agg_op"],
+                    arg.object["agg_arg"]["content"]["lhs"],
+                    arg.object["agg_arg"]["content"]["op"],
+                    arg.object["agg_arg"]["content"]["rhs"],
                 )
         elif arg.type == "math_expr":
             arg_str = "{}{}{}".format(
-                arg.name["lhs"]["value"], arg.name["op"], arg.name["rhs"]["value"]
+                arg.object["lhs"]["value"], arg.object["op"], arg.object["rhs"]["value"]
             )
         else:
-            arg_str = arg.name
+            arg_str = arg.object
         return arg_str
 
     @staticmethod

@@ -7,7 +7,7 @@ from rule_analyzer import translator
 from execution.config import *
 
 
-def rewrite(edb_decl, rule, output_datalog=False, verbose=False):
+def rewrite(edb_decl, rule, verbose=False):
     relation_attributes_map = dict()
     for relation in edb_decl:
         relation_attributes_map[relation["name"]] = relation["attributes"]
@@ -69,9 +69,9 @@ def deduplicate_arguments(argument_list):
     argument_set = set()
     argument_names_set = set()
     for arg in argument_list:
-        if arg.name not in argument_names_set:
+        if arg.object not in argument_names_set:
             argument_set.add(arg)
-            argument_names_set.add(arg.name)
+            argument_names_set.add(arg.object)
 
     return argument_set
 
@@ -167,7 +167,7 @@ def get_global_query_key_free_join_variables(
 
     return sorted(
         list(deduplicate_arguments(key_variables + v_free + sub_query_free_variables)),
-        key=lambda arg: arg.name,
+        key=lambda arg: arg.object,
     )
 
 
@@ -185,10 +185,10 @@ def get_corrected_safe_range_atom(
     full_safe_range_atom, cur_query, cur_atom, relation_attributes_map
 ):
     cur_query_free_variable_names = [
-        arg.name for arg in get_atom_arguments(cur_query["head"])
+        arg.object for arg in get_atom_arguments(cur_query["head"])
     ]
     cur_atom_key_variable_names = [
-        arg.name
+        arg.object
         for arg in get_atom_arguments(
             cur_atom,
             key_variables=True,
@@ -198,8 +198,8 @@ def get_corrected_safe_range_atom(
     new_arg_list = list()
     for arg in full_safe_range_atom["arg_list"]:
         if (
-            arg.name in cur_query_free_variable_names
-            or arg.name in cur_atom_key_variable_names
+            arg.object in cur_query_free_variable_names
+            or arg.object in cur_atom_key_variable_names
         ):
             if arg not in new_arg_list:
                 new_arg_list.append(arg)
@@ -215,10 +215,10 @@ def generate_new_query_with_atom_being_removed(rule, atom, argument_set):
     )
     free_variables = list()
     vec_xuw = argument_set["vec_x"] + argument_set["vec_u"] + argument_set["vec_w"]
-    vec_xuw_names = set([arg.name for arg in vec_xuw])
+    vec_xuw_names = set([arg.object for arg in vec_xuw])
     for a in atoms_to_keep:
         for arg in a["arg_list"]:
-            if arg.type == "variable" and arg.name in vec_xuw_names:
+            if arg.type == "variable" and arg.object in vec_xuw_names:
                 free_variables.append(arg)
 
     # Ensure the outputs from different runs are the same
@@ -247,11 +247,11 @@ def generate_bad_block_rule(r_i, argument_set, safe_range_atom):
 
     # current atom
     arguments = list()
-    key_argument_names = [arg.name for arg in argument_set["vec_u"]]
+    key_argument_names = [arg.object for arg in argument_set["vec_u"]]
     v_index = 0
     for arg in r_i["arg_list"]:
         # key arguments
-        if arg.name in key_argument_names:
+        if arg.object in key_argument_names:
             arguments.append(arg)
         else:
             # in argument_set["vec_v"]
@@ -317,11 +317,11 @@ def generate_good_fact_rule(
     compares = list()
     if equality_constraint:
         arguments = list()
-        key_argument_names = [arg.name for arg in argument_set["vec_u"]]
+        key_argument_names = [arg.object for arg in argument_set["vec_u"]]
         v_index = 0
         for arg in r_i["arg_list"]:
             # key arguments
-            if arg.name in key_argument_names:
+            if arg.object in key_argument_names:
                 arguments.append(arg)
             else:
                 # in argument_set["vec_v"]

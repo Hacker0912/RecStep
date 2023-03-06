@@ -6,8 +6,8 @@ grammar Datalog;
 @parser::members {
 
 class AtomArg():
-    def __init__(self, arg_name, arg_type, key_attribute=False):
-        self.name = arg_name
+    def __init__(self, arg_object, arg_type, key_attribute=False):
+        self.object = arg_object
         self.type = arg_type
         self.key_attribute = key_attribute
 

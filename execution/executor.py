@@ -62,7 +62,7 @@ class Executor(object):
         attributes = relation["attributes"]
         table = Table(table_name)
         for attribute in attributes:
-            table.add_attribute(attribute.name, attribute.type)
+            table.add_attribute(attribute.object, attribute.type)
 
         if create_physical_table:
             self.__quickstep_shell_instance.create_table(table)

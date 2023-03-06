@@ -21,7 +21,7 @@ def generate_insertion_str(head):
         arg_type = arg.type
         if arg_type != "constant":
             raise Exception("Only specific values could be populated into relation!")
-        tuple_instance.append(arg.name)
+        tuple_instance.append(arg.object)
 
     value_str = ",".join(tuple_instance)
     insertion_str = "INSERT INTO {} VALUES ({})".format(relation_name, value_str)
@@ -47,7 +47,7 @@ def generate_select(
                 body_atom_aliases[mapped_atom_index],
                 relation_def_map[body_atoms[mapped_atom_index]["name"]]["relation"][
                     "attributes"
-                ][mapped_arg_index].name,
+                ][mapped_arg_index].object,
             )
         if head_arg_type_map[arg_index] == "agg":
             aggregate_func_str = ""
@@ -130,7 +130,7 @@ def generate_select(
             select_item_str = head_arg_to_body_atom_arg_map[arg_index]
 
         select_item_str = "{} AS {}".format(
-            select_item_str, head_relation_args[selection_index].name
+            select_item_str, head_relation_args[selection_index].object
         )
         select_item_strs.append(select_item_str)
         selection_index += 1
@@ -555,9 +555,7 @@ def gen_rule_eval_sql_str(
 
     variable_arg_to_atom_map = translator.extract_variable_arg_to_atom_map(body_atoms)
     if STATIC_DEBUG:
-        print(
-            "\n-----body argument variable to body atom and argument indices map-----\n"
-        )
+        print("\n-----body argument variable to body atom and argument map-----\n")
         print(variable_arg_to_atom_map)
 
     select_maps = translator.extract_selection_map(head, variable_arg_to_atom_map)
