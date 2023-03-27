@@ -46,7 +46,7 @@ def extract_variable_arg_to_atom_map(body_atoms):
             for variable in variables:
                 if variable not in variable_arg_to_atom_map:
                     variable_arg_to_atom_map[variable] = collections.OrderedDict()
-                if atom_index not in variable_arg_to_atom_map[arg.object]:
+                if atom_index not in variable_arg_to_atom_map[variable]:
                     variable_arg_to_atom_map[variable][atom_index] = list()
                 arg_dict = {"arg_index": arg_index, "arg_type": arg.type}
                 if arg.type == "math_expr":
@@ -57,11 +57,11 @@ def extract_variable_arg_to_atom_map(body_atoms):
 
 
 def search_argument_mapping_in_body_atoms(variable_arg_to_atom_map, var_name):
-    """Return the first atom-arg index pair found matching the given argument name
+    """Return the first atom-arg index pair found matching the given variable name
 
     Args:
         variable_arg_to_atom_map:
-            mapping between variable to the args of the body atoms containing the argument
+            mapping between variable to the args of the body atoms containing the variable
         var_name:
             the variable name
     """
@@ -70,15 +70,19 @@ def search_argument_mapping_in_body_atoms(variable_arg_to_atom_map, var_name):
     for atom_index in atom_index_to_arg_index_map:
         for arg in atom_index_to_arg_index_map[atom_index]:
             if arg["arg_type"] == "variable":
-                return {"atom_index": atom_index, "arg_index": arg["arg_index"]}
+                return {
+                    "type": "attribute", 
+                    "atom_index": atom_index, 
+                    "arg_index": arg["arg_index"]
+                }
 
     return None
 
 
-def search_math_expr_arg_mapping_in_body_atoms(math_expr, variable_arg_to_atom_map):
+def search_math_expr_arg_mapping_in_body_atoms(variable_arg_to_atom_map, math_expr):
     # empty dict means the arg of the math expression is a constant
-    lhs_variable_arg_mapping = {}
-    rhs_variable_arg_mapping = {}
+    lhs_variable_arg_mapping = dict()
+    rhs_variable_arg_mapping = dict()
     if math_expr["lhs"] == "variable":
         lhs_variable_arg_name = math_expr["lhs"]["value"]
         lhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
@@ -99,31 +103,31 @@ def search_math_expr_arg_mapping_in_body_atoms(math_expr, variable_arg_to_atom_m
     }
 
 
-def extract_selection_map(head, variable_arg_to_atom_map):
+def extract_selection_map(variable_arg_to_atom_map, head):
     """Extract and store the information for attributes selected (computed) from the datalog rule/query
 
     Args:
-        body_atoms:
-            the list of atoms of the datalog rule body
         variable_arg_to_atom_map:
             mapping between
-            each body variable argument to the indexes of body atoms containing the argument
-
+            each body variable argument to the indexes of body atoms containing the argument 
+            and the corresponding arg_index, arg_type and object if arg is not variable (e.g., math expression)
+        body_atoms:
+            the list of atoms of the datalog rule body
     """
     head_arg_list = head["arg_list"]
     head_arg_num = len(head_arg_list)
 
     # map arguments of the head to the position of the corresponding arguments in the body
     head_arg_to_body_atom_arg_map = collections.OrderedDict()
-    # map arguments of the head to the specific type (e.g., variable, aggregation, constants)
-    head_arg_type_map = list()
+    # keep track of the types of head arguments (e.g., variable, aggregation, constants)
+    head_arg_types = list()
     # map the aggregation attributes of the head to the specific aggregation operator
     head_aggregation_map = dict()
     for arg_index in range(head_arg_num):
         head_arg = head_arg_list[arg_index]
         if head_arg.type == "variable":
             head_arg_name = head_arg.object
-            head_arg_type_map.append("variable")
+            head_arg_types.append("variable")
             head_arg_to_body_atom_arg_map[
                 arg_index
             ] = search_argument_mapping_in_body_atoms(
@@ -131,19 +135,15 @@ def extract_selection_map(head, variable_arg_to_atom_map):
             )
 
         elif head_arg.type == "aggregation":
-            head_arg_name = head_arg.object["agg_arg"]
-            head_arg_type_map.append("agg")
+            head_agg_arg = head_arg.object["agg_arg"]
+            head_arg_types.append("aggregation")
             head_aggregation_map[arg_index] = head_arg.object["agg_op"]
-            if head_arg_name["type"] == "attribute":
-                head_arg_to_body_arg_map = search_argument_mapping_in_body_atoms(
-                    variable_arg_to_atom_map, head_arg_name["content"]
+            if head_agg_arg["type"] == "attribute":
+                head_arg_to_body_atom_arg_map[arg_index] = search_argument_mapping_in_body_atoms(
+                    variable_arg_to_atom_map, head_agg_arg["content"]
                 )
-                head_arg_to_body_atom_arg_map[arg_index] = {
-                    "type": "attribute",
-                    "map": head_arg_to_body_arg_map,
-                }
             elif head_arg_name["type"] == "math_expr":
-                math_expr = head_arg_name["content"]
+                math_expr = head_agg_arg["content"]
                 head_arg_to_body_atom_arg_map[
                     arg_index
                 ] = search_math_expr_arg_mapping_in_body_atoms(
@@ -151,7 +151,7 @@ def extract_selection_map(head, variable_arg_to_atom_map):
                 )
 
         elif head_arg.type == "math_expr":
-            head_arg_type_map.append("math_expr")
+            head_arg_types.append("math_expr")
             math_expr = head_arg.object
             head_arg_to_body_atom_arg_map[
                 arg_index
@@ -160,12 +160,12 @@ def extract_selection_map(head, variable_arg_to_atom_map):
             )
 
         elif head_arg.type == "constant":
-            head_arg_type_map.append("constant")
+            head_arg_types.append("constant")
             head_arg_to_body_atom_arg_map[arg_index] = head_arg.object
 
     return {
         "head_arg_to_body_atom_arg_map": head_arg_to_body_atom_arg_map,
-        "head_arg_type_map": head_arg_type_map,
+        "head_arg_type_map": head_arg_types,
         "head_aggregation_map": head_aggregation_map,
     }
 
@@ -175,30 +175,36 @@ def extract_join_map(variable_arg_to_atom_map):
     Args:
         variable_arg_to_atom_map:
             mapping between
-            each body variable argument to the indexes of body atoms containing the argument
+            each body variable argument to the indexes of body atoms containing the argument 
+            and the corresponding arg_index, arg_type and object if arg is not variable (e.g., math expression)
     Returns:
         join_map:
             mapping beween join variable name to the indices of join atoms and variable positions
     """
+    # Conditionally support some more complex join cases - join between variable and mathematical expression
+    # https://github.com/Hacker0912/RecStep/issues/5#issue-1566057619
+    # e.g., arc(t, _), elem(t-1, j, w)
     join_map = collections.OrderedDict()
     # Iterate grounded variables
     for var in variable_arg_to_atom_map:
         join_on_var = False
-        # same variable shown in different atoms
+        # same variable shown in different atoms - at least one of them has to be *grounded* 
+        # (e.g., t is grounded in arc(t, _) but not in elem(t-1, j, w))
         if len(variable_arg_to_atom_map[var]) > 1:
-            join_on_var = True
+            for atom_index in variable_arg_to_atom_map[var]:
+                for arg_dict in variable_arg_to_atom_map[var][atom_index]:
+                    if arg_dict["arg_type"] == "variable":
+                        join_on_var = True
         # same variable shown more than once in the same atom
         if not join_on_var:
             for atom in variable_arg_to_atom_map[var]:
                 if len(variable_arg_to_atom_map[var][atom]) > 1:
-                    join_on_var = True
-                    break
+                    for arg_dict in variable_arg_to_atom_map[var][atom_index]:
+                        if arg_dict["arg_type"] == "variable":
+                            join_on_var = True
+                            break
         if join_on_var:
             join_map[var] = variable_arg_to_atom_map[var]
-
-    # Conditionally support some more complex join cases - join between variable and mathematical expression
-    # https://github.com/Hacker0912/RecStep/issues/5#issue-1566057619
-    # e.g., arc(t, _), elem(t-1, j, w)
 
     return join_map
 
@@ -213,7 +219,7 @@ def extract_comparison_map(body_comparisons, variable_arg_to_atom_map):
             the list of atoms of the datalog rule body
 
     Return:
-        comparison_map
+        comparison_map 
     """
     comparison_map = dict()
     for comparison in body_comparisons:
@@ -228,7 +234,7 @@ def extract_comparison_map(body_comparisons, variable_arg_to_atom_map):
                 "At least one side of the comparison has to be variable in the body relations"
             )
 
-        base_side = "l"
+        base_side = "left"
         if lhs_arg_type == "variable":
             base_var = lhs_arg
             compare_arg = rhs_arg
@@ -237,7 +243,7 @@ def extract_comparison_map(body_comparisons, variable_arg_to_atom_map):
             base_var = rhs_arg
             compare_arg = lhs_arg
             compare_arg_type = lhs_arg_type
-            base_side = "r"
+            base_side = "right"
 
         arg_to_body_atom_arg_map = search_argument_mapping_in_body_atoms(
             variable_arg_to_atom_map, base_var
@@ -294,10 +300,10 @@ def extract_constant_constraint_map(body_atoms):
         for arg_index in range(atom_arg_num):
             arg_type = atom_arg_list[arg_index].type
             if arg_type == "constant":
-                arg_name = atom_arg_list[arg_index].object
+                arg_object = atom_arg_list[arg_index].object
                 if atom_index not in constant_constraint_map:
                     constant_constraint_map[atom_index] = dict()
-                constant_constraint_map[atom_index][arg_index] = arg_name
+                constant_constraint_map[atom_index][arg_index] = arg_object
 
     return constant_constraint_map
 
@@ -327,27 +333,36 @@ def extract_negation_map(body_negation_atoms, variable_arg_to_atom_map):
         negation_atom_map = negation_map[negation_index]
         for arg_index in range(negation_arg_num):
             negation_arg = negation_arg_list[arg_index]
-            negation_arg_name = negation_arg.object
+            negation_arg_object = negation_arg.object
             negation_arg_type = negation_arg.type
             negation_atom_map[arg_index] = dict()
-            negation_atom_map[arg_index]["arg_name"] = negation_arg_name
+            negation_atom_map[arg_index]["arg_object"] = negation_arg_object
             negation_atom_map[arg_index]["arg_type"] = negation_arg_type
 
     for negation_atom_index in negation_map:
         negation_atom_map = negation_map[negation_atom_index]
         for arg_index in negation_atom_map:
+            arg_to_body_atom_arg_map = None
             if negation_atom_map[arg_index]["arg_type"] == "variable":
-                arg_name = negation_atom_map[arg_index]["arg_name"]
+                arg_name = negation_atom_map[arg_index]["arg_object"]
                 arg_to_body_atom_arg_map = search_argument_mapping_in_body_atoms(
                     variable_arg_to_atom_map, arg_name
                 )
-                if arg_to_body_atom_arg_map is None:
-                    continue
-                if negation_atom_index not in anti_join_map:
-                    anti_join_map[negation_atom_index] = dict()
-                anti_join_map[negation_atom_index][arg_index] = arg_to_body_atom_arg_map
-
-    return {"negation_map": negation_map, "anti_join_map": anti_join_map}
+            if negation_atom_map[arg_index]["arg_type"] == "math_expr":
+                math_expr = negation_atom_map[arg_index]["arg_object"]
+                arg_to_body_atom_arg_map = search_math_expr_arg_mapping_in_body_atoms(
+                    variable_arg_to_atom_map, math_expr
+                )
+            if arg_to_body_atom_arg_map is None:
+                continue
+            if negation_atom_index not in anti_join_map:
+                anti_join_map[negation_atom_index] = dict()
+            anti_join_map[negation_atom_index][arg_index] = arg_to_body_atom_arg_map
+            
+    return {
+        "negation_map": negation_map, 
+        "anti_join_map": anti_join_map
+    }
 
 
 def build_atom_aliases(body_atoms):
@@ -363,7 +378,7 @@ def build_atom_aliases(body_atoms):
     body_atom_alias_list = list()
     body_atom_naming_index = 0
     for atom in body_atoms:
-        alias = "{}_{}".format(atom["name"][0].lower(), body_atom_naming_index)
+        alias = "{}_{}".format(atom["name"].lower(), body_atom_naming_index)
         body_atom_alias_list.append(alias)
         body_atom_naming_index += 1
 
@@ -384,7 +399,7 @@ def build_negation_atom_aliases(negation_atoms):
     negation_atom_naming_index = 0
     for negation_atom in negation_atoms:
         alias = "neg_{}_{}".format(
-            negation_atom["name"][0].lower(), negation_atom_naming_index
+            negation_atom["name"].lower(), negation_atom_naming_index
         )
         negation_atom_aliases.append(alias)
         negation_atom_naming_index += 1
@@ -417,33 +432,33 @@ def build_recursive_atom_aliases(body_atoms, eval_idb_to_rule_maps, iter_num):
             atom_alias_list.append({"alias": prev_idb_name, "type": "prev"})
             atom_alias_list.append({"alias": delta_idb_name, "type": "delta"})
 
-    return {"body_atom_eval_names": body_atom_eval_names, "idb_num": idb_num}
+    return {
+        "body_atom_eval_names": body_atom_eval_names,
+        "idb_num": idb_num
+    }
 
 
-def build_recursive_atom_alias_groups(body_atoms, atom_aliases_map):
+def build_recursive_atom_alias_groups(atom_aliases_map):
     """Datalog rules having multiple recursive idbs are evaluated by "multiple" subqueries, each of which
     has different combination of recursive atom aliases (e.g., 'delta', 'prev'):
         The function builds a list of combinations of idb aliases considering a single recursive datalog rule
 
     Args:
-        body_atom_list: the list containing the atoms in the rule body
-        body_atom_eval_names: the list containing the names of atoms to be evaluated
-        eval_idbs:
-            the list containing names of *all* idbs in the whole datalog program
-        idb_num:
-            the number of idbs in the current datalog rule being considered
-
+        atom_aliases_map: {
+            "body_atom_eval_names": body_atom_eval_names,
+            "idb_num": idb_num
+        }   - storing list of aliases of atoms and the number of idb atoms of a given Datalog rule
+            - body_atom_eval_names: 
+            - idb_num: number of 
     Return:
         atom_eval_name_groups:
             list containing groups of idb aliases each of which corresponds to a single recursive datalog rule
     """
-    body_atom_num = len(body_atoms)
     body_atom_eval_names = atom_aliases_map["body_atom_eval_names"]
     idb_num = atom_aliases_map["idb_num"]
     atom_eval_name_groups = list()
-    for atom_index in range(body_atom_num):
-        atom_eval_names = body_atom_eval_names[atom_index]
-        # just start to build the groups (i.e., just start DFS)
+    for atom_eval_names in body_atom_eval_names:
+        # just start to build the groups (i.e., just start BFS)
         if len(atom_eval_name_groups) == 0:
             for atom_eval_name in atom_eval_names:
                 atom_eval_name_groups.append([atom_eval_name])

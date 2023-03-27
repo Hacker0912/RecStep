@@ -19,6 +19,8 @@ def start_quickstep_instance():
 
     # Kill all running quickstep instances
     for proc in psutil.process_iter():
+        if proc.status() == psutil.STATUS_ZOMBIE:
+            continue
         if proc.name().find("quickstep") != -1:
             proc.kill()
 

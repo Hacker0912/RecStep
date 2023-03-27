@@ -414,7 +414,7 @@ def generate_bad_block_query_from_good_fact_rule(
         bad_block_rule["body"]["atoms"]
     )
     select_maps = translator.extract_selection_map(
-        bad_block_rule["head"], variable_arg_to_atom_map
+         variable_arg_to_atom_map, bad_block_rule["head"]
     )
     body_atom_aliases = translator.build_atom_aliases(bad_block_rule["body"]["atoms"])
     select_str = generate_select(

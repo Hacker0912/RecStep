@@ -99,13 +99,13 @@ atom returns [r]
 	  (a2 = TOKEN_ID 		  {atom_map['arg_list'].append(self.AtomArg($a2.text, 'variable'))} |
 	   a3 = aggregation_expr  {atom_map['arg_list'].append(self.AtomArg($a3.r, 'aggregation'))} |
 	   a4 = TOKEN_ANY 		  {atom_map['arg_list'].append(self.AtomArg($a4.text, 'any'))} |
-	   a5 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a5.text, 'constant'))} |
+	   a5 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a5.r, 'constant'))} |
 	   a6 = math_expr         {atom_map['arg_list'].append(self.AtomArg($a6.r, 'math_expr'))})
 	  (TOKEN_COMMA 
 	   (a7 = TOKEN_ID 		  {atom_map['arg_list'].append(self.AtomArg($a7.text, 'variable'))} |
 		a8 = aggregation_expr {atom_map['arg_list'].append(self.AtomArg($a8.r, 'aggregation'))}|
 		a9 = TOKEN_ANY		  {atom_map['arg_list'].append(self.AtomArg($a9.text, 'any'))} |
-		a10 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a10.text, 'constant'))} |
+		a10 = constant 		  {atom_map['arg_list'].append(self.AtomArg($a10.r, 'constant'))} |
 		a11 = math_expr       {atom_map['arg_list'].append(self.AtomArg($a11.r, 'math_expr'))}))*
 	  TOKEN_RIGHT_PAREN
 	  {$r = atom_map}

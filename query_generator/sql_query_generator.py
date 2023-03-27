@@ -558,7 +558,7 @@ def gen_rule_eval_sql_str(
         print("\n-----body argument variable to body atom and argument map-----\n")
         print(variable_arg_to_atom_map)
 
-    select_maps = translator.extract_selection_map(head, variable_arg_to_atom_map)
+    select_maps = translator.extract_selection_map(variable_arg_to_atom_map, head)
     if STATIC_DEBUG:
         print("\n-----select maps-----\n")
         print(select_maps)

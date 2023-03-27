@@ -18,7 +18,7 @@ def rewrite(
         print("\n-----variable arguments to atom mapping-----\n")
         print(variable_arg_to_atom_map)
     selection_map = translator.extract_selection_map(
-        rule["head"], variable_arg_to_atom_map
+        variable_arg_to_atom_map, rule["head"]
     )
     # here we currently only handle boolean and non-boolean conjunctive queries without aggregation
     selection_type_map = selection_map["head_arg_type_map"]
