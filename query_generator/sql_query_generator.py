@@ -49,22 +49,17 @@ def generate_select(
                     "attributes"
                 ][mapped_arg_index].object,
             )
-        if head_arg_type_map[arg_index] == "agg":
-            aggregate_func_str = ""
+        if head_arg_type_map[arg_index] == "aggregation":
             aggregate_func_arg_str = ""
             aggregate_func_str = aggregation_map[arg_index]
             if head_arg_to_body_atom_arg_map[arg_index]["type"] == "attribute":
-                mapped_atom_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
-                    "atom_index"
-                ]
-                mapped_arg_index = head_arg_to_body_atom_arg_map[arg_index]["map"][
-                    "arg_index"
-                ]
+                mapped_atom_index = head_arg_to_body_atom_arg_map[arg_index]["atom_index"]
+                mapped_arg_index = head_arg_to_body_atom_arg_map[arg_index]["arg_index"]
                 aggregate_func_arg_str = "{}.{}".format(
                     body_atom_aliases[mapped_atom_index],
                     relation_def_map[body_atoms[mapped_atom_index]["name"]]["relation"][
                         "attributes"
-                    ][mapped_arg_index].name,
+                    ][mapped_arg_index].object,
                 )
             elif head_arg_to_body_atom_arg_map[arg_index]["type"] == "math_expr":
                 # currently only supports binary arithematic operations (e.g., a + b is okay but a + b + c is not)
