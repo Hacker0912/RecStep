@@ -558,7 +558,7 @@ class Executor(object):
                 if STATIC_DEBUG:
                     eval_rule_num = len(eval_rules)
                     print(
-                        "-----Total number of evaluation rules-----: {}".format(
+                        "\n-----Total number of evaluation rules-----: {}".format(
                             eval_rule_num
                         )
                     )
@@ -588,7 +588,7 @@ class Executor(object):
                     if STATIC_DEBUG:
                         sub_query_num = len(sub_queries)
                         print(
-                            "------Number of subqueries------: {}".format(sub_query_num)
+                            "\n------Number of subqueries------: {}".format(sub_query_num)
                         )
 
                     for sub_query_str in sub_queries:
@@ -730,7 +730,7 @@ class Executor(object):
             for idb in eval_idb_to_rule_maps:
                 old_idb_delta_name = "{}_delta_{}".format(idb, iter_num - 1)
                 if STATIC_DEBUG:
-                    print("-----Old IDB Delta Table Name-----")
+                    print("\n-----Old IDB Delta Table Name-----")
                     print(old_idb_delta_name)
                 self.__quickstep_shell_instance.drop_table(old_idb_delta_name)
 
@@ -739,7 +739,7 @@ class Executor(object):
             # log the number of tuples in delta tables evaluated in the current iteration
             for idb in eval_idb_to_rule_maps:
                 if STATIC_DEBUG:
-                    print("-----Delta Table Names in Current Iteration-----")
+                    print("\n-----Delta Table Names in Current Iteration-----")
                     print(catalog["tables"]["{}_delta".format(idb)].table_name)
 
             # Log the number of tuples in the idb tables after the evaluation in the current iteration
@@ -798,7 +798,7 @@ class Executor(object):
                 target_table_name, sub_queries
             )
             if STATIC_DEBUG:
-                print("-----nonrecursive unified-idb evaluation str-----")
+                print("\n-----non-recursive unified-idb evaluation str-----")
                 print(eval_str)
 
             if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:
@@ -819,7 +819,7 @@ class Executor(object):
                     target_table_name, sub_query
                 )
                 if STATIC_DEBUG:
-                    print("-----nonrecursive evaluation str-----")
+                    print("\n-----non-recursive evaluation str-----")
                     print(eval_str)
 
                 if SELECTIVE_DEDUP and idb_relation_name not in DEDUP_RELATION_LIST:

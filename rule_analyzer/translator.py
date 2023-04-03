@@ -195,6 +195,9 @@ def extract_join_map(variable_arg_to_atom_map):
                 for arg_dict in variable_arg_to_atom_map[var][atom_index]:
                     if arg_dict["arg_type"] == "variable":
                         join_on_var = True
+        if not join_on_var and len(variable_arg_to_atom_map[var]) > 1:
+            raise Exception("Join variable {} is not grounded".format(var))             
+            
         # same variable shown more than once in the same atom
         if not join_on_var:
             for atom in variable_arg_to_atom_map[var]:
@@ -202,7 +205,10 @@ def extract_join_map(variable_arg_to_atom_map):
                     for arg_dict in variable_arg_to_atom_map[var][atom_index]:
                         if arg_dict["arg_type"] == "variable":
                             join_on_var = True
-                            break
+                            break   
+                    if not join_on_var and len(variable_arg_to_atom_map[var][atom]) > 1:   
+                        raise Exception("Variable {} (inside the same atom) is not grounded".format(var))  
+        
         if join_on_var:
             join_map[var] = variable_arg_to_atom_map[var]
 

@@ -173,22 +173,57 @@ def generate_from_recursive(atom_eval_name_groups, body_atom_aliases):
 
 def generate_join_str(body_atoms, join_map, relation_def_map, body_atom_aliases):
     join_equality_strs = list()
-    for arg in join_map:
-        prev_atom_arg = None
-        join_atom_arg_indices = join_map[arg]
+    for variable in join_map:
+        join_atom_arg_indices = join_map[variable]
+        # Extract the grounded variable first, namly t.x
+        grounded_variable_atom_index = None 
+        grounded_variable_arg_index = None
+        grounded_attribute_alias = None
         for atom_index in join_atom_arg_indices:
-            atom_name = body_atoms[atom_index]["name"]
-            atom_alias = body_atom_aliases[atom_index]
-            atom_attributes = relation_def_map[atom_name]["relation"]["attributes"]
             join_args_indices = join_atom_arg_indices[atom_index]
-            for join_arg_index in join_args_indices:
-                attribute_name = atom_attributes[join_arg_index].name
+            for join_object in join_args_indices:
+                if join_object["arg_type"] == "variable":
+                    atom_name = body_atoms[atom_index]["name"] 
+                    atom_attributes = relation_def_map[atom_name]["relation"]["attributes"]
+                    grounded_variable_atom_index = atom_index
+                    grounded_variable_arg_index = join_object["arg_index"]
+                    grounded_attribute_alias = "{}.{}".format(body_atom_aliases[atom_index], atom_attributes[grounded_variable_arg_index].object)
+         # Construct join string for the rest of joining attributes   
+        for atom_index in join_atom_arg_indices:
+            join_args_indices = join_atom_arg_indices[atom_index]
+            for join_object in join_args_indices:
+                if atom_index == grounded_variable_atom_index and join_object["arg_index"] == grounded_variable_arg_index:
+                    continue
+                atom_name = body_atoms[atom_index]["name"]
+                atom_attributes = relation_def_map[atom_name]["relation"]["attributes"]
+                atom_alias = body_atom_aliases[atom_index]
+                attribute_name = atom_attributes[join_object["arg_index"]].object
                 atom_arg = "{}.{}".format(atom_alias, attribute_name)
-                if prev_atom_arg:
-                    join_equality_str = "{} = {}".format(prev_atom_arg, atom_arg)
-                    join_equality_strs.append(join_equality_str)
-                prev_atom_arg = atom_arg
-
+                if join_object["arg_type"] == "variable":
+                    join_equality_str = "{} = {}".format(grounded_attribute_alias, atom_arg)  
+                    join_equality_strs.append(join_equality_str)     
+                elif join_object["arg_type"] == "math_expr":
+                    join_variable_side = "lhs"
+                    # i.e., y is a constant (e.g., y = 1)
+                    op_on_constant = True 
+                    if join_object["arg_object"]["rhs"]["type"] == "variable" and join_object["arg_object"]["rhs"]["value"] == variable:
+                        join_variable_side = "rhs" 
+                    if (join_variable_side == "lhs" and join_object["arg_object"]["rhs"]["type"] == "variable"):
+                        op_on_constant = False
+                    if (join_variable_side == "rhs" and join_object["arg_object"]["lhs"]["type"] == "variable"):
+                        op_on_constant = False  
+                    if not op_on_constant:
+                        raise Exception("RecStep does not currently support binary expressions on two variables (for join) in the rule body \
+                            (e.g., S(x, y), T(x + w, y))")
+                    # e.g., x - 2, 2 - x, x + 2, 2 + x
+                    if join_variable_side == "lhs":
+                        join_equality_str = "{} {} {} = {}"\
+                            .format(grounded_attribute_alias, join_object["arg_object"]["op"], join_object["arg_object"]["rhs"]["value"], atom_arg)  
+                    else:
+                        join_equality_str = "{} {} {} = {}"\
+                            .format(join_object["arg_object"]["rhs"]["value"], join_object["arg_object"]["op"], grounded_attribute_alias, atom_arg)  
+                    join_equality_strs.append(join_equality_str) 
+                
     join_str = " AND ".join(join_equality_strs)
     return join_str
 
@@ -203,7 +238,7 @@ def generate_comparison_str(
         atom_attributes = relation_def_map[atom_name]["relation"]["attributes"]
         attributes_to_compare = comparison_map[atom_index]
         for attribute_index in attributes_to_compare:
-            atom_attribute = atom_attributes[attribute_index].name
+            atom_attribute = atom_attributes[attribute_index].object
             comparisons = attributes_to_compare[attribute_index]
             for comparison in comparisons:
                 base_variable_side = comparison["base_variable_side"]
@@ -230,7 +265,7 @@ def generate_comparison_str(
                     ]["attributes"]
                     compare_atom_attribute = compare_atom_attributes[
                         other_side_arg_index
-                    ].name
+                    ].object
                     if base_variable_side == "l":
                         comparison_str = "{}.{} {} {}.{}".format(
                             atom_alias,
@@ -379,7 +414,7 @@ def generate_group_by_str(head_relation_attributes, aggregation_map):
     for attribute_index in range(head_relation_attributes_num):
         if attribute_index not in aggregation_map:
             group_by_attributes_names.append(
-                head_relation_attributes[attribute_index].name
+                head_relation_attributes[attribute_index].object
             )
 
     group_by_attributes_str = ", ".join(group_by_attributes_names)
@@ -555,46 +590,46 @@ def gen_rule_eval_sql_str(
 
     variable_arg_to_atom_map = translator.extract_variable_arg_to_atom_map(body_atoms)
     if STATIC_DEBUG:
-        print("\n-----body argument variable to body atom and argument map-----\n")
+        print("\n-----body argument variable to body atom and argument map-----")
         print(variable_arg_to_atom_map)
 
     select_maps = translator.extract_selection_map(variable_arg_to_atom_map, head)
     if STATIC_DEBUG:
-        print("\n-----select maps-----\n")
+        print("\n-----select maps-----")
         print(select_maps)
 
     join_map = translator.extract_join_map(variable_arg_to_atom_map)
     if STATIC_DEBUG:
-        print("\n-----join map-----\n")
+        print("\n-----join map-----")
         print(join_map)
 
     comparison_map = translator.extract_comparison_map(
         body_comparisons, variable_arg_to_atom_map
     )
     if STATIC_DEBUG:
-        print("\n-----comparison map-----\n")
+        print("\n-----comparison map-----")
         print(comparison_map)
 
     constant_constraint_map = translator.extract_constant_constraint_map(body_atoms)
     if STATIC_DEBUG:
-        print("\n-----constant-constraint map-----\n")
+        print("\n-----constant-constraint map-----")
         print(constant_constraint_map)
 
     negation_maps = translator.extract_negation_map(
         negation_atoms, variable_arg_to_atom_map
     )
     if STATIC_DEBUG:
-        print("\n-----negation maps-----\n")
+        print("\n-----negation maps-----")
         print(negation_maps)
 
     body_atom_aliases = translator.build_atom_aliases(body_atoms)
     if STATIC_DEBUG:
-        print("\n-----body-atom aliases-----\n")
+        print("\n-----body-atom aliases-----")
         print(body_atom_aliases)
 
     negation_atom_aliases = translator.build_negation_atom_aliases(negation_atoms)
     if STATIC_DEBUG:
-        print("\n-----negation-atom aliases-----\n")
+        print("\n-----negation-atom aliases-----")
         print(negation_atom_aliases)
 
     if recursive:
@@ -602,53 +637,53 @@ def gen_rule_eval_sql_str(
             body_atoms, eval_idb_rule_maps, iter_num
         )
         if STATIC_DEBUG:
-            print("\n-----atom-aliases map-----\n")
+            print("\n-----atom-aliases map-----")
             print(atom_aliases_map)
 
         atom_eval_name_groups = translator.build_recursive_atom_alias_groups(
-            body_atoms, atom_aliases_map
+            atom_aliases_map
         )
         if STATIC_DEBUG:
-            print("\n-----atom-eval-name groups-----\n")
+            print("\n-----atom-eval-name groups-----")
             print(atom_eval_name_groups)
 
     select_str = generate_select(
         head_name, body_atoms, select_maps, relation_def_map, body_atom_aliases
     )
     if STATIC_DEBUG:
-        print("\n-----select string-----\n")
+        print("\n-----select string-----")
         print(select_str)
 
     if recursive:
         from_strs = generate_from_recursive(atom_eval_name_groups, body_atom_aliases)
         if STATIC_DEBUG:
-            print("\n-----from strings-----\n")
+            print("\n-----from strings-----")
             print(from_strs)
     else:
         from_str = generate_from(body_atoms, body_atom_aliases)
         if STATIC_DEBUG:
-            print("\n-----from string-----\n")
+            print("\n-----from string-----")
             print(from_str)
 
     join_str = generate_join_str(
         body_atoms, join_map, relation_def_map, body_atom_aliases
     )
     if STATIC_DEBUG:
-        print("\n-----join string-----\n")
+        print("\n-----join string-----")
         print(join_str)
 
     comparison_str = generate_comparison_str(
         body_atoms, comparison_map, relation_def_map, body_atom_aliases
     )
     if STATIC_DEBUG:
-        print("\n-----comparison string-----\n")
+        print("\n-----comparison string-----")
         print(comparison_str)
 
     constant_constraint_str = generate_constant_constraint_str(
         body_atoms, constant_constraint_map, relation_def_map, body_atom_aliases
     )
     if STATIC_DEBUG:
-        print("\n------constant-constraint string-----\n")
+        print("\n------constant-constraint string-----")
         print(constant_constraint_str)
 
     negation_str = generate_negation_str(
@@ -660,7 +695,7 @@ def gen_rule_eval_sql_str(
         negation_atom_aliases,
     )
     if STATIC_DEBUG:
-        print("\n-----negation string-----\n")
+        print("\n-----negation string-----")
         print(negation_str)
 
     predicate_strs = list()
@@ -700,7 +735,7 @@ def gen_rule_eval_sql_str(
         if STATIC_DEBUG:
             print("\n-----recursive rule-----")
             print(DatalogProgram.iterate_datalog_rule(datalog_rule))
-            print("\n-----recursive-rule evaluation strings-----\n")
+            print("\n-----recursive-rule evaluation strings-----")
             for eval_str in recursive_rule_eval_strs:
                 print("{}\n".format(eval_str))
         return recursive_rule_eval_strs, aggregation_map
@@ -709,8 +744,8 @@ def gen_rule_eval_sql_str(
             select_str, from_str, where_predicate_str, group_by_str
         )
         if STATIC_DEBUG:
-            print("\n-----non-recursive rule-----\n")
+            print("\n-----non-recursive rule-----")
             print(DatalogProgram.iterate_datalog_rule(datalog_rule))
-            print("\n-----non-recursive-rule evaluation string-----\n")
+            print("\n-----non-recursive-rule evaluation string-----")
             print(non_recursive_eval_str)
         return non_recursive_eval_str
