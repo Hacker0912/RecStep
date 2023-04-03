@@ -316,7 +316,7 @@ class DatalogParser ( Parser ):
             self.key_attribute = key_attribute
 
         def __str__(self):
-    	    return f"{self.name}, {self.type}, {self.key_attribute}"
+    	    return f"{self.object}, {self.type}, {self.key_attribute}"
 
 
 

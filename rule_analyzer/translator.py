@@ -83,12 +83,12 @@ def search_math_expr_arg_mapping_in_body_atoms(variable_arg_to_atom_map, math_ex
     # empty dict means the arg of the math expression is a constant
     lhs_variable_arg_mapping = dict()
     rhs_variable_arg_mapping = dict()
-    if math_expr["lhs"] == "variable":
+    if math_expr["lhs"]["type"] == "variable":
         lhs_variable_arg_name = math_expr["lhs"]["value"]
         lhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
             variable_arg_to_atom_map, lhs_variable_arg_name
         )
-    if math_expr["rhs"] == "variable":
+    if math_expr["rhs"]["type"] == "variable":
         rhs_variable_arg_name = math_expr["rhs"]["value"]
         rhs_variable_arg_mapping = search_argument_mapping_in_body_atoms(
             variable_arg_to_atom_map, rhs_variable_arg_name
@@ -142,12 +142,12 @@ def extract_selection_map(variable_arg_to_atom_map, head):
                 head_arg_to_body_atom_arg_map[arg_index] = search_argument_mapping_in_body_atoms(
                     variable_arg_to_atom_map, head_agg_arg["content"]
                 )
-            elif head_arg_name["type"] == "math_expr":
+            elif head_agg_arg["type"] == "math_expr":
                 math_expr = head_agg_arg["content"]
                 head_arg_to_body_atom_arg_map[
                     arg_index
                 ] = search_math_expr_arg_mapping_in_body_atoms(
-                    math_expr, variable_arg_to_atom_map
+                    variable_arg_to_atom_map, math_expr
                 )
 
         elif head_arg.type == "math_expr":
@@ -156,7 +156,7 @@ def extract_selection_map(variable_arg_to_atom_map, head):
             head_arg_to_body_atom_arg_map[
                 arg_index
             ] = search_math_expr_arg_mapping_in_body_atoms(
-                math_expr, variable_arg_to_atom_map
+                variable_arg_to_atom_map, math_expr
             )
 
         elif head_arg.type == "constant":

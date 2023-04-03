@@ -80,12 +80,12 @@ def generate_select(
                     body_atom_aliases[lhs_body_atom_index],
                     relation_def_map[body_atoms[lhs_body_atom_index]["name"]][
                         "relation"
-                    ]["attributes"][lhs_body_atom_arg_index].name,
+                    ]["attributes"][lhs_body_atom_arg_index].object,
                     math_op,
                     body_atom_aliases[rhs_body_atom_index],
                     relation_def_map[body_atoms[rhs_body_atom_index]["name"]][
                         "relation"
-                    ]["attributes"][rhs_body_atom_arg_index].name,
+                    ]["attributes"][rhs_body_atom_arg_index].object,
                 )
 
             select_item_str = "{}({})".format(
@@ -113,12 +113,12 @@ def generate_select(
                 body_atom_aliases[lhs_body_atom_index],
                 relation_def_map[body_atoms[lhs_body_atom_index]["name"]]["relation"][
                     "attributes"
-                ][lhs_body_atom_arg_index].name,
+                ][lhs_body_atom_arg_index].object,
                 math_op,
                 body_atom_aliases[rhs_body_atom_index],
                 relation_def_map[body_atoms[rhs_body_atom_index]["name"]]["relation"][
                     "attributes"
-                ][rhs_body_atom_arg_index].name,
+                ][rhs_body_atom_arg_index].object,
             )
 
         if head_arg_type_map[arg_index] == "constant":
