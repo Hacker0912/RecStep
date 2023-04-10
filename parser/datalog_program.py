@@ -114,9 +114,9 @@ class DatalogProgram(object):
             if arg.object["agg_arg"]["type"] == "math_expr":
                 arg_str = "{}({}{}{})".format(
                     arg.object["agg_op"],
-                    arg.object["agg_arg"]["content"]["lhs"],
+                    arg.object["agg_arg"]["content"]["lhs"]["value"],
                     arg.object["agg_arg"]["content"]["op"],
-                    arg.object["agg_arg"]["content"]["rhs"],
+                    arg.object["agg_arg"]["content"]["rhs"]["value"],
                 )
         elif arg.type == "math_expr":
             arg_str = "{}{}{}".format(

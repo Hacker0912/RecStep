@@ -27,7 +27,7 @@
                 "preload": false
         },
 	"Output": {
-		"write_to_csv": false,
+		"write_to_csv": true,
                 "retain_final_output_only": false,
                 "final_output_relations": [] 
 	}, 

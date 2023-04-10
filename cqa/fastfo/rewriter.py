@@ -1,4 +1,4 @@
-from typing import OrderedDict
+from collections import OrderedDict
 from cqa.attack_graph import *
 from parser.datalog_program import DatalogProgram
 from parser.datalog_parser import DatalogParser
@@ -78,7 +78,7 @@ def deduplicate_arguments(argument_list):
 
 def generate_argument_set(r_i, q_i, relation_attributes_map):
     """$q_{i}(\vec{x}) :- r_{i}(\vec{u}, \vec{w}), ... r_{n}(\vec{u_n}, \vec{w_n})$
-        $r_{i}(\vec{u}, \vec{w})$
+        $r_{i}(\vec{u}, \vec{w})$:
         $\vec{u} = u_1, ... ,u_k$
         $\vec{w} = w_1, ... ,w_l$
         $\vec{v} = v_{1}, ... v_{l}$

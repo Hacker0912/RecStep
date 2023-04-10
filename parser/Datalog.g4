@@ -207,12 +207,13 @@ number returns [r]
 data_type returns [r]
     : dt1 = TOKEN_INT {$r = $dt1.text}
     | dt2 = TOKEN_LONG {$r = $dt2.text}	
-    | dt3 = TOKEN_FLOAT {$r = $dt3.text}
-    | dt4 = TOKEN_DOUBLE {$r = $dt4.text}
-    | dt5 = TOKEN_VARCHAR {$r = $dt5.text}
-    | dt6 = TOKEN_CHAR {$r = $dt6.text}
-    | dt7 = TOKEN_DATE {$r = $dt7.text}
-    | dt8 = TOKEN_DATETIME {$r = $dt8.text}
+    | dt3 = TOKEN_LONG_NULL {$r = $dt3.text}
+    | dt4 = TOKEN_FLOAT {$r = $dt4.text}
+    | dt5 = TOKEN_DOUBLE {$r = $dt5.text}
+    | dt6 = TOKEN_VARCHAR {$r = $dt6.text}
+    | dt7 = TOKEN_CHAR {$r = $dt7.text}
+    | dt8 = TOKEN_DATE {$r = $dt8.text}
+    | dt9 = TOKEN_DATETIME {$r = $dt9.text}
     ;
 
 /** Declaration **/
@@ -227,6 +228,7 @@ TOKEN_STRING: '\''([A-Za-z] | [0-9])+'\'';
 /** Data Types **/
 TOKEN_INT: ('i'|'I')('n'|'N')('t'|'T');
 TOKEN_LONG: ('l'|'L')('o'|'O')('n'|'N')('g'|'G');
+TOKEN_LONG_NULL: ('l'|'L')('o'|'O')('n'|'N')('g'|'G')(' ')('n'|'N')('u'|'U')('l'|'L')('l'|'L');
 TOKEN_FLOAT: ('f'|'F')('l'|'L')('o'|'O')('a'|'A')('t'|'T');
 TOKEN_DOUBLE: ('d'|'D')('o'|'O')('u'|'U')('b'|'B')('l'|'L')('e'|'E');
 TOKEN_VARCHAR: ('v'|'V')('a'|'A')('r'|'R')('c'|'C')('h'|'H')('a'|'A')('r'|'R');

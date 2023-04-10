@@ -1,0 +1,11 @@
+EDB_DECL:
+arc(x int, y int)
+
+IDB_DECL:
+elems(x int, y int, w int)
+presum_stratified(x int, y long null)
+
+RULE_DECL:
+elems(t, t, w) :- arc(t, w).
+elems(t, j, w) :- arc(t, _), arc(t-1, _), elems(t-1, j, w), 1 <= j, j < t.
+presum_stratified(x, SUM(y)) :- elems(x, _, y).
