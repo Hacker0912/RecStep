@@ -164,6 +164,7 @@ class DatalogProgram(object):
                     ),
                 )
             )
+            
         for comparison in body_comparisons:
             body_item_strs.append(
                 "{} {} {}".format(
@@ -172,11 +173,12 @@ class DatalogProgram(object):
                     comparison["rhs"]["value"],
                 )
             )
+
         for negation in body_negations:
             body_item_strs.append(
                 "!{}({})".format(
                     negation["name"],
-                    ", ".join([self.arg_str(arg) for arg in negation["arg_list"]]),
+                    ", ".join([DatalogProgram.arg_str(arg) for arg in negation["arg_list"]]),
                 )
             )
         for assign in body_assignments:
